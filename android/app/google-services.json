@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "892979772545",
+    "project_id": "bigcart-66e11",
+    "storage_bucket": "bigcart-66e11.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:892979772545:android:55b29b48f76d813a412180",
+        "android_client_info": {
+          "package_name": "com.example.big_cart"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCUtipcsWfrEr3Smo149gCOBev9ojGKGrk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
