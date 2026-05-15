@@ -2,7 +2,7 @@ class AppConstants {
   AppConstants._();
 
   // Cloudinary
-  static const String cloudinaryCloudName = 'YOUR_CLOUD_NAME';
+  static const String cloudinaryCloudName = 'dehjub5m1';
   static const String cloudinaryBaseUrl =
       'https://res.cloudinary.com/$cloudinaryCloudName/image/upload';
 
@@ -17,4 +17,5 @@ class AppConstants {
   static const String productsCol = 'products';
   static const String ordersCol   = 'orders';
   static const String cartsCol    = 'carts';
+
 }
