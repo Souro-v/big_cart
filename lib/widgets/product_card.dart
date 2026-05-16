@@ -1,23 +1,28 @@
 import 'package:flutter/material.dart';
+import '../models/product_model.dart';
 import '../utils/app_colors.dart';
 import '../utils/app_text_styles.dart';
 import 'app_image.dart';
 
 class ProductCard extends StatelessWidget {
-  final String name;
-  final String imageUrl;
-  final String price;
-  final String unit;       // e.g. "1 kg", "500 ml"
+  final ProductModel product;
+  final bool isFavorite;
+  final int quantity;
+  final VoidCallback onFavorite;
   final VoidCallback onAdd;
+  final VoidCallback onIncrease;
+  final VoidCallback onDecrease;
   final VoidCallback onTap;
 
   const ProductCard({
     super.key,
-    required this.name,
-    required this.imageUrl,
-    required this.price,
-    required this.unit,
+    required this.product,
+    required this.isFavorite,
+    required this.quantity,
+    required this.onFavorite,
     required this.onAdd,
+    required this.onIncrease,
+    required this.onDecrease,
     required this.onTap,
   });
 
@@ -34,15 +39,70 @@ class ProductCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image
-            Expanded(
-              child: AppImage(
-                url: imageUrl,
-                width: double.infinity,
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(16),
+            // Image + badges
+            Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                  child: AppImage(
+                    url: product.imageUrl,
+                    width: double.infinity,
+                    height: 130,
+                    fit: BoxFit.contain,
+                  ),
                 ),
-              ),
+
+                // NEW badge
+                if (product.isNew)
+                  Positioned(
+                    top: 8, left: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: AppColors.warning,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text('NEW',
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: AppColors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                // Discount badge
+                if (product.discount > 0)
+                  Positioned(
+                    top: 8, left: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: AppColors.error,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text('-${product.discount}%',
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: AppColors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                // Favorite button
+                Positioned(
+                  top: 8, right: 8,
+                  child: GestureDetector(
+                    onTap: onFavorite,
+                    child: Icon(
+                      isFavorite ? Icons.favorite : Icons.favorite_border,
+                      color: isFavorite ? AppColors.error : AppColors.textLight,
+                      size: 20,
+                    ),
+                  ),
+                ),
+              ],
             ),
 
             // Info
@@ -51,25 +111,55 @@ class ProductCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(name,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      fontWeight: FontWeight.w600,
+                  Text('\$${product.price.toStringAsFixed(2)}',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 2),
-                  Text(unit, style: AppTextStyles.bodySmall),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  Text(product.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(product.unit, style: AppTextStyles.bodySmall),
+                  const SizedBox(height: 10),
+
+                  // Add to cart OR quantity control
+                  quantity == 0
+                      ? GestureDetector(
+                    onTap: onAdd,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.shopping_bag_outlined,
+                            size: 16, color: AppColors.textGrey),
+                        const SizedBox(width: 6),
+                        Text('Add to cart',
+                          style: AppTextStyles.bodySmall.copyWith(
+                            color: AppColors.textGrey,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                      : Row(
                     children: [
-                      Text(price,
-                        style: AppTextStyles.bodyLarge.copyWith(
-                          fontWeight: FontWeight.bold,
+                      _QtyButton(icon: Icons.remove, onTap: onDecrease),
+                      Expanded(
+                        child: Center(
+                          child: Text('$quantity',
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ),
-                      _AddButton(onTap: onAdd),
+                      _QtyButton(icon: Icons.add, onTap: onIncrease),
                     ],
                   ),
                 ],
@@ -82,21 +172,22 @@ class ProductCard extends StatelessWidget {
   }
 }
 
-class _AddButton extends StatelessWidget {
+class _QtyButton extends StatelessWidget {
+  final IconData icon;
   final VoidCallback onTap;
-  const _AddButton({required this.onTap});
+  const _QtyButton({required this.icon, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 36, height: 36,
-        decoration: const BoxDecoration(
-          color: AppColors.primary,
-          borderRadius: BorderRadius.all(Radius.circular(10)),
+        width: 28, height: 28,
+        decoration: BoxDecoration(
+          border: Border.all(color: AppColors.border),
+          borderRadius: BorderRadius.circular(8),
         ),
-        child: const Icon(Icons.add, color: AppColors.white, size: 20),
+        child: Icon(icon, size: 16, color: AppColors.textDark),
       ),
     );
   }

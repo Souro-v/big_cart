@@ -7,7 +7,8 @@ class ProductModel {
   final double price;
   final String description;
   final bool inStock;
-
+  final bool isNew;
+  final int discount; // 0 মানে no discount
   ProductModel({
     required this.id,
     required this.name,
@@ -17,6 +18,9 @@ class ProductModel {
     required this.price,
     this.description = '',
     this.inStock = true,
+    this.discount=0,
+    this.isNew=false,
+
   });
 
   factory ProductModel.fromMap(Map<String, dynamic> map, String id) {
@@ -29,6 +33,8 @@ class ProductModel {
       price: (map['price'] ?? 0).toDouble(),
       description: map['description'] ?? '',
       inStock: map['inStock'] ?? true,
+      isNew: map['isNew'] ?? false,
+      discount: map['discount'] ?? 0,
     );
   }
 
@@ -41,6 +47,8 @@ class ProductModel {
       'price': price,
       'description': description,
       'inStock': inStock,
+      'isNew': isNew,
+      'discount': discount,
     };
   }
 }
