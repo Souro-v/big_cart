@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../screens/auth/welcome_screen.dart';
+import '../screens/home/products_screen.dart';
 import '../screens/splash/splash_screen.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/register_screen.dart';
@@ -25,6 +26,7 @@ class AppRoutes {
   static const String forgotPass = '/forgot-password';
   static const String home = '/home';
   static const String productDetail = '/product-detail';
+  static const String products = '/products';
   static const String category = '/category';
   static const String search = '/search';
   static const String cart = '/cart';
@@ -50,6 +52,8 @@ class AppRoutes {
         return _route(const HomeScreen());
       case productDetail:
         return _route(const ProductDetailScreen());
+      case products:
+        return _route(const ProductsScreen());
       case category:
         return _route(const CategoryScreen());
       case search:
