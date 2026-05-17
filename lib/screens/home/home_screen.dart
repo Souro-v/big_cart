@@ -85,10 +85,14 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                         const Spacer(),
-                        const Icon(
-                          Icons.tune,
-                          color: AppColors.textGrey,
-                          size: 20,
+                        GestureDetector(
+                          onTap: () =>
+                              Navigator.pushNamed(context, AppRoutes.filter),
+                          child: const Icon(
+                            Icons.tune,
+                            color: AppColors.textGrey,
+                            size: 20,
+                          ),
                         ),
                       ],
                     ),
@@ -341,17 +345,10 @@ class _BottomNav extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           // Home
-          _NavItem(
-            icon: AppAssets.icHome,
-            isActive: true,
-            onTap: () {},
-          ),
+          _NavItem(icon: AppAssets.icHome, isActive: true, onTap: () {}),
 
           // Wishlist
-          _NavItem(
-            icon: AppAssets.icwish,
-            onTap: () {},
-          ),
+          _NavItem(icon: AppAssets.icwish, onTap: () {}),
 
           // Orders
           _NavItem(
@@ -396,7 +393,8 @@ class _NavItem extends StatelessWidget {
           if (isActive) ...[
             const SizedBox(height: 4),
             Container(
-              width: 6, height: 6,
+              width: 6,
+              height: 6,
               decoration: const BoxDecoration(
                 color: AppColors.primary,
                 shape: BoxShape.circle,

@@ -30,7 +30,7 @@ class CategoryScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.tune, color: AppColors.textDark),
-            onPressed: () {},
+            onPressed: () => Navigator.pushNamed(context, AppRoutes.filter),
           ),
         ],
       ),
