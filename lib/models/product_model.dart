@@ -1,3 +1,5 @@
+import '../utils/constants.dart';
+
 class ProductModel {
   final String id;
   final String name;
@@ -27,7 +29,7 @@ class ProductModel {
     return ProductModel(
       id: id,
       name: map['name'] ?? '',
-      imageUrl: map['imageUrl'] ?? '',
+      imageUrl: AppConstants.imageUrl(map['imageUrl'] ?? ''),
       category: map['category'] ?? '',
       unit: map['unit'] ?? '',
       price: (map['price'] ?? 0).toDouble(),
