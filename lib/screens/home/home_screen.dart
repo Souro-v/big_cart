@@ -341,76 +341,68 @@ class _BottomNav extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           // Home
-          IconButton(
-            icon: Image.asset(AppAssets.icHome, height: 24),
-            onPressed: () {},
-          ),
-
-          // Profile
-          IconButton(
-            icon: Image.asset(AppAssets.icUser, height: 24),
-            onPressed: () => Navigator.pushNamed(context, AppRoutes.profile),
-          ),
-
-          // Cart FAB
-          Consumer<CartProvider>(
-            builder: (_, cart, __) => GestureDetector(
-              onTap: () => Navigator.pushNamed(context, AppRoutes.cart),
-              child: Container(
-                width: 52,
-                height: 52,
-                decoration: const BoxDecoration(
-                  color: AppColors.primary,
-                  shape: BoxShape.circle,
-                ),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    const Icon(
-                      Icons.shopping_bag_outlined,
-                      color: AppColors.white,
-                      size: 24,
-                    ),
-                    if (cart.itemCount > 0)
-                      Positioned(
-                        top: 6,
-                        right: 6,
-                        child: Container(
-                          width: 16,
-                          height: 16,
-                          decoration: const BoxDecoration(
-                            color: AppColors.error,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Center(
-                            child: Text(
-                              '${cart.itemCount}',
-                              style: const TextStyle(
-                                color: AppColors.white,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-
-          // Orders
-          IconButton(
-            icon: Image.asset(AppAssets.icOrder, height: 24),
-            onPressed: () => Navigator.pushNamed(context, AppRoutes.myOrders),
+          _NavItem(
+            icon: AppAssets.icHome,
+            isActive: true,
+            onTap: () {},
           ),
 
           // Wishlist
-          IconButton(
-            icon: Image.asset(AppAssets.icwish, height: 24),
-            onPressed: () {},
+          _NavItem(
+            icon: AppAssets.icwish,
+            onTap: () {},
           ),
+
+          // Orders
+          _NavItem(
+            icon: AppAssets.icOrder,
+            onTap: () => Navigator.pushNamed(context, AppRoutes.cart),
+          ),
+
+          // Profile
+          _NavItem(
+            icon: AppAssets.icUser,
+            onTap: () => Navigator.pushNamed(context, AppRoutes.profile),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _NavItem extends StatelessWidget {
+  final String icon;
+  final bool isActive;
+  final VoidCallback onTap;
+
+  const _NavItem({
+    required this.icon,
+    required this.onTap,
+    this.isActive = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(
+            icon,
+            height: 24,
+            color: isActive ? AppColors.primary : AppColors.textLight,
+          ),
+          if (isActive) ...[
+            const SizedBox(height: 4),
+            Container(
+              width: 6, height: 6,
+              decoration: const BoxDecoration(
+                color: AppColors.primary,
+                shape: BoxShape.circle,
+              ),
+            ),
+          ],
         ],
       ),
     );
