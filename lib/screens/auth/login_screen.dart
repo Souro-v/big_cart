@@ -48,151 +48,151 @@ class _LoginScreenState extends State<LoginScreen> {
     final isLoading = context.watch<AuthProvider>().isLoading;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Top image
-            SizedBox(
-              height: 300,
-              child: Stack(
-                children: [
-                  AppImage(
-                    url: AppAssets.authLogin,
-                    width: double.infinity,
-                    height: 300,
-                    fit: BoxFit.cover,
-                  ),
-                  // Back button
-                  SafeArea(
-                    child: IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.arrow_back, color: AppColors.white),
-                    ),
-                  ),
-                  // Welcome title on image
-                  const Positioned(
-                    top: 50,
-                    left: 0, right: 0,
-                    child: Center(
-                      child: Text('Welcome',
-                        style: TextStyle(
-                          color: AppColors.white,
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+      body: Stack(
+        children: [
+          // Full screen background image
+          AppImage(
+            url: AppAssets.authLogin,
+            width: double.infinity,
+            height: double.infinity,
+            fit: BoxFit.cover,
+          ),
+
+          // Back button
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.arrow_back, color: AppColors.white),
               ),
             ),
+          ),
 
-            // Form
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Welcome back!', style: AppTextStyles.heading2),
-                  const SizedBox(height: 4),
-                  Text('Sign in to your account',
-                    style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Email
-                  TextFormField(
-                    controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(
-                      hintText: 'Email Address',
-                      prefixIcon: Icon(Icons.email_outlined, color: AppColors.textGrey),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Password
-                  TextFormField(
-                    controller: _passwordController,
-                    obscureText: _obscurePassword,
-                    decoration: InputDecoration(
-                      hintText: '••••••••',
-                      prefixIcon: const Icon(Icons.lock_outline, color: AppColors.textGrey),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                          color: AppColors.textGrey,
-                        ),
-                        onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+          // Bottom curved white card
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: SingleChildScrollView(
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.fromLTRB(24, 32, 24, 48),
+                decoration: const BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Welcome back!', style: AppTextStyles.heading2),
+                    const SizedBox(height: 4),
+                    Text('Sign in to your account',
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: AppColors.textGrey,
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
+                    const SizedBox(height: 24),
 
-                  // Remember me + Forgot password
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Switch(
-                            value: _rememberMe,
-                            onChanged: (v) => setState(() => _rememberMe = v),
-                            activeThumbColor: AppColors.primary,
-                          ),
-                          Text('Remember me', style: AppTextStyles.bodySmall),
-                        ],
+                    // Email
+                    TextFormField(
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: const InputDecoration(
+                        hintText: 'Email Address',
+                        prefixIcon: Icon(Icons.email_outlined,
+                            color: AppColors.textGrey),
                       ),
-                      GestureDetector(
-                        onTap: () => Navigator.pushNamed(context, AppRoutes.forgotPass),
-                        child: Text('Forgot password',
-                          style: AppTextStyles.bodySmall.copyWith(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w600,
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Password
+                    TextFormField(
+                      controller: _passwordController,
+                      obscureText: _obscurePassword,
+                      decoration: InputDecoration(
+                        hintText: '••••••••',
+                        prefixIcon: const Icon(Icons.lock_outline,
+                            color: AppColors.textGrey),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility_off_outlined
+                                : Icons.visibility_outlined,
+                            color: AppColors.textGrey,
                           ),
+                          onPressed: () => setState(
+                                  () => _obscurePassword = !_obscurePassword),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 12),
 
-                  const SizedBox(height: 24),
-
-                  // Login button
-                  CustomButton(
-                    text: 'Login',
-                    onPressed: _login,
-                    isLoading: isLoading,
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Sign up
-                  Center(
-                    child: GestureDetector(
-                      onTap: () => Navigator.pushNamed(context, AppRoutes.register),
-                      child: RichText(
-                        text: TextSpan(
-                          text: "Don't have an account? ",
-                          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey),
+                    // Remember me + Forgot password
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
                           children: [
-                            TextSpan(
-                              text: 'Sign up',
-                              style: AppTextStyles.bodyMedium.copyWith(
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            Switch(
+                              value: _rememberMe,
+                              onChanged: (v) =>
+                                  setState(() => _rememberMe = v),
+                              activeThumbColor: AppColors.primary,
                             ),
+                            Text('Remember me',
+                                style: AppTextStyles.bodySmall),
                           ],
                         ),
+                        GestureDetector(
+                          onTap: () => Navigator.pushNamed(
+                              context, AppRoutes.forgotPass),
+                          child: Text('Forgot password',
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    CustomButton(
+                      text: 'Login',
+                      onPressed: _login,
+                      isLoading: isLoading,
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    Center(
+                      child: GestureDetector(
+                        onTap: () =>
+                            Navigator.pushNamed(context, AppRoutes.register),
+                        child: RichText(
+                          text: TextSpan(
+                            text: "Don't have an account? ",
+                            style: AppTextStyles.bodyMedium.copyWith(
+                                color: AppColors.textGrey),
+                            children: [
+                              TextSpan(
+                                text: 'Sign up',
+                                style: AppTextStyles.bodyMedium.copyWith(
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
