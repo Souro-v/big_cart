@@ -20,17 +20,15 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentBanner = 0;
   final PageController _bannerController = PageController();
 
-  final List<String> _banners = [
-    AppAssets.banner1,
-  ];
+  final List<String> _banners = [AppAssets.banner1];
 
   final List<Map<String, String>> _categories = [
     {'name': 'Vegetables', 'image': AppAssets.catVegetables},
-    {'name': 'Fruits',     'image': AppAssets.catFruits},
-    {'name': 'Beverages',  'image': AppAssets.catBeverages},
-    {'name': 'Grocery',    'image': AppAssets.catGrocery},
+    {'name': 'Fruits', 'image': AppAssets.catFruits},
+    {'name': 'Beverages', 'image': AppAssets.catBeverages},
+    {'name': 'Grocery', 'image': AppAssets.catGrocery},
     {'name': 'Edible oil', 'image': AppAssets.catEdibleOil},
-    {'name': 'Household',  'image': AppAssets.catHousehold},
+    {'name': 'Household', 'image': AppAssets.catHousehold},
   ];
 
   final Set<String> _favorites = {};
@@ -38,9 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() =>
-        context.read<ProductProvider>().loadProducts()
-    );
+    Future.microtask(() => context.read<ProductProvider>().loadProducts());
   }
 
   @override
@@ -51,9 +47,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final products  = context.watch<ProductProvider>().products;
+    final products = context.watch<ProductProvider>().products;
     final isLoading = context.watch<ProductProvider>().isLoading;
-    final cart      = context.watch<CartProvider>();
+    final cart = context.watch<CartProvider>();
 
     return Scaffold(
       backgroundColor: AppColors.surface,
@@ -69,7 +65,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: GestureDetector(
                   onTap: () => Navigator.pushNamed(context, AppRoutes.search),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.white,
                       borderRadius: BorderRadius.circular(12),
@@ -79,13 +78,18 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         const Icon(Icons.search, color: AppColors.textGrey),
                         const SizedBox(width: 10),
-                        Text('Search keywords..',
+                        Text(
+                          'Search keywords..',
                           style: AppTextStyles.bodyMedium.copyWith(
                             color: AppColors.textLight,
                           ),
                         ),
                         const Spacer(),
-                        const Icon(Icons.tune, color: AppColors.textGrey, size: 20),
+                        const Icon(
+                          Icons.tune,
+                          color: AppColors.textGrey,
+                          size: 20,
+                        ),
                       ],
                     ),
                   ),
@@ -115,7 +119,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               // Overlay text
                               Positioned(
-                                left: 16, bottom: 32,
+                                left: 16,
+                                bottom: 32,
                                 child: Text(
                                   '20% off on your\nfirst purchase',
                                   style: AppTextStyles.heading3.copyWith(
@@ -131,12 +136,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     // Dots
                     Positioned(
-                      bottom: 10, left: 0, right: 0,
+                      bottom: 10,
+                      left: 0,
+                      right: 0,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: List.generate(
                           _banners.length,
-                              (i) => AnimatedContainer(
+                          (i) => AnimatedContainer(
                             duration: const Duration(milliseconds: 300),
                             margin: const EdgeInsets.symmetric(horizontal: 3),
                             width: _currentBanner == i ? 16 : 6,
@@ -165,9 +172,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Text('Categories', style: AppTextStyles.heading3),
                     GestureDetector(
-                      onTap: () => Navigator.pushNamed(context, AppRoutes.category),
-                      child: const Icon(Icons.arrow_forward_ios,
-                          size: 16, color: AppColors.textGrey),
+                      onTap: () =>
+                          Navigator.pushNamed(context, AppRoutes.category),
+                      child: const Icon(
+                        Icons.arrow_forward_ios,
+                        size: 16,
+                        color: AppColors.textGrey,
+                      ),
                     ),
                   ],
                 ),
@@ -184,7 +195,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     name: _categories[i]['name']!,
                     imageUrl: _categories[i]['image']!,
                     onTap: () => Navigator.pushNamed(
-                      context, AppRoutes.category,
+                      context,
+                      AppRoutes.category,
                       arguments: _categories[i]['name'],
                     ),
                   ),
@@ -200,34 +212,40 @@ class _HomeScreenState extends State<HomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('Featured products', style: AppTextStyles.heading3),
-                    const Icon(Icons.arrow_forward_ios,
-                        size: 16, color: AppColors.textGrey),
+                    const Icon(
+                      Icons.arrow_forward_ios,
+                      size: 16,
+                      color: AppColors.textGrey,
+                    ),
                   ],
                 ),
               ),
               const SizedBox(height: 12),
 
               if (isLoading)
-                const Center(child: CircularProgressIndicator(color: AppColors.primary))
+                const Center(
+                  child: CircularProgressIndicator(color: AppColors.primary),
+                )
               else
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 0.72,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                    ),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 0.72,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                        ),
                     itemCount: products.length,
                     itemBuilder: (_, i) {
                       final p = products[i];
                       final qty = cart.isInCart(p.id)
                           ? cart.items
-                          .firstWhere((item) => item.product.id == p.id)
-                          .quantity
+                                .firstWhere((item) => item.product.id == p.id)
+                                .quantity
                           : 0;
                       return ProductCard(
                         product: p,
@@ -242,7 +260,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         onIncrease: () => cart.increaseQty(p.id),
                         onDecrease: () => cart.decreaseQty(p.id),
                         onTap: () => Navigator.pushNamed(
-                          context, AppRoutes.productDetail,
+                          context,
+                          AppRoutes.productDetail,
                           arguments: p,
                         ),
                       );
@@ -263,7 +282,12 @@ class _CategoryItem extends StatelessWidget {
   final String name;
   final String imageUrl;
   final VoidCallback onTap;
-  const _CategoryItem({required this.name, required this.imageUrl, required this.onTap});
+
+  const _CategoryItem({
+    required this.name,
+    required this.imageUrl,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -274,7 +298,8 @@ class _CategoryItem extends StatelessWidget {
         child: Column(
           children: [
             Container(
-              width: 56, height: 56,
+              width: 56,
+              height: 56,
               decoration: BoxDecoration(
                 color: AppColors.white,
                 shape: BoxShape.circle,
@@ -283,13 +308,15 @@ class _CategoryItem extends StatelessWidget {
               child: ClipOval(
                 child: AppImage(
                   url: imageUrl,
-                  width: 56, height: 56,
+                  width: 56,
+                  height: 56,
                   fit: BoxFit.cover,
                 ),
               ),
             ),
             const SizedBox(height: 6),
-            Text(name,
+            Text(
+              name,
               style: AppTextStyles.bodySmall.copyWith(
                 color: AppColors.textDark,
               ),
@@ -313,20 +340,25 @@ class _BottomNav extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
+          // Home
           IconButton(
-            icon: const Icon(Icons.home_outlined, color: AppColors.primary),
+            icon: Image.asset(AppAssets.icHome, height: 24),
             onPressed: () {},
           ),
+
+          // Profile
           IconButton(
-            icon: const Icon(Icons.person_outline, color: AppColors.textLight),
+            icon: Image.asset(AppAssets.icUser, height: 24),
             onPressed: () => Navigator.pushNamed(context, AppRoutes.profile),
           ),
+
           // Cart FAB
           Consumer<CartProvider>(
             builder: (_, cart, __) => GestureDetector(
               onTap: () => Navigator.pushNamed(context, AppRoutes.cart),
               child: Container(
-                width: 52, height: 52,
+                width: 52,
+                height: 52,
                 decoration: const BoxDecoration(
                   color: AppColors.primary,
                   shape: BoxShape.circle,
@@ -334,19 +366,25 @@ class _BottomNav extends StatelessWidget {
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    const Icon(Icons.shopping_bag_outlined,
-                        color: AppColors.white, size: 24),
+                    const Icon(
+                      Icons.shopping_bag_outlined,
+                      color: AppColors.white,
+                      size: 24,
+                    ),
                     if (cart.itemCount > 0)
                       Positioned(
-                        top: 6, right: 6,
+                        top: 6,
+                        right: 6,
                         child: Container(
-                          width: 16, height: 16,
+                          width: 16,
+                          height: 16,
                           decoration: const BoxDecoration(
                             color: AppColors.error,
                             shape: BoxShape.circle,
                           ),
                           child: Center(
-                            child: Text('${cart.itemCount}',
+                            child: Text(
+                              '${cart.itemCount}',
                               style: const TextStyle(
                                 color: AppColors.white,
                                 fontSize: 10,
@@ -361,8 +399,16 @@ class _BottomNav extends StatelessWidget {
               ),
             ),
           ),
+
+          // Orders
           IconButton(
-            icon: const Icon(Icons.favorite_border, color: AppColors.textLight),
+            icon: Image.asset(AppAssets.icOrder, height: 24),
+            onPressed: () => Navigator.pushNamed(context, AppRoutes.myOrders),
+          ),
+
+          // Wishlist
+          IconButton(
+            icon: Image.asset(AppAssets.icwish, height: 24),
             onPressed: () {},
           ),
         ],

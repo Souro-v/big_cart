@@ -5,7 +5,7 @@ import '../utils/constants.dart';
 class ProductService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  // সব products
+  //  products
   Future<List<ProductModel>> getAllProducts() async {
     final snap = await _db
         .collection(AppConstants.productsCol)
@@ -17,7 +17,7 @@ class ProductService {
         .toList();
   }
 
-  // Category অনুযায়ী
+  // Category
   Future<List<ProductModel>> getByCategory(String category) async {
     final snap = await _db
         .collection(AppConstants.productsCol)
