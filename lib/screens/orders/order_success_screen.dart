@@ -14,8 +14,8 @@ class OrderSuccessScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: AppColors.surface,
         leading: IconButton(
-          onPressed: () => Navigator.pushReplacementNamed(
-              context, AppRoutes.home),
+          onPressed: () =>
+              Navigator.pushReplacementNamed(context, AppRoutes.home),
           icon: const Icon(Icons.arrow_back, color: AppColors.textDark),
         ),
         title: Text('Order Success', style: AppTextStyles.heading3),
@@ -27,7 +27,8 @@ class OrderSuccessScreen extends StatelessWidget {
           children: [
             // Bag icon
             Container(
-              width: 120, height: 120,
+              width: 120,
+              height: 120,
               decoration: BoxDecoration(
                 color: AppColors.surface,
                 shape: BoxShape.circle,
@@ -63,8 +64,8 @@ class OrderSuccessScreen extends StatelessWidget {
 
             CustomButton(
               text: 'Track order',
-              onPressed: () => Navigator.pushNamed(
-                  context, AppRoutes.myOrders),
+              onPressed: () =>
+                  Navigator.pushNamed(context, AppRoutes.trackOrder),
             ),
           ],
         ),

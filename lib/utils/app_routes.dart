@@ -6,6 +6,7 @@ import '../screens/cart/shipping_method_screen.dart';
 import '../screens/home/filter_screen.dart';
 import '../screens/home/products_screen.dart';
 import '../screens/orders/order_success_screen.dart';
+import '../screens/orders/track_order_screen.dart';
 import '../screens/review/write_review_screen.dart';
 import '../screens/splash/splash_screen.dart';
 import '../screens/auth/login_screen.dart';
@@ -42,6 +43,7 @@ class AppRoutes {
   static const String shippingMethod = '/shipping-method';
   static const String shippingAddress = '/shipping-address';
   static const String checkout = '/checkout';
+  static const String trackOrder = '/track-order';
   static const String myOrders = '/my-orders';
   static const String orderDetail = '/order-detail';
   static const String orderSuccess = '/order-success';
@@ -90,6 +92,8 @@ class AppRoutes {
         return _route(const OrderDetailScreen());
       case orderSuccess:
         return _route(const OrderSuccessScreen());
+      case trackOrder:
+        return _route(const TrackOrderScreen());
       case profile:
         return _route(const ProfileScreen());
       case editProfile:
