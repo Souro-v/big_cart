@@ -3,6 +3,7 @@ import '../screens/auth/otp_screen.dart';
 import '../screens/auth/welcome_screen.dart';
 import '../screens/home/filter_screen.dart';
 import '../screens/home/products_screen.dart';
+import '../screens/orders/order_success_screen.dart';
 import '../screens/review/write_review_screen.dart';
 import '../screens/splash/splash_screen.dart';
 import '../screens/auth/login_screen.dart';
@@ -22,6 +23,7 @@ import '../screens/wishlist/favorites_screen.dart';
 
 class AppRoutes {
   AppRoutes._();
+
   static const String splash = '/';
   static const String welcome = '/welcome';
   static const String login = '/login';
@@ -38,6 +40,7 @@ class AppRoutes {
   static const String checkout = '/checkout';
   static const String myOrders = '/my-orders';
   static const String orderDetail = '/order-detail';
+  static const String orderSuccess = '/order-success';
   static const String profile = '/profile';
   static const String editProfile = '/edit-profile';
   static const String favorites = '/favorites';
@@ -51,8 +54,9 @@ class AppRoutes {
         return _route(const WelcomeScreen());
       case login:
         return _route(const LoginScreen());
-      case otp: return _route(const OtpScreen());
-        case register:
+      case otp:
+        return _route(const OtpScreen());
+      case register:
         return _route(const RegisterScreen());
       case forgotPass:
         return _route(const ForgotPasswordScreen());
@@ -76,14 +80,17 @@ class AppRoutes {
         return _route(const MyOrdersScreen());
       case orderDetail:
         return _route(const OrderDetailScreen());
+      case orderSuccess:
+        return _route(const OrderSuccessScreen());
       case profile:
         return _route(const ProfileScreen());
       case editProfile:
-
         return _route(const EditProfileScreen());
-      case favorites:    return _route(const FavoritesScreen());
-      case writeReview:  return _route(const WriteReviewScreen());
-        default:
+      case favorites:
+        return _route(const FavoritesScreen());
+      case writeReview:
+        return _route(const WriteReviewScreen());
+      default:
         return _route(const LoginScreen());
     }
   }

@@ -1,3 +1,4 @@
+import 'package:big_cart/utils/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/product_model.dart';
@@ -142,6 +143,19 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               style: AppTextStyles.bodySmall,
                             ),
                           ],
+                        ),
+                        GestureDetector(
+                          onTap: () => Navigator.pushNamed(
+                            context,
+                            AppRoutes.writeReview,
+                          ),
+                          child: Text(
+                            'Write Review',
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
 
                         const SizedBox(height: 16),
