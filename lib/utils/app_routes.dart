@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../screens/auth/otp_screen.dart';
 import '../screens/auth/welcome_screen.dart';
 import '../screens/home/filter_screen.dart';
 import '../screens/home/products_screen.dart';
@@ -24,6 +25,7 @@ class AppRoutes {
   static const String welcome = '/welcome';
   static const String login = '/login';
   static const String register = '/register';
+  static const String otp = '/otp';
   static const String forgotPass = '/forgot-password';
   static const String home = '/home';
   static const String filter = '/filter';
@@ -46,7 +48,8 @@ class AppRoutes {
         return _route(const WelcomeScreen());
       case login:
         return _route(const LoginScreen());
-      case register:
+      case otp: return _route(const OtpScreen());
+        case register:
         return _route(const RegisterScreen());
       case forgotPass:
         return _route(const ForgotPasswordScreen());
