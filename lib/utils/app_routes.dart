@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../screens/auth/otp_screen.dart';
 import '../screens/auth/welcome_screen.dart';
+import '../screens/cart/shipping_address_screen.dart';
+import '../screens/cart/shipping_method_screen.dart';
 import '../screens/home/filter_screen.dart';
 import '../screens/home/products_screen.dart';
 import '../screens/orders/order_success_screen.dart';
@@ -37,6 +39,8 @@ class AppRoutes {
   static const String category = '/category';
   static const String search = '/search';
   static const String cart = '/cart';
+  static const String shippingMethod = '/shipping-method';
+  static const String shippingAddress = '/shipping-address';
   static const String checkout = '/checkout';
   static const String myOrders = '/my-orders';
   static const String orderDetail = '/order-detail';
@@ -76,6 +80,10 @@ class AppRoutes {
         return _route(const CartScreen());
       case checkout:
         return _route(const CheckoutScreen());
+      case shippingMethod:
+        return _route(const ShippingMethodScreen());
+      case shippingAddress:
+        return _route(const ShippingAddressScreen());
       case myOrders:
         return _route(const MyOrdersScreen());
       case orderDetail:

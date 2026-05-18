@@ -105,7 +105,7 @@ class CartScreen extends StatelessWidget {
                 CustomButton(
                   text: 'Checkout',
                   onPressed: () => Navigator.pushNamed(
-                      context, AppRoutes.checkout),
+                      context, AppRoutes.shippingMethod),
                 ),
               ],
             ),
