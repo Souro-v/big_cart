@@ -31,14 +31,13 @@ class _HomeScreenState extends State<HomeScreen> {
     {'name': 'Household', 'image': AppAssets.catHousehold},
   ];
 
-  final Set<String> _favorites = {};
-
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => context.read<ProductProvider>().loadProducts());
+    Future.microtask(() {
+      if (mounted) context.read<ProductProvider>().loadProducts();
+    });
   }
-
   @override
   void dispose() {
     _bannerController.dispose();
@@ -253,13 +252,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           : 0;
                       return ProductCard(
                         product: p,
-                        isFavorite: _favorites.contains(p.id),
                         quantity: qty,
-                        onFavorite: () => setState(() {
-                          _favorites.contains(p.id)
-                              ? _favorites.remove(p.id)
-                              : _favorites.add(p.id);
-                        }),
                         onAdd: () => cart.addToCart(p),
                         onIncrease: () => cart.increaseQty(p.id),
                         onDecrease: () => cart.decreaseQty(p.id),

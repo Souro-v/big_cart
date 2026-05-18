@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/product_model.dart';
+import '../providers/wishlist_provider.dart';
 import '../utils/app_colors.dart';
 import '../utils/app_text_styles.dart';
 import 'app_image.dart';
 
 class ProductCard extends StatelessWidget {
   final ProductModel product;
-  final bool isFavorite;
   final int quantity;
-  final VoidCallback onFavorite;
   final VoidCallback onAdd;
   final VoidCallback onIncrease;
   final VoidCallback onDecrease;
@@ -17,9 +17,7 @@ class ProductCard extends StatelessWidget {
   const ProductCard({
     super.key,
     required this.product,
-    required this.isFavorite,
     required this.quantity,
-    required this.onFavorite,
     required this.onAdd,
     required this.onIncrease,
     required this.onDecrease,
@@ -28,6 +26,8 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final wishlist = context.watch<WishlistProvider>();
+    final isFav = wishlist.isWishlisted(product.id);
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -94,10 +94,10 @@ class ProductCard extends StatelessWidget {
                 Positioned(
                   top: 8, right: 8,
                   child: GestureDetector(
-                    onTap: onFavorite,
+                    onTap: () => context.read<WishlistProvider>().toggle(product),
                     child: Icon(
-                      isFavorite ? Icons.favorite : Icons.favorite_border,
-                      color: isFavorite ? AppColors.error : AppColors.textLight,
+                      isFav ? Icons.favorite : Icons.favorite_border,
+                      color: isFav ? AppColors.error : AppColors.textLight,
                       size: 20,
                     ),
                   ),

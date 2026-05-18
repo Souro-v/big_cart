@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/product_model.dart';
 import '../../providers/cart_provider.dart';
+import '../../providers/wishlist_provider.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_text_styles.dart';
 import '../../widgets/app_image.dart';
@@ -16,7 +17,6 @@ class ProductDetailScreen extends StatefulWidget {
 
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
   int _quantity = 1;
-  bool _isFavorite = false;
   bool _showFullDescription = false;
 
   void _increase() => setState(() => _quantity++);
@@ -30,6 +30,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     final product = ModalRoute.of(context)!.settings.arguments as ProductModel;
     final cart = context.watch<CartProvider>();
     final inCart = cart.isInCart(product.id);
+    final wishlist = context.watch<WishlistProvider>();
+    final isFav = wishlist.isWishlisted(product.id);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -91,13 +93,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               ),
                             ),
                             GestureDetector(
-                              onTap: () =>
-                                  setState(() => _isFavorite = !_isFavorite),
+                              onTap: () => context
+                                  .read<WishlistProvider>()
+                                  .toggle(product),
                               child: Icon(
-                                _isFavorite
-                                    ? Icons.favorite
-                                    : Icons.favorite_border,
-                                color: _isFavorite
+                                isFav ? Icons.favorite : Icons.favorite_border,
+                                color: isFav
                                     ? AppColors.error
                                     : AppColors.textLight,
                               ),

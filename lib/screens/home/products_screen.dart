@@ -15,14 +15,13 @@ class ProductsScreen extends StatefulWidget {
 }
 
 class _ProductsScreenState extends State<ProductsScreen> {
-  final Set<String> _favorites = {};
 
   @override
   void initState() {
     super.initState();
     final category = ModalRoute.of(context)!.settings.arguments as String?;
     Future.microtask(() {
-      if (category != null) {
+      if (mounted && category != null) {
         context.read<ProductProvider>().selectCategory(category);
       }
     });
@@ -72,13 +71,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                 : 0;
             return ProductCard(
               product: p,
-              isFavorite: _favorites.contains(p.id),
               quantity: qty,
-              onFavorite: () => setState(() {
-                _favorites.contains(p.id)
-                    ? _favorites.remove(p.id)
-                    : _favorites.add(p.id);
-              }),
               onAdd: () => cart.addToCart(p),
               onIncrease: () => cart.increaseQty(p.id),
               onDecrease: () => cart.decreaseQty(p.id),

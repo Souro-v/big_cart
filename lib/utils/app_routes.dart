@@ -3,6 +3,7 @@ import '../screens/auth/otp_screen.dart';
 import '../screens/auth/welcome_screen.dart';
 import '../screens/home/filter_screen.dart';
 import '../screens/home/products_screen.dart';
+import '../screens/review/write_review_screen.dart';
 import '../screens/splash/splash_screen.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/register_screen.dart';
@@ -17,10 +18,10 @@ import '../screens/orders/my_orders_screen.dart';
 import '../screens/orders/order_detail_screen.dart';
 import '../screens/profile/profile_screen.dart';
 import '../screens/profile/edit_profile_screen.dart';
+import '../screens/wishlist/favorites_screen.dart';
 
 class AppRoutes {
   AppRoutes._();
-
   static const String splash = '/';
   static const String welcome = '/welcome';
   static const String login = '/login';
@@ -39,6 +40,8 @@ class AppRoutes {
   static const String orderDetail = '/order-detail';
   static const String profile = '/profile';
   static const String editProfile = '/edit-profile';
+  static const String favorites = '/favorites';
+  static const String writeReview = '/write-review';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -76,8 +79,11 @@ class AppRoutes {
       case profile:
         return _route(const ProfileScreen());
       case editProfile:
+
         return _route(const EditProfileScreen());
-      default:
+      case favorites:    return _route(const FavoritesScreen());
+      case writeReview:  return _route(const WriteReviewScreen());
+        default:
         return _route(const LoginScreen());
     }
   }
