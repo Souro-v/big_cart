@@ -1,3 +1,4 @@
+import 'package:big_cart/screens/profile/my_address_screen.dart';
 import 'package:flutter/material.dart';
 import '../screens/auth/otp_screen.dart';
 import '../screens/auth/welcome_screen.dart';
@@ -48,6 +49,7 @@ class AppRoutes {
   static const String orderDetail = '/order-detail';
   static const String orderSuccess = '/order-success';
   static const String profile = '/profile';
+  static const String myAddress = '/my-address';
   static const String editProfile = '/edit-profile';
   static const String favorites = '/favorites';
   static const String writeReview = '/write-review';
@@ -96,6 +98,8 @@ class AppRoutes {
         return _route(const TrackOrderScreen());
       case profile:
         return _route(const ProfileScreen());
+      case myAddress:
+        return _route(const MyAddressScreen());
       case editProfile:
         return _route(const EditProfileScreen());
       case favorites:
