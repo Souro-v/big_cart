@@ -41,12 +41,12 @@ class ProfileScreen extends StatelessWidget {
       {
         'icon': Icons.receipt_long_outlined,
         'title': 'Transactions',
-        'route': null,
+        'route': AppRoutes.transactions,
       },
       {
         'icon': Icons.notifications_outlined,
         'title': 'Notifications',
-        'route': null,
+        'route': AppRoutes.notification,
       },
     ];
 
@@ -128,10 +128,24 @@ class ProfileScreen extends StatelessWidget {
                       onTap: () async {
                         await context.read<AuthProvider>().logout();
                         if (context.mounted) {
-                          Navigator.pushReplacementNamed(
-                            context,
-                            AppRoutes.welcome,
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'logged-out!',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              duration: Duration(seconds: 2),
+                              backgroundColor: AppColors.black,
+                              behavior: SnackBarBehavior.floating,
+                            ),
                           );
+                          await Future.delayed(const Duration(seconds: 2));
+                          if (context.mounted) {
+                            Navigator.pushReplacementNamed(
+                              context,
+                              AppRoutes.login,
+                            );
+                          }
                         }
                       },
                     ),

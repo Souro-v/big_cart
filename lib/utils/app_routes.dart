@@ -1,4 +1,6 @@
 import 'package:big_cart/screens/profile/my_address_screen.dart';
+import 'package:big_cart/screens/profile/notifications_screen.dart';
+import 'package:big_cart/screens/profile/transactions_screen.dart';
 import 'package:flutter/material.dart';
 import '../screens/auth/otp_screen.dart';
 import '../screens/auth/welcome_screen.dart';
@@ -55,6 +57,8 @@ class AppRoutes {
   static const String editProfile = '/edit-profile';
   static const String myCards = '/my-cards';
   static const String addCard = '/add-card';
+  static const String notification = '/notification';
+  static const String transactions = '/transaction';
   static const String favorites = '/favorites';
   static const String writeReview = '/write-review';
 
@@ -112,6 +116,10 @@ class AppRoutes {
         return _route(const AddCardScreen());
       case favorites:
         return _route(const FavoritesScreen());
+      case notification:
+        return _route(const NotificationsScreen());
+      case transactions:
+        return _route(const TransactionsScreen());
       case writeReview:
         return _route(const WriteReviewScreen());
       default:
