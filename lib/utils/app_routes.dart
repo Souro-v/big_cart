@@ -8,6 +8,8 @@ import '../screens/home/filter_screen.dart';
 import '../screens/home/products_screen.dart';
 import '../screens/orders/order_success_screen.dart';
 import '../screens/orders/track_order_screen.dart';
+import '../screens/profile/add_card_screen.dart';
+import '../screens/profile/my_cards_screen.dart';
 import '../screens/review/write_review_screen.dart';
 import '../screens/splash/splash_screen.dart';
 import '../screens/auth/login_screen.dart';
@@ -51,6 +53,8 @@ class AppRoutes {
   static const String profile = '/profile';
   static const String myAddress = '/my-address';
   static const String editProfile = '/edit-profile';
+  static const String myCards = '/my-cards';
+  static const String addCard = '/add-card';
   static const String favorites = '/favorites';
   static const String writeReview = '/write-review';
 
@@ -102,6 +106,10 @@ class AppRoutes {
         return _route(const MyAddressScreen());
       case editProfile:
         return _route(const EditProfileScreen());
+      case myCards:
+        return _route(const MyCardsScreen());
+      case addCard:
+        return _route(const AddCardScreen());
       case favorites:
         return _route(const FavoritesScreen());
       case writeReview:
