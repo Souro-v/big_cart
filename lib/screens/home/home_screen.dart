@@ -8,6 +8,7 @@ import '../../providers/product_provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../widgets/app_image.dart';
 import '../../widgets/product_card.dart';
+import '../../widgets/shimmer_loading.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -106,137 +107,189 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
 
                 // Banner
-                SizedBox(
-                  height: 180,
-                  child: Stack(
-                    children: [
-                      PageView.builder(
-                        controller: _bannerController,
-                        itemCount: _banners.length,
-                        onPageChanged: (i) =>
-                            setState(() => _currentBanner = i),
-                        itemBuilder: (_, i) => Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
-                            child: Stack(
-                              children: [
-                                AppImage(
-                                  url: _banners[i],
-                                  width: double.infinity,
-                                  height: 180,
-                                  fit: BoxFit.cover,
+                isLoading
+                    ? const BannerShimmer()
+                    : SizedBox(
+                        height: 180,
+                        child: Stack(
+                          children: [
+                            PageView.builder(
+                              controller: _bannerController,
+                              itemCount: _banners.length,
+                              onPageChanged: (i) =>
+                                  setState(() => _currentBanner = i),
+                              itemBuilder: (_, i) => Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
                                 ),
-                                // Overlay text
-                                Positioned(
-                                  left: 16,
-                                  bottom: 32,
-                                  child: Text(
-                                    '20% off on your\nfirst purchase',
-                                    style: AppTextStyles.heading3.copyWith(
-                                      color: AppColors.white,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: Stack(
+                                    children: [
+                                      AppImage(
+                                        url: _banners[i],
+                                        width: double.infinity,
+                                        height: 180,
+                                        fit: BoxFit.cover,
+                                      ),
+                                      // Overlay text
+                                      Positioned(
+                                        left: 16,
+                                        bottom: 32,
+                                        child: Text(
+                                          '20% off on your\nfirst purchase',
+                                          style: AppTextStyles.heading3
+                                              .copyWith(color: AppColors.white),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                            // Dots
+                            Positioned(
+                              bottom: 10,
+                              left: 0,
+                              right: 0,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: List.generate(
+                                  _banners.length,
+                                  (i) => AnimatedContainer(
+                                    duration: const Duration(milliseconds: 300),
+                                    margin: const EdgeInsets.symmetric(
+                                      horizontal: 3,
+                                    ),
+                                    width: _currentBanner == i ? 16 : 6,
+                                    height: 6,
+                                    decoration: BoxDecoration(
+                                      color: _currentBanner == i
+                                          ? AppColors.white
+                                          : AppColors.white.withValues(
+                                              alpha: 0.5,
+                                            ),
+                                      borderRadius: BorderRadius.circular(3),
                                     ),
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      // Dots
-                      Positioned(
-                        bottom: 10,
-                        left: 0,
-                        right: 0,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: List.generate(
-                            _banners.length,
-                            (i) => AnimatedContainer(
-                              duration: const Duration(milliseconds: 300),
-                              margin: const EdgeInsets.symmetric(horizontal: 3),
-                              width: _currentBanner == i ? 16 : 6,
-                              height: 6,
-                              decoration: BoxDecoration(
-                                color: _currentBanner == i
-                                    ? AppColors.white
-                                    : AppColors.white.withValues(alpha: 0.5),
-                                borderRadius: BorderRadius.circular(3),
                               ),
                             ),
-                          ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
 
                 const SizedBox(height: 20),
 
                 // Categories
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Categories', style: AppTextStyles.heading3),
-                      GestureDetector(
-                        onTap: () =>
-                            Navigator.pushNamed(context, AppRoutes.category),
-                        child: const Icon(
+                if (isLoading) ...[
+                  SizedBox(
+                    height: 90,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: 6,
+                      itemBuilder: (_, __) => const CategoryShimmer(),
+                    ),
+                  ),
+                ] else ...[
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Categories', style: AppTextStyles.heading3),
+                        GestureDetector(
+                          onTap: () =>
+                              Navigator.pushNamed(context, AppRoutes.category),
+                          child: const Icon(
+                            Icons.arrow_forward_ios,
+                            size: 16,
+                            color: AppColors.textGrey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  SizedBox(
+                    height: 90,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: _categories.length,
+                      itemBuilder: (_, i) => _CategoryItem(
+                        name: _categories[i]['name']!,
+                        imageUrl: _categories[i]['image']!,
+                        onTap: () => Navigator.pushNamed(
+                          context,
+                          AppRoutes.category,
+                          arguments: _categories[i]['name'],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+
+                const SizedBox(height: 20),
+
+                // Featured products title + grid একসাথে
+                if (isLoading) ...[
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Featured products',
+                          style: AppTextStyles.heading3,
+                        ),
+                        const Icon(
                           Icons.arrow_forward_ios,
                           size: 16,
                           color: AppColors.textGrey,
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 12),
-
-                SizedBox(
-                  height: 90,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: _categories.length,
-                    itemBuilder: (_, i) => _CategoryItem(
-                      name: _categories[i]['name']!,
-                      imageUrl: _categories[i]['image']!,
-                      onTap: () => Navigator.pushNamed(
-                        context,
-                        AppRoutes.category,
-                        arguments: _categories[i]['name'],
-                      ),
+                      ],
                     ),
                   ),
-                ),
-
-                const SizedBox(height: 20),
-
-                // Featured products
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Featured products', style: AppTextStyles.heading3),
-                      const Icon(
-                        Icons.arrow_forward_ios,
-                        size: 16,
-                        color: AppColors.textGrey,
-                      ),
-                    ],
+                  const SizedBox(height: 12),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 0.72,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
+                          ),
+                      itemCount: 6,
+                      itemBuilder: (_, __) => const ProductCardShimmer(),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 12),
-
-                if (isLoading)
-                  const Center(
-                    child: CircularProgressIndicator(color: AppColors.primary),
-                  )
-                else
+                ] else ...[
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Featured products',
+                          style: AppTextStyles.heading3,
+                        ),
+                        const Icon(
+                          Icons.arrow_forward_ios,
+                          size: 16,
+                          color: AppColors.textGrey,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: GridView.builder(
@@ -272,6 +325,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                     ),
                   ),
+                ],
 
                 const SizedBox(height: 20),
               ],
