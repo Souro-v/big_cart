@@ -20,7 +20,21 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   int _quantity = 1;
   bool _showFullDescription = false;
 
-  void _increase() => setState(() => _quantity++);
+  void _increase() {
+    if (_quantity < CartProvider.maxQty) {
+      setState(() => _quantity++);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Maximum 10 items allowed!'),
+          backgroundColor: AppColors.error,
+          duration: Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.only(bottom: 600, left: 16, right: 16),
+        ),
+      );
+    }
+  }
 
   void _decrease() {
     if (_quantity > 1) setState(() => _quantity--);

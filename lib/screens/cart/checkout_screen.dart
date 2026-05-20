@@ -75,7 +75,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             // Progress indicator
             _StepIndicator(),
             const SizedBox(height: 24),
-
+            _PromoCode(),
+            const SizedBox(height: 20),
             // Payment options
             Row(
               children: [
@@ -473,6 +474,94 @@ class _PaymentOption extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _PromoCode extends StatefulWidget {
+  @override
+  State<_PromoCode> createState() => _PromoCodeState();
+}
+
+class _PromoCodeState extends State<_PromoCode> {
+  final _controller = TextEditingController();
+  String? _message;
+  bool _applied = false;
+
+  // Valid promo codes
+  final Map<String, int> _promoCodes = {
+    'SAVE10': 10,
+    'SAVE20': 20,
+    'BIGCART': 15,
+  };
+
+  void _applyCode() {
+    final code = _controller.text.trim().toUpperCase();
+    if (_promoCodes.containsKey(code)) {
+      setState(() {
+        _applied = true;
+        _message = '${_promoCodes[code]}% discount applied! 🎉';
+      });
+    } else {
+      setState(() {
+        _applied = false;
+        _message = 'Invalid promo code!';
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Promo Code', style: AppTextStyles.heading3),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: TextFormField(
+                controller: _controller,
+                textCapitalization: TextCapitalization.characters,
+                decoration: const InputDecoration(
+                  hintText: 'Enter promo code',
+                  prefixIcon: Icon(
+                    Icons.local_offer_outlined,
+                    color: AppColors.textGrey,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            ElevatedButton(
+              onPressed: _applyCode,
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(80, 56),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              child: const Text('Apply'),
+            ),
+          ],
+        ),
+        if (_message != null) ...[
+          const SizedBox(height: 8),
+          Text(
+            _message!,
+            style: AppTextStyles.bodySmall.copyWith(
+              color: _applied ? AppColors.primary : AppColors.error,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ],
     );
   }
 }
