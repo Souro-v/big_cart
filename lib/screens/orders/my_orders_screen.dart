@@ -1,3 +1,4 @@
+import 'package:big_cart/utils/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
@@ -5,6 +6,7 @@ import '../../providers/order_provider.dart';
 import '../../models/order_model.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_text_styles.dart';
+
 class MyOrdersScreen extends StatefulWidget {
   const MyOrdersScreen({super.key});
 
@@ -28,7 +30,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final orders    = context.watch<OrderProvider>().orders;
+    final orders = context.watch<OrderProvider>().orders;
     final isLoading = context.watch<OrderProvider>().isLoading;
 
     return Scaffold(
@@ -48,134 +50,163 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       ),
       body: isLoading
           ? const Center(
-          child: CircularProgressIndicator(color: AppColors.primary))
+              child: CircularProgressIndicator(color: AppColors.primary),
+            )
           : orders.isEmpty
           ? Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.shopping_bag_outlined,
-                size: 80, color: AppColors.textLight),
-            const SizedBox(height: 16),
-            Text('No orders yet',
-                style: AppTextStyles.bodyLarge.copyWith(
-                    color: AppColors.textGrey)),
-          ],
-        ),
-      )
-          : ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: orders.length,
-        itemBuilder: (_, i) {
-          final order = orders[i];
-          final isExpanded = _expanded.contains(order.id);
-
-          return Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: Column(
-              children: [
-                // Order header
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 48, height: 48,
-                        decoration: const BoxDecoration(
-                          color: AppColors.primaryLight,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                            Icons.inventory_2_outlined,
-                            color: AppColors.primary),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment:
-                          CrossAxisAlignment.start,
-                          children: [
-                            Text('Order #${order.id.substring(0, 5).toUpperCase()}',
-                              style: AppTextStyles.bodyMedium
-                                  .copyWith(
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              'Placed on ${order.createdAt.day} ${_month(order.createdAt.month)} ${order.createdAt.year}',
-                              style: AppTextStyles.bodySmall,
-                            ),
-                            Row(
-                              children: [
-                                Text(
-                                  'Items: ${order.items.length}  ',
-                                  style: AppTextStyles.bodySmall
-                                      .copyWith(
-                                      fontWeight:
-                                      FontWeight.bold),
-                                ),
-                                Text(
-                                  'Items: \$${order.totalAmount.toStringAsFixed(2)}',
-                                  style: AppTextStyles.bodySmall
-                                      .copyWith(
-                                      fontWeight:
-                                      FontWeight.bold),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () => setState(() {
-                          isExpanded
-                              ? _expanded.remove(order.id)
-                              : _expanded.add(order.id);
-                        }),
-                        child: Container(
-                          width: 28, height: 28,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                                color: AppColors.primary),
-                          ),
-                          child: Icon(
-                            isExpanded
-                                ? Icons.keyboard_arrow_up
-                                : Icons.keyboard_arrow_down,
-                            color: AppColors.primary,
-                            size: 20,
-                          ),
-                        ),
-                      ),
-                    ],
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.shopping_bag_outlined,
+                    size: 80,
+                    color: AppColors.textLight,
                   ),
-                ),
-
-                // Expanded tracking
-                if (isExpanded) ...[
-                  const Divider(height: 1),
-                  Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: _OrderTracking(order: order),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No orders yet',
+                    style: AppTextStyles.bodyLarge.copyWith(
+                      color: AppColors.textGrey,
+                    ),
                   ),
                 ],
-              ],
+              ),
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: orders.length,
+              itemBuilder: (_, i) {
+                final order = orders[i];
+                final isExpanded = _expanded.contains(order.id);
+
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: Column(
+                    children: [
+                      // Order header
+                      GestureDetector(
+                        onTap: () => Navigator.pushNamed(
+                          context,
+                          AppRoutes.orderDetail,
+                          arguments: order,
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 48,
+                                height: 48,
+                                decoration: const BoxDecoration(
+                                  color: AppColors.primaryLight,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.inventory_2_outlined,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Order #${order.id.substring(0, 5).toUpperCase()}',
+                                      style: AppTextStyles.bodyMedium.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Placed on ${order.createdAt.day} ${_month(order.createdAt.month)} ${order.createdAt.year}',
+                                      style: AppTextStyles.bodySmall,
+                                    ),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          'Items: ${order.items.length}  ',
+                                          style: AppTextStyles.bodySmall
+                                              .copyWith(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                        ),
+                                        Text(
+                                          'Items: \$${order.totalAmount.toStringAsFixed(2)}',
+                                          style: AppTextStyles.bodySmall
+                                              .copyWith(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () => setState(() {
+                                  isExpanded
+                                      ? _expanded.remove(order.id)
+                                      : _expanded.add(order.id);
+                                }),
+                                child: Container(
+                                  width: 28,
+                                  height: 28,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                  child: Icon(
+                                    isExpanded
+                                        ? Icons.keyboard_arrow_up
+                                        : Icons.keyboard_arrow_down,
+                                    color: AppColors.primary,
+                                    size: 20,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      // Expanded tracking
+                      if (isExpanded) ...[
+                        const Divider(height: 1),
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: _OrderTracking(order: order),
+                        ),
+                      ],
+                    ],
+                  ),
+                );
+              },
             ),
-          );
-        },
-      ),
     );
   }
 
   String _month(int m) {
     const months = [
-      '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      '',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return months[m];
   }
@@ -183,21 +214,25 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
 
 class _OrderTracking extends StatelessWidget {
   final OrderModel order;
+
   const _OrderTracking({required this.order});
 
   @override
   Widget build(BuildContext context) {
     final steps = [
-      {'label': 'Order placed',     'done': true},
-      {'label': 'Order confirmed',  'done': order.status != OrderStatus.pending},
-      {'label': 'Order shipped',    'done': order.status == OrderStatus.delivered},
+      {'label': 'Order placed', 'done': true},
+      {'label': 'Order confirmed', 'done': order.status != OrderStatus.pending},
+      {'label': 'Order shipped', 'done': order.status == OrderStatus.delivered},
       {'label': 'Out for delivery', 'done': false},
-      {'label': 'Order delivered',  'done': order.status == OrderStatus.delivered},
+      {
+        'label': 'Order delivered',
+        'done': order.status == OrderStatus.delivered,
+      },
     ];
 
     return Column(
       children: steps.asMap().entries.map((entry) {
-        final i    = entry.key;
+        final i = entry.key;
         final step = entry.value;
         final isLast = i == steps.length - 1;
 
@@ -208,7 +243,8 @@ class _OrderTracking extends StatelessWidget {
             Column(
               children: [
                 Container(
-                  width: 12, height: 12,
+                  width: 12,
+                  height: 12,
                   decoration: BoxDecoration(
                     color: step['done'] == true
                         ? AppColors.primary
@@ -218,7 +254,8 @@ class _OrderTracking extends StatelessWidget {
                 ),
                 if (!isLast)
                   Container(
-                    width: 2, height: 28,
+                    width: 2,
+                    height: 28,
                     color: step['done'] == true
                         ? AppColors.primary
                         : AppColors.border,
@@ -234,7 +271,8 @@ class _OrderTracking extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(step['label'] as String,
+                    Text(
+                      step['label'] as String,
                       style: AppTextStyles.bodySmall.copyWith(
                         color: step['done'] == true
                             ? AppColors.textDark
@@ -245,9 +283,7 @@ class _OrderTracking extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      step['done'] == true
-                          ? 'Oct ${19 + i} 2021'
-                          : 'pending',
+                      step['done'] == true ? 'Oct ${19 + i} 2021' : 'pending',
                       style: AppTextStyles.bodySmall,
                     ),
                   ],
