@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_text_styles.dart';
 import '../../utils/app_routes.dart';
@@ -22,33 +24,42 @@ class _SplashScreenState extends State<SplashScreen> {
       imageUrl: AppAssets.splash1,
       isFirst: true,
       title: 'Welcome to',
-      subtitle: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy',
+      subtitle:
+          'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy',
     ),
     _SlideData(
       imageUrl: AppAssets.splash2,
       title: 'Buy Quality\nDairy Products',
-      subtitle: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy',
+      subtitle:
+          'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy',
     ),
     _SlideData(
       imageUrl: AppAssets.splash3,
       title: 'Buy Premium\nQuality Fruits',
-      subtitle: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy',
+      subtitle:
+          'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy',
     ),
     _SlideData(
       imageUrl: AppAssets.splash4,
       title: 'Get Discounts\nOn All Products',
-      subtitle: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy',
+      subtitle:
+          'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy',
     ),
   ];
 
-  void _next() {
+  void _next() async {
     if (_currentPage < _slides.length - 1) {
       _controller.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
     } else {
-      Navigator.pushReplacementNamed(context, AppRoutes.welcome);
+      // Mark onboarding as seen
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('onboarding_seen', true);
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, AppRoutes.welcome);
+      }
     }
   }
 
@@ -56,6 +67,35 @@ class _SplashScreenState extends State<SplashScreen> {
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAuth();
+  }
+
+  Future<void> _checkAuth() async {
+    await Future.delayed(const Duration(seconds: 1));
+    if (!mounted) return;
+
+    // Onboarding seen check
+    final prefs = await SharedPreferences.getInstance();
+    final seen = prefs.getBool('onboarding_seen') ?? false;
+
+    // Firebase auth state check
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (!mounted) return;
+
+    if (user != null) {
+      // Already logged in → home
+      Navigator.pushReplacementNamed(context, AppRoutes.home);
+    } else if (seen) {
+      // Onboarding already seen → login
+      Navigator.pushReplacementNamed(context, AppRoutes.login);
+    }
+    // else → show onboarding normally
   }
 
   @override
@@ -73,7 +113,9 @@ class _SplashScreenState extends State<SplashScreen> {
 
           // Bottom overlay — dots + button
           Positioned(
-            bottom: 0, left: 0, right: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
             child: Container(
               padding: const EdgeInsets.fromLTRB(24, 24, 24, 48),
               decoration: BoxDecoration(
@@ -93,7 +135,7 @@ class _SplashScreenState extends State<SplashScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(
                       _slides.length,
-                          (i) => AnimatedContainer(
+                      (i) => AnimatedContainer(
                         duration: const Duration(milliseconds: 300),
                         margin: const EdgeInsets.symmetric(horizontal: 4),
                         width: _currentPage == i ? 20 : 8,
@@ -111,10 +153,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   const SizedBox(height: 24),
 
                   // Button
-                  CustomButton(
-                    text: 'Get Started',
-                    onPressed: _next,
-                  ),
+                  CustomButton(text: 'Get Started', onPressed: _next),
                 ],
               ),
             ),
@@ -127,6 +166,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
 class _SlidePage extends StatelessWidget {
   final _SlideData data;
+
   const _SlidePage({required this.data});
 
   @override

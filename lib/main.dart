@@ -1,8 +1,10 @@
+import 'dart:async' show StreamSubscription;
 import 'package:big_cart/providers/wishlist_provider.dart';
+import 'package:big_cart/utils/app_colors.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
-
 import 'firebase_options.dart';
 import 'providers/auth_provider.dart';
 import 'providers/product_provider.dart';
@@ -13,9 +15,7 @@ import 'utils/app_routes.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
 }
 
@@ -38,7 +38,60 @@ class MyApp extends StatelessWidget {
         theme: AppTheme.lightTheme,
         initialRoute: AppRoutes.splash,
         onGenerateRoute: AppRoutes.generateRoute,
+        builder: (context, child) => _ConnectivityWrapper(child: child!),
       ),
+    );
+  }
+}
+
+class _ConnectivityWrapper extends StatefulWidget {
+  final Widget child;
+
+  const _ConnectivityWrapper({required this.child});
+
+  @override
+  State<_ConnectivityWrapper> createState() => _ConnectivityWrapperState();
+}
+
+class _ConnectivityWrapperState extends State<_ConnectivityWrapper> {
+  late final StreamSubscription _sub;
+  bool _isOnline = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _sub = Connectivity().onConnectivityChanged.listen((result) {
+      setState(() => _isOnline = !result.contains(ConnectivityResult.none));
+    });
+  }
+
+  @override
+  void dispose() {
+    _sub.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Expanded(child: widget.child),
+        if (!_isOnline)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            color: AppColors.error,
+            child: const Text(
+              'No internet connection',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+      ],
     );
   }
 }
