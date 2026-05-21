@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/product_model.dart';
 import '../../providers/cart_provider.dart';
+import '../../providers/recently_viewed_provider.dart';
 import '../../providers/wishlist_provider.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_text_styles.dart';
@@ -40,6 +41,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     if (_quantity > 1) setState(() => _quantity--);
   }
 
+  bool _added = false;
+
   @override
   Widget build(BuildContext context) {
     final product = ModalRoute.of(context)!.settings.arguments as ProductModel;
@@ -47,6 +50,15 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     final inCart = cart.isInCart(product.id);
     final wishlist = context.watch<WishlistProvider>();
     final isFav = wishlist.isWishlisted(product.id);
+
+    if (!_added) {
+      _added = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          context.read<RecentlyViewedProvider>().add(product);
+        }
+      });
+    }
 
     return Scaffold(
       backgroundColor: AppColors.background,

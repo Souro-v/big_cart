@@ -1,4 +1,5 @@
 import 'dart:async' show StreamSubscription;
+import 'package:big_cart/providers/recently_viewed_provider.dart';
 import 'package:big_cart/providers/wishlist_provider.dart';
 import 'package:big_cart/utils/app_colors.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -31,6 +32,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => CartProvider()),
         ChangeNotifierProvider(create: (_) => OrderProvider()),
         ChangeNotifierProvider(create: (_) => WishlistProvider()),
+        ChangeNotifierProvider(create: (_) => RecentlyViewedProvider()),
       ],
       child: MaterialApp(
         title: 'Big Cart',
