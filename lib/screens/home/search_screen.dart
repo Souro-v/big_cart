@@ -1,3 +1,4 @@
+import 'package:big_cart/widgets/empty_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/product_provider.dart';
@@ -19,13 +20,23 @@ class _SearchScreenState extends State<SearchScreen> {
   bool _isSearching = false;
 
   final List<String> _searchHistory = [
-    'Fresh Grocery', 'Bananas', 'cheetos',
-    'vegetables', 'Fruits', 'discounted items', 'Fresh vegetables',
+    'Fresh Grocery',
+    'Bananas',
+    'cheetos',
+    'vegetables',
+    'Fruits',
+    'discounted items',
+    'Fresh vegetables',
   ];
 
   final List<String> _discoverMore = [
-    'Fresh Grocery', 'Bananas', 'cheetos',
-    'vegetables', 'Fruits', 'discounted items', 'Fresh vegetables',
+    'Fresh Grocery',
+    'Bananas',
+    'cheetos',
+    'vegetables',
+    'Fruits',
+    'discounted items',
+    'Fresh vegetables',
   ];
 
   @override
@@ -46,8 +57,8 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final products  = context.watch<ProductProvider>().searchResults;
-    final cart      = context.watch<CartProvider>();
+    final products = context.watch<ProductProvider>().searchResults;
+    final cart = context.watch<CartProvider>();
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -76,171 +87,185 @@ class _SearchScreenState extends State<SearchScreen> {
       ),
       body: _isSearching
           ? products.isEmpty
-          ? Center(
-        child: Text('No results found',
-          style: AppTextStyles.bodyLarge.copyWith(
-            color: AppColors.textGrey,
-          ),
-        ),
-      )
-          : Padding(
-        padding: const EdgeInsets.all(16),
-        child: GridView.builder(
-          gridDelegate:
-          const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 0.72,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-          ),
-          itemCount: products.length,
-          itemBuilder: (_, i) {
-            final p = products[i];
-            final qty = cart.isInCart(p.id)
-                ? cart.items
-                .firstWhere((item) => item.product.id == p.id)
-                .quantity
-                : 0;
-            return ProductCard(
-              product: p,
-              quantity: qty,
-              onAdd: () => cart.addToCart(p),
-              onIncrease: () => cart.increaseQty(p.id),
-              onDecrease: () => cart.decreaseQty(p.id),
-              onTap: () => Navigator.pushNamed(
-                context,
-                AppRoutes.productDetail,
-                arguments: p,
-              ),
-            );
-          },
-        ),
-      )
+                ? const EmptyState(
+                    icon: Icons.search_off_outlined,
+                    title: 'No result found!',
+                    subtitle: 'Try searching with\ndifferent keywords.',
+                  )
+                : Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: GridView.builder(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 0.72,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
+                          ),
+                      itemCount: products.length,
+                      itemBuilder: (_, i) {
+                        final p = products[i];
+                        final qty = cart.isInCart(p.id)
+                            ? cart.items
+                                  .firstWhere((item) => item.product.id == p.id)
+                                  .quantity
+                            : 0;
+                        return ProductCard(
+                          product: p,
+                          quantity: qty,
+                          onAdd: () => cart.addToCart(p),
+                          onIncrease: () => cart.increaseQty(p.id),
+                          onDecrease: () => cart.decreaseQty(p.id),
+                          onTap: () => Navigator.pushNamed(
+                            context,
+                            AppRoutes.productDetail,
+                            arguments: p,
+                          ),
+                        );
+                      },
+                    ),
+                  )
           : Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Search History
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Search History',
-                          style: AppTextStyles.heading3),
-                      GestureDetector(
-                        onTap: () =>
-                            setState(() => _searchHistory.clear()),
-                        child: Text('clear',
-                          style: AppTextStyles.bodySmall.copyWith(
-                            color: AppColors.primary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: _searchHistory
-                        .map((tag) => _SearchTag(
-                      label: tag,
-                      onTap: () => _onTagTap(tag),
-                    ))
-                        .toList(),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // Discover more
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Discover more',
-                          style: AppTextStyles.heading3),
-                      GestureDetector(
-                        onTap: () =>
-                            setState(() => _discoverMore.clear()),
-                        child: Text('clear',
-                          style: AppTextStyles.bodySmall.copyWith(
-                            color: AppColors.primary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: _discoverMore
-                        .map((tag) => _SearchTag(
-                      label: tag,
-                      onTap: () => _onTagTap(tag),
-                    ))
-                        .toList(),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // Bottom buttons
-          Container(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
-            decoration: const BoxDecoration(
-              color: AppColors.white,
-              border: Border(top: BorderSide(color: AppColors.border)),
-            ),
-            child: Row(
               children: [
                 Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(Icons.camera_alt_outlined,
-                        color: AppColors.textGrey),
-                    label: Text('Image Search',
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.textGrey,
-                      ),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      side: const BorderSide(color: AppColors.border),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Search History
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Search History',
+                              style: AppTextStyles.heading3,
+                            ),
+                            GestureDetector(
+                              onTap: () =>
+                                  setState(() => _searchHistory.clear()),
+                              child: Text(
+                                'clear',
+                                style: AppTextStyles.bodySmall.copyWith(
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: _searchHistory
+                              .map(
+                                (tag) => _SearchTag(
+                                  label: tag,
+                                  onTap: () => _onTagTap(tag),
+                                ),
+                              )
+                              .toList(),
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        // Discover more
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Discover more',
+                              style: AppTextStyles.heading3,
+                            ),
+                            GestureDetector(
+                              onTap: () =>
+                                  setState(() => _discoverMore.clear()),
+                              child: Text(
+                                'clear',
+                                style: AppTextStyles.bodySmall.copyWith(
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: _discoverMore
+                              .map(
+                                (tag) => _SearchTag(
+                                  label: tag,
+                                  onTap: () => _onTagTap(tag),
+                                ),
+                              )
+                              .toList(),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(Icons.mic_outlined,
-                        color: AppColors.textGrey),
-                    label: Text('Voice Search',
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.textGrey,
+
+                // Bottom buttons
+                Container(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
+                  decoration: const BoxDecoration(
+                    color: AppColors.white,
+                    border: Border(top: BorderSide(color: AppColors.border)),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () {},
+                          icon: const Icon(
+                            Icons.camera_alt_outlined,
+                            color: AppColors.textGrey,
+                          ),
+                          label: Text(
+                            'Image Search',
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              color: AppColors.textGrey,
+                            ),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            side: const BorderSide(color: AppColors.border),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      side: const BorderSide(color: AppColors.border),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () {},
+                          icon: const Icon(
+                            Icons.mic_outlined,
+                            color: AppColors.textGrey,
+                          ),
+                          label: Text(
+                            'Voice Search',
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              color: AppColors.textGrey,
+                            ),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            side: const BorderSide(color: AppColors.border),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
               ],
             ),
-          ),
-        ],
-      ),
     );
   }
 }

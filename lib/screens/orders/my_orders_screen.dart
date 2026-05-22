@@ -1,4 +1,5 @@
 import 'package:big_cart/utils/app_routes.dart';
+import 'package:big_cart/widgets/empty_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
@@ -53,24 +54,11 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
               child: CircularProgressIndicator(color: AppColors.primary),
             )
           : orders.isEmpty
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.shopping_bag_outlined,
-                    size: 80,
-                    color: AppColors.textLight,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No orders yet',
-                    style: AppTextStyles.bodyLarge.copyWith(
-                      color: AppColors.textGrey,
-                    ),
-                  ),
-                ],
-              ),
+          ? const EmptyState(
+              icon: Icons.shopping_bag_outlined,
+              title: 'No orders yet!',
+              subtitle:
+                  'You have\'t placed any orders yet.\n Start shopping now!',
             )
           : ListView.builder(
               padding: const EdgeInsets.all(16),
