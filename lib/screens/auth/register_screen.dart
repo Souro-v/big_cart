@@ -8,6 +8,7 @@ import '../../providers/auth_provider.dart';
 import '../../utils/validators.dart';
 import '../../widgets/app_image.dart';
 import '../../widgets/custom_button.dart';
+import '../../widgets/password_strength_indicator.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -149,6 +150,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           TextFormField(
                             controller: _passwordController,
                             obscureText: _obscurePassword,
+                            onChanged: (_) => setState(() {}),
                             validator: Validators.password,
                             decoration: InputDecoration(
                               hintText: '••••••••',
@@ -168,6 +170,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 ),
                               ),
                             ),
+                          ),
+                          PasswordStrengthIndicator(
+                            password: _passwordController.text,
                           ),
                         ],
                       ),
