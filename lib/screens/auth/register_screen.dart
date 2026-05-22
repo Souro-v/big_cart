@@ -5,6 +5,7 @@ import '../../utils/app_text_styles.dart';
 import '../../utils/app_routes.dart';
 import '../../utils/app_assets.dart';
 import '../../providers/auth_provider.dart';
+import '../../utils/validators.dart';
 import '../../widgets/app_image.dart';
 import '../../widgets/custom_button.dart';
 
@@ -16,10 +17,11 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  final _emailController    = TextEditingController();
-  final _phoneController    = TextEditingController();
+  final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
@@ -30,6 +32,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _register() async {
+    if (!_formKey.currentState!.validate()) return; // ← validation check
+
     final auth = context.read<AuthProvider>();
     final success = await auth.register(
       '',
@@ -88,7 +92,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   children: [
                     Text('Create account', style: AppTextStyles.heading2),
                     const SizedBox(height: 4),
-                    Text('Quickly create account',
+                    Text(
+                      'Quickly create account',
                       style: AppTextStyles.bodyMedium.copyWith(
                         color: AppColors.textGrey,
                       ),
@@ -101,42 +106,70 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       keyboardType: TextInputType.emailAddress,
                       decoration: const InputDecoration(
                         hintText: 'Email address',
-                        prefixIcon: Icon(Icons.email_outlined,
-                            color: AppColors.textGrey),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Phone
-                    TextFormField(
-                      controller: _phoneController,
-                      keyboardType: TextInputType.phone,
-                      decoration: const InputDecoration(
-                        hintText: 'Phone number',
-                        prefixIcon: Icon(Icons.phone_outlined,
-                            color: AppColors.textGrey),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Password
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: _obscurePassword,
-                      decoration: InputDecoration(
-                        hintText: '••••••••',
-                        prefixIcon: const Icon(Icons.lock_outline,
-                            color: AppColors.textGrey),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_off_outlined
-                                : Icons.visibility_outlined,
-                            color: AppColors.textGrey,
-                          ),
-                          onPressed: () => setState(
-                                  () => _obscurePassword = !_obscurePassword),
+                        prefixIcon: Icon(
+                          Icons.email_outlined,
+                          color: AppColors.textGrey,
                         ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          TextFormField(
+                            controller: _emailController,
+                            keyboardType: TextInputType.emailAddress,
+                            validator: Validators.email,
+                            decoration: const InputDecoration(
+                              hintText: 'Email address',
+                              prefixIcon: Icon(
+                                Icons.email_outlined,
+                                color: AppColors.textGrey,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          TextFormField(
+                            controller: _phoneController,
+                            keyboardType: TextInputType.phone,
+                            validator: Validators.phone,
+                            decoration: const InputDecoration(
+                              hintText: 'Phone number',
+                              prefixIcon: Icon(
+                                Icons.phone_outlined,
+                                color: AppColors.textGrey,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          TextFormField(
+                            controller: _passwordController,
+                            obscureText: _obscurePassword,
+                            validator: Validators.password,
+                            decoration: InputDecoration(
+                              hintText: '••••••••',
+                              prefixIcon: const Icon(
+                                Icons.lock_outline,
+                                color: AppColors.textGrey,
+                              ),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscurePassword
+                                      ? Icons.visibility_off_outlined
+                                      : Icons.visibility_outlined,
+                                  color: AppColors.textGrey,
+                                ),
+                                onPressed: () => setState(
+                                  () => _obscurePassword = !_obscurePassword,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 32),
@@ -157,7 +190,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           text: TextSpan(
                             text: 'Already have an account? ',
                             style: AppTextStyles.bodyMedium.copyWith(
-                                color: AppColors.textGrey),
+                              color: AppColors.textGrey,
+                            ),
                             children: [
                               TextSpan(
                                 text: 'Login',

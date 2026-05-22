@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_text_styles.dart';
 import '../../utils/app_routes.dart';
+import '../../widgets/app_rating_dialog.dart';
 import '../../widgets/custom_button.dart';
 
 class OrderSuccessScreen extends StatelessWidget {
@@ -64,8 +65,23 @@ class OrderSuccessScreen extends StatelessWidget {
 
             CustomButton(
               text: 'Track order',
-              onPressed: () =>
-                  Navigator.pushNamed(context, AppRoutes.trackOrder),
+              onPressed: () async {
+                await Navigator.pushNamed(context, AppRoutes.trackOrder);
+              },
+            ),
+
+            const SizedBox(height: 12),
+
+            // Rate app button
+            TextButton(
+              onPressed: () => AppRatingDialog.show(context),
+              child: Text(
+                'Rate our app ⭐',
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
           ],
         ),

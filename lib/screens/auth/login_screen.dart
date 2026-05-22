@@ -5,6 +5,7 @@ import '../../utils/app_text_styles.dart';
 import '../../utils/app_routes.dart';
 import '../../utils/app_assets.dart';
 import '../../providers/auth_provider.dart';
+import '../../utils/validators.dart';
 import '../../widgets/app_image.dart';
 import '../../widgets/custom_button.dart';
 
@@ -16,10 +17,11 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _emailController    = TextEditingController();
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
-  bool _rememberMe      = false;
+  bool _rememberMe = false;
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
@@ -29,6 +31,8 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _login() async {
+    if (!_formKey.currentState!.validate()) return; // ← validation check
+
     final auth = context.read<AuthProvider>();
     final success = await auth.login(
       _emailController.text.trim(),
@@ -37,9 +41,9 @@ class _LoginScreenState extends State<LoginScreen> {
     if (success && mounted) {
       Navigator.pushReplacementNamed(context, AppRoutes.home);
     } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(auth.error ?? 'Login failed')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(auth.error ?? 'Login failed')));
     }
   }
 
@@ -85,7 +89,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: [
                     Text('Welcome back!', style: AppTextStyles.heading2),
                     const SizedBox(height: 4),
-                    Text('Sign in to your account',
+                    Text(
+                      'Sign in to your account',
                       style: AppTextStyles.bodyMedium.copyWith(
                         color: AppColors.textGrey,
                       ),
@@ -93,35 +98,50 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 24),
 
                     // Email
-                    TextFormField(
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: const InputDecoration(
-                        hintText: 'Email Address',
-                        prefixIcon: Icon(Icons.email_outlined,
-                            color: AppColors.textGrey),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Password
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: _obscurePassword,
-                      decoration: InputDecoration(
-                        hintText: '••••••••',
-                        prefixIcon: const Icon(Icons.lock_outline,
-                            color: AppColors.textGrey),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_off_outlined
-                                : Icons.visibility_outlined,
-                            color: AppColors.textGrey,
+                    Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          // Email
+                          TextFormField(
+                            controller: _emailController,
+                            keyboardType: TextInputType.emailAddress,
+                            validator: Validators.email,
+                            decoration: const InputDecoration(
+                              hintText: 'Email Address',
+                              prefixIcon: Icon(
+                                Icons.email_outlined,
+                                color: AppColors.textGrey,
+                              ),
+                            ),
                           ),
-                          onPressed: () => setState(
-                                  () => _obscurePassword = !_obscurePassword),
-                        ),
+                          const SizedBox(height: 16),
+
+                          // Password
+                          TextFormField(
+                            controller: _passwordController,
+                            obscureText: _obscurePassword,
+                            validator: Validators.password,
+                            decoration: InputDecoration(
+                              hintText: '••••••••',
+                              prefixIcon: const Icon(
+                                Icons.lock_outline,
+                                color: AppColors.textGrey,
+                              ),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscurePassword
+                                      ? Icons.visibility_off_outlined
+                                      : Icons.visibility_outlined,
+                                  color: AppColors.textGrey,
+                                ),
+                                onPressed: () => setState(
+                                  () => _obscurePassword = !_obscurePassword,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -134,18 +154,19 @@ class _LoginScreenState extends State<LoginScreen> {
                           children: [
                             Switch(
                               value: _rememberMe,
-                              onChanged: (v) =>
-                                  setState(() => _rememberMe = v),
+                              onChanged: (v) => setState(() => _rememberMe = v),
                               activeThumbColor: AppColors.primary,
                             ),
-                            Text('Remember me',
-                                style: AppTextStyles.bodySmall),
+                            Text('Remember me', style: AppTextStyles.bodySmall),
                           ],
                         ),
                         GestureDetector(
                           onTap: () => Navigator.pushNamed(
-                              context, AppRoutes.forgotPass),
-                          child: Text('Forgot password',
+                            context,
+                            AppRoutes.forgotPass,
+                          ),
+                          child: Text(
+                            'Forgot password',
                             style: AppTextStyles.bodySmall.copyWith(
                               color: AppColors.primary,
                               fontWeight: FontWeight.w600,
@@ -173,7 +194,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           text: TextSpan(
                             text: "Don't have an account? ",
                             style: AppTextStyles.bodyMedium.copyWith(
-                                color: AppColors.textGrey),
+                              color: AppColors.textGrey,
+                            ),
                             children: [
                               TextSpan(
                                 text: 'Sign up',

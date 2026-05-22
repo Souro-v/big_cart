@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_text_styles.dart';
+import '../../utils/validators.dart';
 import '../../widgets/custom_button.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
@@ -14,6 +15,7 @@ class ForgotPasswordScreen extends StatefulWidget {
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _emailController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
@@ -22,6 +24,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   Future<void> _sendLink() async {
+    if (!_formKey.currentState!.validate()) return;
     final auth = context.read<AuthProvider>();
     final success = await auth.forgotPassword(_emailController.text.trim());
     if (success && mounted) {
@@ -72,12 +75,19 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
             const SizedBox(height: 32),
 
-            TextFormField(
-              controller: _emailController,
-              keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(
-                hintText: 'Email Address',
-                prefixIcon: Icon(Icons.email_outlined, color: AppColors.textGrey),
+            Form(
+              key: _formKey,
+              child: TextFormField(
+                controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
+                validator: Validators.email,
+                decoration: const InputDecoration(
+                  hintText: 'Email Address',
+                  prefixIcon: Icon(
+                    Icons.email_outlined,
+                    color: AppColors.textGrey,
+                  ),
+                ),
               ),
             ),
 
