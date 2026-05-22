@@ -39,4 +39,11 @@ class ProductProvider extends ChangeNotifier {
     _searchResults = await _productService.search(query);
     notifyListeners();
   }
+  List<ProductModel> getRelated(String category, String excludeId) {
+    return _products
+        .where((p) => p.category == category && p.id != excludeId)
+        .take(6)
+        .toList();
+  }
+
 }

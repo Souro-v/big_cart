@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/product_model.dart';
 import '../../providers/cart_provider.dart';
+import '../../providers/product_provider.dart';
 import '../../providers/recently_viewed_provider.dart';
 import '../../providers/wishlist_provider.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_text_styles.dart';
 import '../../widgets/app_image.dart';
 import '../../widgets/custom_button.dart';
+import '../../widgets/product_card.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   const ProductDetailScreen({super.key});
@@ -240,6 +242,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             _QtyButton(icon: Icons.add, onTap: _increase),
                           ],
                         ),
+                        const SizedBox(height: 24),
+                        // Related Products
+                        _RelatedProducts(
+                          category: product.category,
+                          excludeId: product.id,
+                        ),
                       ],
                     ),
                   ),
@@ -295,6 +303,70 @@ class _QtyButton extends StatelessWidget {
         ),
         child: Icon(icon, size: 18, color: AppColors.textDark),
       ),
+    );
+  }
+}
+
+class _RelatedProducts extends StatelessWidget {
+  final String category;
+  final String excludeId;
+
+  const _RelatedProducts({required this.category, required this.excludeId});
+
+  @override
+  Widget build(BuildContext context) {
+    final related = context.watch<ProductProvider>().getRelated(
+      category,
+      excludeId,
+    );
+    final cart = context.watch<CartProvider>();
+
+    if (related.isEmpty) return const SizedBox();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Text('Related Products', style: AppTextStyles.heading3),
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          height: 220,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            itemCount: related.length,
+            itemBuilder: (_, i) {
+              final p = related[i];
+              final qty = cart.isInCart(p.id)
+                  ? cart.items
+                        .firstWhere((item) => item.product.id == p.id)
+                        .quantity
+                  : 0;
+              return SizedBox(
+                width: 160,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 12),
+                  child: ProductCard(
+                    product: p,
+                    quantity: qty,
+                    onAdd: () => cart.addToCart(p),
+                    onIncrease: () => cart.increaseQty(p.id),
+                    onDecrease: () => cart.decreaseQty(p.id),
+                    onTap: () => Navigator.pushNamed(
+                      context,
+                      AppRoutes.productDetail,
+                      arguments: p,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 24),
+      ],
     );
   }
 }
