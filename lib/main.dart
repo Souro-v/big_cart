@@ -17,6 +17,7 @@ import 'utils/app_routes.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  //await seedProducts(); // firestore e data upload korte use hobe. akbar app run korei ata delete kore dite hobe.
   runApp(const MyApp());
 }
 
