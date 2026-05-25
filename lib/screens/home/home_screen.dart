@@ -8,6 +8,7 @@ import '../../providers/product_provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/recently_viewed_provider.dart';
 import '../../widgets/app_image.dart';
+import '../../widgets/bottom_nav_bar.dart';
 import '../../widgets/product_card.dart';
 import '../../widgets/shimmer_loading.dart';
 
@@ -26,11 +27,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final List<Map<String, String>> _categories = [
     {'name': 'Vegetables', 'image': AppAssets.catVegetables},
-    {'name': 'Fruits',     'image': AppAssets.catFruits},
-    {'name': 'Beverages',  'image': AppAssets.catBeverages},
-    {'name': 'Grocery',    'image': AppAssets.catGrocery},
+    {'name': 'Fruits', 'image': AppAssets.catFruits},
+    {'name': 'Beverages', 'image': AppAssets.catBeverages},
+    {'name': 'Grocery', 'image': AppAssets.catGrocery},
     {'name': 'Edible oil', 'image': AppAssets.catEdibleOil},
-    {'name': 'Household',  'image': AppAssets.catHousehold},
+    {'name': 'Household', 'image': AppAssets.catHousehold},
   ];
 
   @override
@@ -49,13 +50,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final products  = context.watch<ProductProvider>().products;
+    final products = context.watch<ProductProvider>().products;
     final isLoading = context.watch<ProductProvider>().isLoading;
-    final cart      = context.watch<CartProvider>();
+    final cart = context.watch<CartProvider>();
 
     return Scaffold(
       backgroundColor: AppColors.surface,
-      bottomNavigationBar: _BottomNav(),
+      bottomNavigationBar: const BottomNavBar(currentTab: NavTab.home),
       body: SafeArea(
         child: RefreshIndicator(
           color: AppColors.primary,
@@ -66,7 +67,6 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 // Search bar
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
@@ -74,7 +74,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     onTap: () => Navigator.pushNamed(context, AppRoutes.search),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 14),
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.white,
                         borderRadius: BorderRadius.circular(12),
@@ -84,17 +86,21 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           const Icon(Icons.search, color: AppColors.textGrey),
                           const SizedBox(width: 10),
-                          Text('Search keywords..',
+                          Text(
+                            'Search keywords..',
                             style: AppTextStyles.bodyMedium.copyWith(
                               color: AppColors.textLight,
                             ),
                           ),
                           const Spacer(),
                           GestureDetector(
-                            onTap: () => Navigator.pushNamed(
-                                context, AppRoutes.filter),
-                            child: const Icon(Icons.tune,
-                                color: AppColors.textGrey, size: 20),
+                            onTap: () =>
+                                Navigator.pushNamed(context, AppRoutes.filter),
+                            child: const Icon(
+                              Icons.tune,
+                              color: AppColors.textGrey,
+                              size: 20,
+                            ),
                           ),
                         ],
                       ),
@@ -106,68 +112,72 @@ class _HomeScreenState extends State<HomeScreen> {
                 isLoading
                     ? const BannerShimmer()
                     : SizedBox(
-                  height: 180,
-                  child: Stack(
-                    children: [
-                      PageView.builder(
-                        controller: _bannerController,
-                        itemCount: _banners.length,
-                        onPageChanged: (i) =>
-                            setState(() => _currentBanner = i),
-                        itemBuilder: (_, i) => Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
-                            child: Stack(
-                              children: [
-                                AppImage(
-                                  url: _banners[i],
-                                  width: double.infinity,
-                                  height: 180,
-                                  fit: BoxFit.cover,
+                        height: 180,
+                        child: Stack(
+                          children: [
+                            PageView.builder(
+                              controller: _bannerController,
+                              itemCount: _banners.length,
+                              onPageChanged: (i) =>
+                                  setState(() => _currentBanner = i),
+                              itemBuilder: (_, i) => Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
                                 ),
-                                Positioned(
-                                  left: 16, bottom: 32,
-                                  child: Text(
-                                    '20% off on your\nfirst purchase',
-                                    style: AppTextStyles.heading3
-                                        .copyWith(
-                                        color: AppColors.white),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: Stack(
+                                    children: [
+                                      AppImage(
+                                        url: _banners[i],
+                                        width: double.infinity,
+                                        height: 180,
+                                        fit: BoxFit.cover,
+                                      ),
+                                      Positioned(
+                                        left: 16,
+                                        bottom: 32,
+                                        child: Text(
+                                          '20% off on your\nfirst purchase',
+                                          style: AppTextStyles.heading3
+                                              .copyWith(color: AppColors.white),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 10, left: 0, right: 0,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: List.generate(
-                            _banners.length,
-                                (i) => AnimatedContainer(
-                              duration:
-                              const Duration(milliseconds: 300),
-                              margin: const EdgeInsets.symmetric(
-                                  horizontal: 3),
-                              width: _currentBanner == i ? 16 : 6,
-                              height: 6,
-                              decoration: BoxDecoration(
-                                color: _currentBanner == i
-                                    ? AppColors.white
-                                    : AppColors.white
-                                    .withValues(alpha: 0.5),
-                                borderRadius: BorderRadius.circular(3),
                               ),
                             ),
-                          ),
+                            Positioned(
+                              bottom: 10,
+                              left: 0,
+                              right: 0,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: List.generate(
+                                  _banners.length,
+                                  (i) => AnimatedContainer(
+                                    duration: const Duration(milliseconds: 300),
+                                    margin: const EdgeInsets.symmetric(
+                                      horizontal: 3,
+                                    ),
+                                    width: _currentBanner == i ? 16 : 6,
+                                    height: 6,
+                                    decoration: BoxDecoration(
+                                      color: _currentBanner == i
+                                          ? AppColors.white
+                                          : AppColors.white.withValues(
+                                              alpha: 0.5,
+                                            ),
+                                      borderRadius: BorderRadius.circular(3),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
 
                 const SizedBox(height: 20),
 
@@ -190,10 +200,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         Text('Categories', style: AppTextStyles.heading3),
                         GestureDetector(
-                          onTap: () => Navigator.pushNamed(
-                              context, AppRoutes.category),
-                          child: const Icon(Icons.arrow_forward_ios,
-                              size: 16, color: AppColors.textGrey),
+                          onTap: () =>
+                              Navigator.pushNamed(context, AppRoutes.category),
+                          child: const Icon(
+                            Icons.arrow_forward_ios,
+                            size: 16,
+                            color: AppColors.textGrey,
+                          ),
                         ),
                       ],
                     ),
@@ -227,10 +240,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Featured products',
-                            style: AppTextStyles.heading3),
-                        const Icon(Icons.arrow_forward_ios,
-                            size: 16, color: AppColors.textGrey),
+                        Text(
+                          'Featured products',
+                          style: AppTextStyles.heading3,
+                        ),
+                        const Icon(
+                          Icons.arrow_forward_ios,
+                          size: 16,
+                          color: AppColors.textGrey,
+                        ),
                       ],
                     ),
                   ),
@@ -241,12 +259,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       gridDelegate:
-                      const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        childAspectRatio: 0.72,
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 12,
-                      ),
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 0.72,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
+                          ),
                       itemCount: 6,
                       itemBuilder: (_, __) => const ProductCardShimmer(),
                     ),
@@ -257,10 +275,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Featured products',
-                            style: AppTextStyles.heading3),
-                        const Icon(Icons.arrow_forward_ios,
-                            size: 16, color: AppColors.textGrey),
+                        Text(
+                          'Featured products',
+                          style: AppTextStyles.heading3,
+                        ),
+                        const Icon(
+                          Icons.arrow_forward_ios,
+                          size: 16,
+                          color: AppColors.textGrey,
+                        ),
                       ],
                     ),
                   ),
@@ -271,20 +294,19 @@ class _HomeScreenState extends State<HomeScreen> {
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       gridDelegate:
-                      const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        childAspectRatio: 0.72,
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 12,
-                      ),
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 0.72,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
+                          ),
                       itemCount: products.length,
                       itemBuilder: (_, i) {
                         final p = products[i];
                         final qty = cart.isInCart(p.id)
                             ? cart.items
-                            .firstWhere(
-                                (item) => item.product.id == p.id)
-                            .quantity
+                                  .firstWhere((item) => item.product.id == p.id)
+                                  .quantity
                             : 0;
                         return ProductCard(
                           product: p,
@@ -312,19 +334,20 @@ class _HomeScreenState extends State<HomeScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16),
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: Row(
-                              mainAxisAlignment:
-                              MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text('Recently Viewed',
-                                    style: AppTextStyles.heading3),
+                                Text(
+                                  'Recently Viewed',
+                                  style: AppTextStyles.heading3,
+                                ),
                                 GestureDetector(
                                   onTap: () => context
                                       .read<RecentlyViewedProvider>()
                                       .clear(),
-                                  child: Text('Clear',
+                                  child: Text(
+                                    'Clear',
                                     style: AppTextStyles.bodySmall.copyWith(
                                       color: AppColors.primary,
                                     ),
@@ -339,29 +362,28 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: ListView.builder(
                               scrollDirection: Axis.horizontal,
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 16),
+                                horizontal: 16,
+                              ),
                               itemCount: recentlyViewed.items.length,
                               itemBuilder: (_, i) {
                                 final p = recentlyViewed.items[i];
                                 final qty = cart.isInCart(p.id)
                                     ? cart.items
-                                    .firstWhere((item) =>
-                                item.product.id == p.id)
-                                    .quantity
+                                          .firstWhere(
+                                            (item) => item.product.id == p.id,
+                                          )
+                                          .quantity
                                     : 0;
                                 return SizedBox(
                                   width: 160,
                                   child: Padding(
-                                    padding:
-                                    const EdgeInsets.only(right: 12),
+                                    padding: const EdgeInsets.only(right: 12),
                                     child: ProductCard(
                                       product: p,
                                       quantity: qty,
                                       onAdd: () => cart.addToCart(p),
-                                      onIncrease: () =>
-                                          cart.increaseQty(p.id),
-                                      onDecrease: () =>
-                                          cart.decreaseQty(p.id),
+                                      onIncrease: () => cart.increaseQty(p.id),
+                                      onDecrease: () => cart.decreaseQty(p.id),
                                       onTap: () => Navigator.pushNamed(
                                         context,
                                         AppRoutes.productDetail,
@@ -410,7 +432,8 @@ class _CategoryItem extends StatelessWidget {
         child: Column(
           children: [
             Container(
-              width: 56, height: 56,
+              width: 56,
+              height: 56,
               decoration: BoxDecoration(
                 color: AppColors.white,
                 shape: BoxShape.circle,
@@ -419,90 +442,21 @@ class _CategoryItem extends StatelessWidget {
               child: ClipOval(
                 child: AppImage(
                   url: imageUrl,
-                  width: 56, height: 56,
+                  width: 56,
+                  height: 56,
                   fit: BoxFit.cover,
                 ),
               ),
             ),
             const SizedBox(height: 6),
-            Text(name,
+            Text(
+              name,
               style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.textDark),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _BottomNav extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 70,
-      decoration: const BoxDecoration(
-        color: AppColors.white,
-        border: Border(top: BorderSide(color: AppColors.border)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _NavItem(icon: AppAssets.icHome, isActive: true, onTap: () {}),
-          _NavItem(
-            icon: AppAssets.icwish,
-            onTap: () =>
-                Navigator.pushNamed(context, AppRoutes.favorites),
-          ),
-          _NavItem(
-            icon: AppAssets.icOrder,
-            onTap: () => Navigator.pushNamed(context, AppRoutes.cart),
-          ),
-          _NavItem(
-            icon: AppAssets.icUser,
-            onTap: () =>
-                Navigator.pushNamed(context, AppRoutes.profile),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _NavItem extends StatelessWidget {
-  final String icon;
-  final bool isActive;
-  final VoidCallback onTap;
-
-  const _NavItem({
-    required this.icon,
-    required this.onTap,
-    this.isActive = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset(
-            icon,
-            height: 24,
-            color: isActive ? AppColors.primary : AppColors.textLight,
-          ),
-          if (isActive) ...[
-            const SizedBox(height: 4),
-            Container(
-              width: 6, height: 6,
-              decoration: const BoxDecoration(
-                color: AppColors.primary,
-                shape: BoxShape.circle,
+                color: AppColors.textDark,
               ),
             ),
           ],
-        ],
+        ),
       ),
     );
   }

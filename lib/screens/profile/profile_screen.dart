@@ -4,6 +4,7 @@ import '../../providers/auth_provider.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_text_styles.dart';
 import '../../utils/app_routes.dart';
+import '../../widgets/bottom_nav_bar.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -52,7 +53,7 @@ class ProfileScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      bottomNavigationBar: _BottomNav(),
+      bottomNavigationBar: const BottomNavBar(currentTab: NavTab.profile),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -194,52 +195,6 @@ class _MenuItem extends StatelessWidget {
               ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _BottomNav extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 70,
-      decoration: const BoxDecoration(
-        color: AppColors.white,
-        border: Border(top: BorderSide(color: AppColors.border)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.home_outlined, color: AppColors.textLight),
-            onPressed: () =>
-                Navigator.pushReplacementNamed(context, AppRoutes.home),
-          ),
-          IconButton(
-            icon: const Icon(Icons.person_outline, color: AppColors.primary),
-            onPressed: () {},
-          ),
-          Container(
-            width: 52,
-            height: 52,
-            decoration: const BoxDecoration(
-              color: AppColors.primary,
-              shape: BoxShape.circle,
-            ),
-            child: IconButton(
-              icon: const Icon(
-                Icons.shopping_bag_outlined,
-                color: AppColors.white,
-              ),
-              onPressed: () => Navigator.pushNamed(context, AppRoutes.cart),
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.favorite_border, color: AppColors.textLight),
-            onPressed: () => Navigator.pushNamed(context, AppRoutes.favorites),
-          ),
-        ],
       ),
     );
   }

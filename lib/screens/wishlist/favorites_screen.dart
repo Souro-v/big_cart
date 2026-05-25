@@ -6,6 +6,7 @@ import '../../providers/cart_provider.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_text_styles.dart';
 import '../../widgets/app_image.dart';
+import '../../widgets/bottom_nav_bar.dart';
 
 class FavoritesScreen extends StatelessWidget {
   const FavoritesScreen({super.key});
@@ -17,6 +18,7 @@ class FavoritesScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.background,
+      bottomNavigationBar: const BottomNavBar(currentTab: NavTab.wishlist),
       appBar: AppBar(
         leading: IconButton(
           onPressed: () => Navigator.pop(context),

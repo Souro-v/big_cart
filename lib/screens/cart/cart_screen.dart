@@ -5,6 +5,7 @@ import '../../utils/app_colors.dart';
 import '../../utils/app_text_styles.dart';
 import '../../utils/app_routes.dart';
 import '../../widgets/app_image.dart';
+import '../../widgets/bottom_nav_bar.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/empty_state.dart';
 
@@ -17,6 +18,7 @@ class CartScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.background,
+      bottomNavigationBar: const BottomNavBar(currentTab: NavTab.cart),
       appBar: AppBar(
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
@@ -26,95 +28,94 @@ class CartScreen extends StatelessWidget {
       ),
       body: cart.isEmpty
           ? EmptyState(
-        icon: Icons.shopping_bag_outlined,
-        title: 'Your cart is empty!',
-        subtitle:
-        'Looks like you haven\'t added\nanything to your cart yet.',
-        buttonText: 'Start Shopping',
-        onButtonTap: () =>
-            Navigator.pushReplacementNamed(context, AppRoutes.home),
-      )
+              icon: Icons.shopping_bag_outlined,
+              title: 'Your cart is empty!',
+              subtitle:
+                  'Looks like you haven\'t added\nanything to your cart yet.',
+              buttonText: 'Start Shopping',
+              onButtonTap: () =>
+                  Navigator.pushReplacementNamed(context, AppRoutes.home),
+            )
           : Column(
-        children: [
-          // Cart items
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: cart.items.length,
-              itemBuilder: (_, i) {
-                final item = cart.items[i];
-                return _CartItem(
-                  key: ValueKey(item.product.id),
-                  item: item,
-                  onIncrease: () => context
-                      .read<CartProvider>()
-                      .increaseQty(item.product.id),
-                  onDecrease: () => context
-                      .read<CartProvider>()
-                      .decreaseQty(item.product.id),
-                  onDelete: () => context
-                      .read<CartProvider>()
-                      .removeFromCart(item.product.id),
-                );
-              },
-            ),
-          ),
-
-          // Summary + Checkout
-          Container(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
-            decoration: const BoxDecoration(
-              color: AppColors.white,
-              border:
-              Border(top: BorderSide(color: AppColors.border)),
-            ),
-            child: Column(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Subtotal',
-                        style: AppTextStyles.bodyMedium),
-                    Text(
-                      '\$${cart.totalAmount.toStringAsFixed(1)}',
-                      style: AppTextStyles.bodyMedium,
-                    ),
-                  ],
+                // Cart items
+                Expanded(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: cart.items.length,
+                    itemBuilder: (_, i) {
+                      final item = cart.items[i];
+                      return _CartItem(
+                        key: ValueKey(item.product.id),
+                        item: item,
+                        onIncrease: () => context
+                            .read<CartProvider>()
+                            .increaseQty(item.product.id),
+                        onDecrease: () => context
+                            .read<CartProvider>()
+                            .decreaseQty(item.product.id),
+                        onDelete: () => context
+                            .read<CartProvider>()
+                            .removeFromCart(item.product.id),
+                      );
+                    },
+                  ),
                 ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Shipping charges',
-                        style: AppTextStyles.bodyMedium),
-                    Text('\$1.6',
-                        style: AppTextStyles.bodyMedium),
-                  ],
-                ),
-                const Divider(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Total', style: AppTextStyles.heading3),
-                    Text(
-                      '\$${(cart.totalAmount + 1.6).toStringAsFixed(1)}',
-                      style: AppTextStyles.heading3,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                CustomButton(
-                  text: 'Checkout',
-                  onPressed: () => Navigator.pushNamed(
-                    context,
-                    AppRoutes.shippingMethod,
+
+                // Summary + Checkout
+                Container(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+                  decoration: const BoxDecoration(
+                    color: AppColors.white,
+                    border: Border(top: BorderSide(color: AppColors.border)),
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Subtotal', style: AppTextStyles.bodyMedium),
+                          Text(
+                            '\$${cart.totalAmount.toStringAsFixed(1)}',
+                            style: AppTextStyles.bodyMedium,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Shipping charges',
+                            style: AppTextStyles.bodyMedium,
+                          ),
+                          Text('\$1.6', style: AppTextStyles.bodyMedium),
+                        ],
+                      ),
+                      const Divider(height: 24),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Total', style: AppTextStyles.heading3),
+                          Text(
+                            '\$${(cart.totalAmount + 1.6).toStringAsFixed(1)}',
+                            style: AppTextStyles.heading3,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      CustomButton(
+                        text: 'Checkout',
+                        onPressed: () => Navigator.pushNamed(
+                          context,
+                          AppRoutes.shippingMethod,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -194,8 +195,7 @@ class _CartItem extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  Text(item.product.unit,
-                      style: AppTextStyles.bodySmall),
+                  Text(item.product.unit, style: AppTextStyles.bodySmall),
                 ],
               ),
             ),
@@ -205,8 +205,11 @@ class _CartItem extends StatelessWidget {
               children: [
                 GestureDetector(
                   onTap: onIncrease,
-                  child: const Icon(Icons.add,
-                      color: AppColors.primary, size: 20),
+                  child: const Icon(
+                    Icons.add,
+                    color: AppColors.primary,
+                    size: 20,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -218,8 +221,11 @@ class _CartItem extends StatelessWidget {
                 const SizedBox(height: 8),
                 GestureDetector(
                   onTap: onDecrease,
-                  child: const Icon(Icons.remove,
-                      color: AppColors.primary, size: 20),
+                  child: const Icon(
+                    Icons.remove,
+                    color: AppColors.primary,
+                    size: 20,
+                  ),
                 ),
               ],
             ),

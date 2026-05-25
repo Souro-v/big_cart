@@ -1,4 +1,4 @@
-import 'dart:async' show StreamSubscription;
+import 'dart:async';
 import 'package:big_cart/providers/recently_viewed_provider.dart';
 import 'package:big_cart/providers/wishlist_provider.dart';
 import 'package:big_cart/utils/app_colors.dart';
@@ -13,11 +13,12 @@ import 'providers/cart_provider.dart';
 import 'providers/order_provider.dart';
 import 'utils/app_theme.dart';
 import 'utils/app_routes.dart';
+import 'scripts/seed_products.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  //await seedProducts(); // firestore e data upload korte use hobe. akbar app run korei ata delete kore dite hobe.
+  await seedProducts(); // ← add করো
   runApp(const MyApp());
 }
 
