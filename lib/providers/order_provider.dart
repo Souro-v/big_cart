@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../models/order_model.dart';
 import '../models/cart_item_model.dart';
@@ -9,6 +10,7 @@ class OrderProvider extends ChangeNotifier {
   List<OrderModel> _orders = [];
   bool _isLoading = false;
   String? _error;
+  StreamSubscription? _subscription;
 
   List<OrderModel> get orders => _orders;
   bool get isLoading => _isLoading;
@@ -37,6 +39,28 @@ class OrderProvider extends ChangeNotifier {
     }
   }
 
+  // Real-time orders listen
+  void listenToOrders(String userId) {
+    _isLoading = true; notifyListeners();
+
+    _subscription?.cancel();
+    _subscription = _orderService
+        .getUserOrdersStream(userId)
+        .listen(
+          (orders) {
+        _orders = orders;
+        _isLoading = false;
+        notifyListeners();
+      },
+      onError: (e) {
+        _error = e.toString();
+        _isLoading = false;
+        notifyListeners();
+      },
+    );
+  }
+
+  // Old method — still works
   Future<void> loadOrders(String userId) async {
     _isLoading = true; notifyListeners();
     try {
@@ -44,5 +68,11 @@ class OrderProvider extends ChangeNotifier {
     } finally {
       _isLoading = false; notifyListeners();
     }
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
   }
 }

@@ -260,22 +260,32 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
             child: CustomButton(
-              text: inCart ? 'Added to Cart ✓' : 'Add to cart',
-              onPressed: () {
-                final cart = context.read<CartProvider>();
-                for (int i = 0; i < _quantity; i++) {
-                  cart.addToCart(product);
-                }
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Added 🥰'),
-                    duration: Duration(seconds: 2),
-                    backgroundColor: AppColors.primary,
-                    behavior: SnackBarBehavior.floating,
-                    margin: EdgeInsets.only(bottom: 600, left: 16, right: 16),
-                  ),
-                );
-              },
+              text: !product.inStock
+                  ? 'Out of Stock'
+                  : inCart
+                  ? 'Added to Cart ✓'
+                  : 'Add to cart',
+              onPressed: product.inStock
+                  ? () {
+                      final cart = context.read<CartProvider>();
+                      for (int i = 0; i < _quantity; i++) {
+                        cart.addToCart(product);
+                      }
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Added 🥰'),
+                          duration: Duration(seconds: 2),
+                          backgroundColor: AppColors.primary,
+                          behavior: SnackBarBehavior.floating,
+                          margin: EdgeInsets.only(
+                            bottom: 600,
+                            left: 16,
+                            right: 16,
+                          ),
+                        ),
+                      );
+                    }
+                  : null, // ← null মানে disabled
             ),
           ),
         ],

@@ -24,7 +24,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     Future.microtask(() {
       if (mounted) {
         final uid = context.read<AuthProvider>().user?.uid ?? '';
-        context.read<OrderProvider>().loadOrders(uid);
+        context.read<OrderProvider>().listenToOrders(uid);
       }
     });
   }

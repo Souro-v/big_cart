@@ -43,7 +43,9 @@ class ProductCard extends StatelessWidget {
             Stack(
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(16),
+                  ),
                   child: AppImage(
                     url: product.imageUrl,
                     width: double.infinity,
@@ -55,14 +57,19 @@ class ProductCard extends StatelessWidget {
                 // NEW badge
                 if (product.isNew)
                   Positioned(
-                    top: 8, left: 8,
+                    top: 8,
+                    left: 8,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.warning,
                         borderRadius: BorderRadius.circular(6),
                       ),
-                      child: Text('NEW',
+                      child: Text(
+                        'NEW',
                         style: AppTextStyles.bodySmall.copyWith(
                           color: AppColors.white,
                           fontWeight: FontWeight.bold,
@@ -74,14 +81,19 @@ class ProductCard extends StatelessWidget {
                 // Discount badge
                 if (product.discount > 0)
                   Positioned(
-                    top: 8, left: 8,
+                    top: 8,
+                    left: 8,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.error,
                         borderRadius: BorderRadius.circular(6),
                       ),
-                      child: Text('-${product.discount}%',
+                      child: Text(
+                        '-${product.discount}%',
                         style: AppTextStyles.bodySmall.copyWith(
                           color: AppColors.white,
                           fontWeight: FontWeight.bold,
@@ -89,12 +101,45 @@ class ProductCard extends StatelessWidget {
                       ),
                     ),
                   ),
+                // Image stack এ NEW/discount badge এর নিচে add করো
+                if (!product.inStock)
+                  Positioned.fill(
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(16),
+                      ),
+                      child: Container(
+                        color: Colors.black.withValues(alpha: 0.4),
+                        child: Center(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.error,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              'Out of Stock',
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: AppColors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
 
                 // Favorite button
                 Positioned(
-                  top: 8, right: 8,
+                  top: 8,
+                  right: 8,
                   child: GestureDetector(
-                    onTap: () => context.read<WishlistProvider>().toggle(product),
+                    onTap: () =>
+                        context.read<WishlistProvider>().toggle(product),
                     child: Icon(
                       isFav ? Icons.favorite : Icons.favorite_border,
                       color: isFav ? AppColors.error : AppColors.textLight,
@@ -111,14 +156,16 @@ class ProductCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('\$${product.price.toStringAsFixed(2)}',
+                  Text(
+                    '\$${product.price.toStringAsFixed(2)}',
                     style: AppTextStyles.bodySmall.copyWith(
                       color: AppColors.primary,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 2),
-                  Text(product.name,
+                  Text(
+                    product.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.bodyMedium.copyWith(
@@ -132,36 +179,47 @@ class ProductCard extends StatelessWidget {
                   // Add to cart OR quantity control
                   quantity == 0
                       ? GestureDetector(
-                    onTap: onAdd,
-                    child: Row(
-                      children: [
-                        const Icon(Icons.shopping_bag_outlined,
-                            size: 16, color: AppColors.textGrey),
-                        const SizedBox(width: 6),
-                        Text('Add to cart',
-                          style: AppTextStyles.bodySmall.copyWith(
-                            color: AppColors.textGrey,
-                            fontWeight: FontWeight.w500,
+                          onTap: product.inStock
+                              ? onAdd
+                              : null, // ← inStock check
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.shopping_bag_outlined,
+                                size: 16,
+                                color: product.inStock
+                                    ? AppColors.textGrey
+                                    : AppColors.textLight, // ← color change
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                'Add to cart',
+                                style: AppTextStyles.bodySmall.copyWith(
+                                  color: product.inStock
+                                      ? AppColors.textGrey
+                                      : AppColors.textLight, // ← color change
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
-                    ),
-                  )
+                        )
                       : Row(
-                    children: [
-                      _QtyButton(icon: Icons.remove, onTap: onDecrease),
-                      Expanded(
-                        child: Center(
-                          child: Text('$quantity',
-                            style: AppTextStyles.bodyMedium.copyWith(
-                              fontWeight: FontWeight.bold,
+                          children: [
+                            _QtyButton(icon: Icons.remove, onTap: onDecrease),
+                            Expanded(
+                              child: Center(
+                                child: Text(
+                                  '$quantity',
+                                  style: AppTextStyles.bodyMedium.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
+                            _QtyButton(icon: Icons.add, onTap: onIncrease),
+                          ],
                         ),
-                      ),
-                      _QtyButton(icon: Icons.add, onTap: onIncrease),
-                    ],
-                  ),
                 ],
               ),
             ),
@@ -175,6 +233,7 @@ class ProductCard extends StatelessWidget {
 class _QtyButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
+
   const _QtyButton({required this.icon, required this.onTap});
 
   @override
@@ -182,7 +241,8 @@ class _QtyButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 28, height: 28,
+        width: 28,
+        height: 28,
         decoration: BoxDecoration(
           border: Border.all(color: AppColors.border),
           borderRadius: BorderRadius.circular(8),

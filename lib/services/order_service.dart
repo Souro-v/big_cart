@@ -42,7 +42,7 @@ class OrderService {
     return orderRef.id;
   }
 
-  // User-এর সব orders
+  // User- orders
   Future<List<OrderModel>> getUserOrders(String userId) async {
     final snap = await _db
         .collection(AppConstants.ordersCol)
@@ -57,12 +57,23 @@ class OrderService {
 
   // Single order detail
   Future<OrderModel?> getOrder(String orderId) async {
-    final doc = await _db
-        .collection(AppConstants.ordersCol)
-        .doc(orderId)
-        .get();
+    final doc = await _db.collection(AppConstants.ordersCol).doc(orderId).get();
 
     if (doc.exists) return OrderModel.fromMap(doc.data()!, doc.id);
     return null;
+  }
+
+  // User orders real-time stream
+  Stream<List<OrderModel>> getUserOrdersStream(String userId) {
+    return _db
+        .collection(AppConstants.ordersCol)
+        .where('userId', isEqualTo: userId)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map(
+          (snap) => snap.docs
+              .map((doc) => OrderModel.fromMap(doc.data(), doc.id))
+              .toList(),
+        );
   }
 }
