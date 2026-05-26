@@ -15,12 +15,14 @@ import 'providers/order_provider.dart';
 import 'utils/app_theme.dart';
 import 'utils/app_routes.dart';
 import 'scripts/seed_products.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await seedProducts(); // ← add করো
   runApp(const MyApp());
+  FlutterNativeSplash.remove();
 }
 
 class MyApp extends StatelessWidget {
