@@ -13,9 +13,8 @@ class AppConstants {
       '$cloudinaryBaseUrl/$imgTransform/$publicId';
 
   // Firestore collections
-  static const String usersCol    = 'users';
+  static const String usersCol = 'users';
   static const String productsCol = 'products';
-  static const String ordersCol   = 'orders';
-  static const String cartsCol    = 'carts';
-
+  static const String ordersCol = 'orders';
+  static const String cartsCol = 'carts';
 }

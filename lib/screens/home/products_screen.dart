@@ -15,24 +15,34 @@ class ProductsScreen extends StatefulWidget {
 }
 
 class _ProductsScreenState extends State<ProductsScreen> {
+  String? _category;
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final newCategory = ModalRoute.of(context)?.settings.arguments as String?;
+    if (_category != newCategory) {
+      _category = newCategory;
+      Future.microtask(() {
+        if (mounted && _category != null) {
+          context.read<ProductProvider>().selectCategory(_category!);
+        }
+      });
+    }
+  }
+
+  // initState
   @override
   void initState() {
     super.initState();
-    final category = ModalRoute.of(context)!.settings.arguments as String?;
-    Future.microtask(() {
-      if (mounted && category != null) {
-        context.read<ProductProvider>().selectCategory(category);
-      }
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final category = ModalRoute.of(context)!.settings.arguments as String? ?? 'All';
-    final products  = context.watch<ProductProvider>().products;
+    final category = _category ?? 'All';
+    final products = context.watch<ProductProvider>().products;
     final isLoading = context.watch<ProductProvider>().isLoading;
-    final cart      = context.watch<CartProvider>();
+    final cart = context.watch<CartProvider>();
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -45,45 +55,46 @@ class _ProductsScreenState extends State<ProductsScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.tune, color: AppColors.textDark),
-            onPressed: (){},
+            onPressed: () {},
           ),
         ],
       ),
       body: isLoading
           ? const Center(
-          child: CircularProgressIndicator(color: AppColors.primary))
+              child: CircularProgressIndicator(color: AppColors.primary),
+            )
           : Padding(
-        padding: const EdgeInsets.all(16),
-        child: GridView.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 0.72,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-          ),
-          itemCount: products.length,
-          itemBuilder: (_, i) {
-            final p = products[i];
-            final qty = cart.isInCart(p.id)
-                ? cart.items
-                .firstWhere((item) => item.product.id == p.id)
-                .quantity
-                : 0;
-            return ProductCard(
-              product: p,
-              quantity: qty,
-              onAdd: () => cart.addToCart(p),
-              onIncrease: () => cart.increaseQty(p.id),
-              onDecrease: () => cart.decreaseQty(p.id),
-              onTap: () => Navigator.pushNamed(
-                context,
-                AppRoutes.productDetail,
-                arguments: p,
+              padding: const EdgeInsets.all(16),
+              child: GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 0.72,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                ),
+                itemCount: products.length,
+                itemBuilder: (_, i) {
+                  final p = products[i];
+                  final qty = cart.isInCart(p.id)
+                      ? cart.items
+                            .firstWhere((item) => item.product.id == p.id)
+                            .quantity
+                      : 0;
+                  return ProductCard(
+                    product: p,
+                    quantity: qty,
+                    onAdd: () => cart.addToCart(p),
+                    onIncrease: () => cart.increaseQty(p.id),
+                    onDecrease: () => cart.decreaseQty(p.id),
+                    onTap: () => Navigator.pushNamed(
+                      context,
+                      AppRoutes.productDetail,
+                      arguments: p,
+                    ),
+                  );
+                },
               ),
-            );
-          },
-        ),
-      ),
+            ),
     );
   }
 }
