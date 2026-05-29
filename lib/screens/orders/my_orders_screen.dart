@@ -17,6 +17,7 @@ class MyOrdersScreen extends StatefulWidget {
 
 class _MyOrdersScreenState extends State<MyOrdersScreen> {
   final Set<String> _expanded = {};
+  OrderStatus? _selectedStatus;
 
   @override
   void initState() {
@@ -33,6 +34,9 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   Widget build(BuildContext context) {
     final orders = context.watch<OrderProvider>().orders;
     final isLoading = context.watch<OrderProvider>().isLoading;
+    final filteredOrders = _selectedStatus == null
+        ? orders
+        : orders.where((o) => o.status == _selectedStatus).toList();
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -43,9 +47,28 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         ),
         title: Text('My Order', style: AppTextStyles.heading3),
         actions: [
-          IconButton(
+          PopupMenuButton<OrderStatus?>(
             icon: const Icon(Icons.tune, color: AppColors.textDark),
-            onPressed: () {},
+            onSelected: (status) => setState(() => _selectedStatus = status),
+            itemBuilder: (_) => [
+              const PopupMenuItem(value: null, child: Text('All Orders')),
+              const PopupMenuItem(
+                value: OrderStatus.pending,
+                child: Text('Pending'),
+              ),
+              const PopupMenuItem(
+                value: OrderStatus.confirmed,
+                child: Text('Confirmed'),
+              ),
+              const PopupMenuItem(
+                value: OrderStatus.delivered,
+                child: Text('Delivered'),
+              ),
+              const PopupMenuItem(
+                value: OrderStatus.cancelled,
+                child: Text('Cancelled'),
+              ),
+            ],
           ),
         ],
       ),
@@ -53,18 +76,19 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
           ? const Center(
               child: CircularProgressIndicator(color: AppColors.primary),
             )
-          : orders.isEmpty
-          ? const EmptyState(
+          : filteredOrders.isEmpty
+          ? EmptyState(
               icon: Icons.shopping_bag_outlined,
-              title: 'No orders yet!',
-              subtitle:
-                  'You have\'t placed any orders yet.\n Start shopping now!',
+              title: _selectedStatus == null
+                  ? 'No orders yet!'
+                  : 'No ${_selectedStatus!.name} orders!',
+              subtitle: 'You have no orders in this category.',
             )
           : ListView.builder(
               padding: const EdgeInsets.all(16),
-              itemCount: orders.length,
+              itemCount: filteredOrders.length,
               itemBuilder: (_, i) {
-                final order = orders[i];
+                final order = filteredOrders[i];
                 final isExpanded = _expanded.contains(order.id);
 
                 return Container(

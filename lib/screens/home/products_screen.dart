@@ -16,22 +16,32 @@ class ProductsScreen extends StatefulWidget {
 
 class _ProductsScreenState extends State<ProductsScreen> {
   String? _category;
+  bool _loaded = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final newCategory = ModalRoute.of(context)?.settings.arguments as String?;
-    if (_category != newCategory) {
+    if (!_loaded || _category != newCategory) {
       _category = newCategory;
+      _loaded = true;
       Future.microtask(() {
-        if (mounted && _category != null) {
-          context.read<ProductProvider>().selectCategory(_category!);
+        if (mounted) {
+          final provider = context.read<ProductProvider>();
+          if (provider.products.isEmpty) {
+            provider.loadProducts().then((_) {
+              if (mounted) {
+                provider.selectCategory(_category ?? 'All');
+              }
+            });
+          } else {
+            provider.selectCategory(_category ?? 'All');
+          }
         }
       });
     }
   }
 
-  // initState
   @override
   void initState() {
     super.initState();
@@ -55,13 +65,33 @@ class _ProductsScreenState extends State<ProductsScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.tune, color: AppColors.textDark),
-            onPressed: () {},
+            onPressed: () => Navigator.pushNamed(context, AppRoutes.filter),
           ),
         ],
       ),
       body: isLoading
           ? const Center(
               child: CircularProgressIndicator(color: AppColors.primary),
+            )
+          : products.isEmpty
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.inbox_outlined,
+                    size: 80,
+                    color: AppColors.textLight,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No products in $category',
+                    style: AppTextStyles.bodyLarge.copyWith(
+                      color: AppColors.textGrey,
+                    ),
+                  ),
+                ],
+              ),
             )
           : Padding(
               padding: const EdgeInsets.all(16),
