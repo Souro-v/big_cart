@@ -153,21 +153,25 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             ...List.generate(
                               5,
                               (i) => Icon(
-                                i < 4 ? Icons.star : Icons.star_half,
+                                i < product.rating.floor()
+                                    ? Icons.star
+                                    : (i < product.rating
+                                          ? Icons.star_half
+                                          : Icons.star_border),
                                 color: const Color(0xFFF3A93C),
                                 size: 18,
                               ),
                             ),
                             const SizedBox(width: 6),
                             Text(
-                              '4.5',
+                              product.rating.toStringAsFixed(1),
                               style: AppTextStyles.bodyMedium.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              '(89 reviews)',
+                              '(${product.reviewCount} reviews)',
                               style: AppTextStyles.bodySmall,
                             ),
                           ],
@@ -176,14 +180,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           onTap: () => Navigator.pushNamed(
                             context,
                             AppRoutes.writeReview,
+                            arguments: product.id, // ← product id pass
                           ),
-                          child: Text(
-                            'Write Review',
-                            style: AppTextStyles.bodySmall.copyWith(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                          child: Text('Write Review'),
                         ),
 
                         const SizedBox(height: 16),
