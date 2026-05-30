@@ -4,6 +4,7 @@ import '../../providers/cart_provider.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_text_styles.dart';
 import '../../utils/app_routes.dart';
+import '../../utils/haptic_helper.dart';
 import '../../widgets/app_image.dart';
 import '../../widgets/bottom_nav_bar.dart';
 import '../../widgets/custom_button.dart';
@@ -204,7 +205,10 @@ class _CartItem extends StatelessWidget {
             Column(
               children: [
                 GestureDetector(
-                  onTap: onIncrease,
+                  onTap: () {
+                    HapticHelper.light();
+                    onIncrease();
+                  },
                   child: const Icon(
                     Icons.add,
                     color: AppColors.primary,
@@ -220,7 +224,10 @@ class _CartItem extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 GestureDetector(
-                  onTap: onDecrease,
+                  onTap: () {
+                    HapticHelper.light();
+                    onDecrease();
+                  },
                   child: const Icon(
                     Icons.remove,
                     color: AppColors.primary,

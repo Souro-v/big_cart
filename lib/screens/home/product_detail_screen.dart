@@ -8,6 +8,7 @@ import '../../providers/recently_viewed_provider.dart';
 import '../../providers/wishlist_provider.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_text_styles.dart';
+import '../../utils/haptic_helper.dart';
 import '../../widgets/app_image.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/product_card.dart';
@@ -24,6 +25,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   bool _showFullDescription = false;
 
   void _increase() {
+    HapticHelper.light();
     if (_quantity < CartProvider.maxQty) {
       setState(() => _quantity++);
     } else {
@@ -40,6 +42,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 
   void _decrease() {
+    HapticHelper.light();
     if (_quantity > 1) setState(() => _quantity--);
   }
 
@@ -122,9 +125,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               ),
                             ),
                             GestureDetector(
-                              onTap: () => context
-                                  .read<WishlistProvider>()
-                                  .toggle(product),
+                              onTap: () {
+                                HapticHelper.light();
+                                context.read<WishlistProvider>().toggle(product);
+                              },
                               child: Icon(
                                 isFav ? Icons.favorite : Icons.favorite_border,
                                 color: isFav
@@ -266,6 +270,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   : 'Add to cart',
               onPressed: product.inStock
                   ? () {
+                      HapticHelper.medium();
                       final cart = context.read<CartProvider>();
                       for (int i = 0; i < _quantity; i++) {
                         cart.addToCart(product);

@@ -5,6 +5,7 @@ import '../../providers/auth_provider.dart';
 import '../../services/review_service.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_text_styles.dart';
+import '../../utils/haptic_helper.dart';
 import '../../widgets/custom_button.dart';
 
 class WriteReviewScreen extends StatefulWidget {
@@ -65,9 +66,9 @@ class _WriteReviewScreenState extends State<WriteReviewScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -108,17 +109,23 @@ class _WriteReviewScreenState extends State<WriteReviewScreen> {
             // Stars
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(5, (i) => GestureDetector(
-                onTap: () => setState(() => _rating = i + 1),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Icon(
-                    i < _rating ? Icons.star : Icons.star_border,
-                    color: const Color(0xFFF3A93C),
-                    size: 40,
+              children: List.generate(
+                5,
+                (i) => GestureDetector(
+                  onTap: () {
+                    HapticHelper.selection();
+                    setState(() => _rating = i + 1);
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: Icon(
+                      i < _rating ? Icons.star : Icons.star_border,
+                      color: const Color(0xFFF3A93C),
+                      size: 40,
+                    ),
                   ),
                 ),
-              )),
+              ),
             ),
 
             const SizedBox(height: 32),
@@ -131,8 +138,7 @@ class _WriteReviewScreenState extends State<WriteReviewScreen> {
                 hintText: 'Tell us about your experience',
                 prefixIcon: Padding(
                   padding: EdgeInsets.only(left: 12, bottom: 60),
-                  child: Icon(Icons.edit_outlined,
-                      color: AppColors.textGrey),
+                  child: Icon(Icons.edit_outlined, color: AppColors.textGrey),
                 ),
                 alignLabelWithHint: true,
               ),

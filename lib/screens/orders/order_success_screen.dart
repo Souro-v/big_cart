@@ -2,11 +2,23 @@ import 'package:flutter/material.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_text_styles.dart';
 import '../../utils/app_routes.dart';
+import '../../utils/haptic_helper.dart';
 import '../../widgets/app_rating_dialog.dart';
 import '../../widgets/custom_button.dart';
 
-class OrderSuccessScreen extends StatelessWidget {
+class OrderSuccessScreen extends StatefulWidget {
   const OrderSuccessScreen({super.key});
+
+  @override
+  State<OrderSuccessScreen> createState() => _OrderSuccessScreenState();
+}
+
+class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
+  @override
+  void initState() {
+    super.initState();
+    HapticHelper.heavy();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,9 +29,15 @@ class OrderSuccessScreen extends StatelessWidget {
         leading: IconButton(
           onPressed: () =>
               Navigator.pushReplacementNamed(context, AppRoutes.home),
-          icon: const Icon(Icons.arrow_back, color: AppColors.textDark),
+          icon: const Icon(
+            Icons.arrow_back,
+            color: AppColors.textDark,
+          ),
         ),
-        title: Text('Order Success', style: AppTextStyles.heading3),
+        title: Text(
+          'Order Success',
+          style: AppTextStyles.heading3,
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(24),
@@ -33,7 +51,10 @@ class OrderSuccessScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppColors.surface,
                 shape: BoxShape.circle,
-                border: Border.all(color: AppColors.border, width: 2),
+                border: Border.all(
+                  color: AppColors.border,
+                  width: 2,
+                ),
               ),
               child: const Icon(
                 Icons.shopping_bag_outlined,
@@ -45,7 +66,7 @@ class OrderSuccessScreen extends StatelessWidget {
             const SizedBox(height: 32),
 
             Text(
-              'Your order was\nsuccessfull !',
+              'Your order was\nsuccessful!',
               textAlign: TextAlign.center,
               style: AppTextStyles.heading2,
             ),
@@ -64,15 +85,17 @@ class OrderSuccessScreen extends StatelessWidget {
             const SizedBox(height: 48),
 
             CustomButton(
-              text: 'Track order',
+              text: 'Track Order',
               onPressed: () async {
-                await Navigator.pushNamed(context, AppRoutes.trackOrder);
+                await Navigator.pushNamed(
+                  context,
+                  AppRoutes.trackOrder,
+                );
               },
             ),
 
             const SizedBox(height: 12),
 
-            // Rate app button
             TextButton(
               onPressed: () => AppRatingDialog.show(context),
               child: Text(

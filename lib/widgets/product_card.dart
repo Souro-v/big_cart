@@ -4,6 +4,7 @@ import '../models/product_model.dart';
 import '../providers/wishlist_provider.dart';
 import '../utils/app_colors.dart';
 import '../utils/app_text_styles.dart';
+import '../utils/haptic_helper.dart';
 import 'app_image.dart';
 
 class ProductCard extends StatelessWidget {
@@ -180,7 +181,10 @@ class ProductCard extends StatelessWidget {
                   quantity == 0
                       ? GestureDetector(
                           onTap: product.inStock
-                              ? onAdd
+                              ? () {
+                                  HapticHelper.medium();
+                                  onAdd();
+                                }
                               : null, // ← inStock check
                           child: Row(
                             children: [
