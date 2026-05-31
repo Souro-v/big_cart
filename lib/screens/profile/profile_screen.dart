@@ -49,6 +49,11 @@ class ProfileScreen extends StatelessWidget {
         'title': 'Notifications',
         'route': AppRoutes.notification,
       },
+      {
+        'icon': Icons.info_outline,
+        'title': 'About App',
+        'route': AppRoutes.about,
+      },
     ];
 
     return Scaffold(

@@ -10,6 +10,7 @@ import '../screens/home/filter_screen.dart';
 import '../screens/home/products_screen.dart';
 import '../screens/orders/order_success_screen.dart';
 import '../screens/orders/track_order_screen.dart';
+import '../screens/profile/about_screen.dart';
 import '../screens/profile/add_card_screen.dart';
 import '../screens/profile/my_cards_screen.dart';
 import '../screens/review/write_review_screen.dart';
@@ -55,6 +56,7 @@ class AppRoutes {
   static const String profile = '/profile';
   static const String myAddress = '/my-address';
   static const String editProfile = '/edit-profile';
+  static const String about = '/about';
   static const String myCards = '/my-cards';
   static const String addCard = '/add-card';
   static const String notification = '/notification';
@@ -106,6 +108,8 @@ class AppRoutes {
         return _slideRoute(const OrderDetailScreen(), settings);
       case profile:
         return _fadeRoute(const ProfileScreen(), settings);
+      case about: return _slideRoute(const AboutScreen(), settings);
+
       case editProfile:
         return _slideRoute(const EditProfileScreen(), settings);
       case myAddress:

@@ -20,7 +20,6 @@ import 'utils/app_routes.dart';
 void main() async {
   final binding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: binding);
-
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // Notification initialize
