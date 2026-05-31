@@ -1,5 +1,7 @@
 import 'package:big_cart/utils/app_routes.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:photo_view/photo_view.dart';
 import 'package:provider/provider.dart';
 import '../../models/product_model.dart';
 import '../../providers/cart_provider.dart';
@@ -41,6 +43,20 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     }
   }
 
+  void _showImageZoom(BuildContext context, String imageUrl) {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        opaque: false,
+        pageBuilder: (_, __, ___) => _ImageZoomScreen(imageUrl: imageUrl),
+        transitionDuration: const Duration(milliseconds: 300),
+        transitionsBuilder: (_, animation, __, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+      ),
+    );
+  }
+
   void _decrease() {
     HapticHelper.light();
     if (_quantity > 1) setState(() => _quantity--);
@@ -75,36 +91,57 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Image area — light green background
-                  Container(
-                    width: double.infinity,
-                    height: 300,
-                    color: const Color(0xFFF2FAF4),
-                    child: Stack(
-                      children: [
-                        // Product image
-                        Center(
-                          child: AppImage(
-                            url: product.imageUrl,
-                            width: 220,
-                            height: 220,
-                            fit: BoxFit.contain,
+                  // Image area — light green background
+                  GestureDetector(
+                    onTap: () => _showImageZoom(context, product.imageUrl),
+                    child: Container(
+                      width: double.infinity,
+                      height: 300,
+                      color: const Color(0xFFF2FAF4),
+                      child: Stack(
+                        children: [
+                          Center(
+                            child: AppImage(
+                              url: product.imageUrl,
+                              width: 220,
+                              height: 220,
+                              fit: BoxFit.contain,
+                            ),
                           ),
-                        ),
 
-                        // Back button
-                        SafeArea(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8),
-                            child: IconButton(
-                              onPressed: () => Navigator.pop(context),
-                              icon: const Icon(
-                                Icons.arrow_back_ios,
-                                color: AppColors.textDark,
+                          // Zoom hint icon
+                          Positioned(
+                            bottom: 12,
+                            right: 12,
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: AppColors.white.withValues(alpha: 0.8),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.zoom_in,
+                                color: AppColors.textGrey,
+                                size: 20,
                               ),
                             ),
                           ),
-                        ),
-                      ],
+
+                          // Back button
+                          SafeArea(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8),
+                              child: IconButton(
+                                onPressed: () => Navigator.pop(context),
+                                icon: const Icon(
+                                  Icons.arrow_back_ios,
+                                  color: AppColors.textDark,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
 
@@ -127,7 +164,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             GestureDetector(
                               onTap: () {
                                 HapticHelper.light();
-                                context.read<WishlistProvider>().toggle(product);
+                                context.read<WishlistProvider>().toggle(
+                                  product,
+                                );
                               },
                               child: Icon(
                                 isFav ? Icons.favorite : Icons.favorite_border,
@@ -381,6 +420,51 @@ class _RelatedProducts extends StatelessWidget {
         ),
         const SizedBox(height: 24),
       ],
+    );
+  }
+}
+
+class _ImageZoomScreen extends StatelessWidget {
+  final String imageUrl;
+
+  const _ImageZoomScreen({required this.imageUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: [
+          // Zoomable image
+          PhotoView(
+            imageProvider: CachedNetworkImageProvider(imageUrl),
+            minScale: PhotoViewComputedScale.contained,
+            maxScale: PhotoViewComputedScale.covered * 3,
+            backgroundDecoration: const BoxDecoration(color: Colors.black),
+            loadingBuilder: (_, __) => const Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
+            ),
+          ),
+
+          // Close button
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.5),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.close, color: Colors.white, size: 20),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

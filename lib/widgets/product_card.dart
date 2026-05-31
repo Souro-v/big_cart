@@ -25,6 +25,9 @@ class ProductCard extends StatelessWidget {
     required this.onTap,
   });
 
+  double get _discountedPrice =>
+      product.price - (product.price * product.discount / 100);
+
   @override
   Widget build(BuildContext context) {
     final wishlist = context.watch<WishlistProvider>();
@@ -102,7 +105,8 @@ class ProductCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                // Image stack এ NEW/discount badge এর নিচে add করো
+
+                // Image stack
                 if (!product.inStock)
                   Positioned.fill(
                     child: ClipRRect(
@@ -157,12 +161,34 @@ class ProductCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    '\$${product.price.toStringAsFixed(2)}',
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Discount থাকলে original price strike through
+                      if (product.discount > 0) ...[
+                        Text(
+                          '\$${product.price.toStringAsFixed(2)}',
+                          style: AppTextStyles.bodySmall.copyWith(
+                            color: AppColors.textLight,
+                            decoration: TextDecoration.lineThrough,
+                          ),
+                        ),
+                        Text(
+                          '\$${_discountedPrice.toStringAsFixed(2)}',
+                          style: AppTextStyles.bodySmall.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ] else
+                        Text(
+                          '\$${product.price.toStringAsFixed(2)}',
+                          style: AppTextStyles.bodySmall.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                    ],
                   ),
                   const SizedBox(height: 2),
                   Text(

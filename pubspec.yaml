@@ -40,6 +40,7 @@ dependencies:
   connectivity_plus: ^6.0.3
   shimmer: ^3.0.0
   flutter_native_splash: ^2.3.13
+  photo_view: ^0.14.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

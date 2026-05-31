@@ -8,6 +8,7 @@ import '../../providers/auth_provider.dart';
 import '../../utils/validators.dart';
 import '../../widgets/app_image.dart';
 import '../../widgets/custom_button.dart';
+import '../../widgets/error_snackbar.dart';
 import '../../widgets/password_strength_indicator.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -45,9 +46,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (success && mounted) {
       Navigator.pushReplacementNamed(context, AppRoutes.home);
     } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(auth.error ?? 'Registration failed')),
-      );
+      ErrorSnackbar.show(context, auth.error ?? 'Registration failed');
     }
   }
 
