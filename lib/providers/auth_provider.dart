@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/user_model.dart';
 import '../services/auth_service.dart';
+import '../utils/error_handler.dart';
 
 class AuthProvider extends ChangeNotifier {
   final AuthService _authService = AuthService();
@@ -10,50 +11,74 @@ class AuthProvider extends ChangeNotifier {
   String? _error;
 
   UserModel? get user => _user;
+
   bool get isLoading => _isLoading;
+
   String? get error => _error;
+
   bool get isLoggedIn => _user != null;
 
-  void _setLoading(bool val) { _isLoading = val; notifyListeners(); }
-  void _setError(String? val) { _error = val; notifyListeners(); }
+  void _setLoading(bool val) {
+    _isLoading = val;
+    notifyListeners();
+  }
 
+  void _setError(String? val) {
+    _error = val;
+    notifyListeners();
+  }
+
+  // login method
   Future<bool> login(String email, String password) async {
-    _setLoading(true); _setError(null);
+    _setLoading(true);
+    _setError(null);
     try {
       _user = await _authService.login(email: email, password: password);
       notifyListeners();
       return true;
     } catch (e) {
-      _setError(e.toString());
+      _setError(ErrorHandler.getMessage(e)); // ← update
       return false;
     } finally {
       _setLoading(false);
     }
   }
 
-  Future<bool> register(String name, String email, String password, String phone) async {
-    _setLoading(true); _setError(null);
+  // register method
+  Future<bool> register(
+    String name,
+    String email,
+    String password,
+    String phone,
+  ) async {
+    _setLoading(true);
+    _setError(null);
     try {
       _user = await _authService.register(
-        name: name, email: email, password: password, phone: phone,
+        name: name,
+        email: email,
+        password: password,
+        phone: phone,
       );
       notifyListeners();
       return true;
     } catch (e) {
-      _setError(e.toString());
+      _setError(ErrorHandler.getMessage(e)); // ← update
       return false;
     } finally {
       _setLoading(false);
     }
   }
 
+  // forgotPassword method
   Future<bool> forgotPassword(String email) async {
-    _setLoading(true); _setError(null);
+    _setLoading(true);
+    _setError(null);
     try {
       await _authService.forgotPassword(email);
       return true;
     } catch (e) {
-      _setError(e.toString());
+      _setError(ErrorHandler.getMessage(e)); // ← update
       return false;
     } finally {
       _setLoading(false);

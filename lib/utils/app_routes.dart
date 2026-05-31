@@ -65,68 +65,125 @@ class AppRoutes {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case splash:
-        return _route(const SplashScreen());
+        return _fadeRoute(const SplashScreen(), settings);
       case welcome:
-        return _route(const WelcomeScreen());
+        return _slideRoute(const WelcomeScreen(), settings);
       case login:
-        return _route(const LoginScreen());
-      case otp:
-        return _route(const OtpScreen());
+        return _slideRoute(const LoginScreen(), settings);
       case register:
-        return _route(const RegisterScreen());
+        return _slideRoute(const RegisterScreen(), settings);
       case forgotPass:
-        return _route(const ForgotPasswordScreen());
+        return _slideRoute(const ForgotPasswordScreen(), settings);
+      case otp:
+        return _slideRoute(const OtpScreen(), settings);
       case home:
-        return _route(const HomeScreen());
-      case filter:
-        return _route(const FilterScreen());
+        return _fadeRoute(const HomeScreen(), settings);
       case productDetail:
-        return _route(const ProductDetailScreen());
-      case products:
-        return _route(const ProductsScreen());
+        return _slideUpRoute(const ProductDetailScreen(), settings);
       case category:
-        return _route(const CategoryScreen());
+        return _slideRoute(const CategoryScreen(), settings);
+      case products:
+        return _slideRoute(const ProductsScreen(), settings);
       case search:
-        return _route(const SearchScreen());
+        return _slideRoute(const SearchScreen(), settings);
+      case filter:
+        return _slideUpRoute(const FilterScreen(), settings);
       case cart:
-        return _route(const CartScreen());
+        return _slideUpRoute(const CartScreen(), settings);
       case checkout:
-        return _route(const CheckoutScreen());
+        return _slideRoute(const CheckoutScreen(), settings);
       case shippingMethod:
-        return _route(const ShippingMethodScreen());
+        return _slideRoute(const ShippingMethodScreen(), settings);
       case shippingAddress:
-        return _route(const ShippingAddressScreen());
-      case myOrders:
-        return _route(const MyOrdersScreen());
-      case orderDetail:
-        return _route(const OrderDetailScreen());
+        return _slideRoute(const ShippingAddressScreen(), settings);
       case orderSuccess:
-        return _route(const OrderSuccessScreen());
+        return _fadeRoute(const OrderSuccessScreen(), settings);
       case trackOrder:
-        return _route(const TrackOrderScreen());
+        return _slideRoute(const TrackOrderScreen(), settings);
+      case myOrders:
+        return _slideRoute(const MyOrdersScreen(), settings);
+      case orderDetail:
+        return _slideRoute(const OrderDetailScreen(), settings);
       case profile:
-        return _route(const ProfileScreen());
-      case myAddress:
-        return _route(const MyAddressScreen());
+        return _fadeRoute(const ProfileScreen(), settings);
       case editProfile:
-        return _route(const EditProfileScreen());
+        return _slideRoute(const EditProfileScreen(), settings);
+      case myAddress:
+        return _slideRoute(const MyAddressScreen(), settings);
       case myCards:
-        return _route(const MyCardsScreen());
+        return _slideRoute(const MyCardsScreen(), settings);
       case addCard:
-        return _route(const AddCardScreen());
-      case favorites:
-        return _route(const FavoritesScreen());
+        return _slideRoute(const AddCardScreen(), settings);
       case notification:
-        return _route(const NotificationsScreen());
+        return _slideRoute(const NotificationsScreen(), settings);
       case transactions:
-        return _route(const TransactionsScreen());
+        return _slideRoute(const TransactionsScreen(), settings);
+      case favorites:
+        return _slideRoute(const FavoritesScreen(), settings);
       case writeReview:
-        return _route(const WriteReviewScreen());
+        return _slideUpRoute(const WriteReviewScreen(), settings);
       default:
-        return _route(const LoginScreen());
+        return _slideRoute(const LoginScreen(), settings);
     }
   }
 
-  static MaterialPageRoute _route(Widget page) =>
-      MaterialPageRoute(builder: (_) => page);
+  // Normal slide
+  static Route<dynamic> _slideRoute(Widget page, RouteSettings settings) {
+    return PageRouteBuilder(
+      settings: settings,
+      pageBuilder: (_, __, ___) => page,
+      transitionDuration: const Duration(milliseconds: 300),
+      reverseTransitionDuration: const Duration(milliseconds: 300),
+      transitionsBuilder: (_, animation, __, child) {
+        return SlideTransition(
+          position:
+              Tween<Offset>(
+                begin: const Offset(1.0, 0.0),
+                end: Offset.zero,
+              ).animate(
+                CurvedAnimation(parent: animation, curve: Curves.easeInOut),
+              ),
+          child: child,
+        );
+      },
+    );
+  }
+
+  // Slide up
+  static Route<dynamic> _slideUpRoute(Widget page, RouteSettings settings) {
+    return PageRouteBuilder(
+      settings: settings,
+      pageBuilder: (_, __, ___) => page,
+      transitionDuration: const Duration(milliseconds: 350),
+      reverseTransitionDuration: const Duration(milliseconds: 350),
+      transitionsBuilder: (_, animation, __, child) {
+        return SlideTransition(
+          position:
+              Tween<Offset>(
+                begin: const Offset(0.0, 1.0),
+                end: Offset.zero,
+              ).animate(
+                CurvedAnimation(parent: animation, curve: Curves.easeInOut),
+              ),
+          child: child,
+        );
+      },
+    );
+  }
+
+  // Fade
+  static Route<dynamic> _fadeRoute(Widget page, RouteSettings settings) {
+    return PageRouteBuilder(
+      settings: settings,
+      pageBuilder: (_, __, ___) => page,
+      transitionDuration: const Duration(milliseconds: 400),
+      reverseTransitionDuration: const Duration(milliseconds: 400),
+      transitionsBuilder: (_, animation, __, child) {
+        return FadeTransition(
+          opacity: CurvedAnimation(parent: animation, curve: Curves.easeInOut),
+          child: child,
+        );
+      },
+    );
+  }
 }

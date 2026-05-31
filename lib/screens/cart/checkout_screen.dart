@@ -7,6 +7,7 @@ import '../../utils/app_colors.dart';
 import '../../utils/app_text_styles.dart';
 import '../../utils/app_routes.dart';
 import '../../widgets/custom_button.dart';
+import '../../widgets/error_snackbar.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
@@ -48,9 +49,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       cart.clearCart();
       Navigator.pushReplacementNamed(context, AppRoutes.orderSuccess);
     } else if (mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(orders.error ?? 'Payment failed')));
+      ErrorSnackbar.show(context, orders.error ?? 'Payment failed');
     }
   }
 

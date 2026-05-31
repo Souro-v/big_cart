@@ -8,6 +8,7 @@ import '../../providers/auth_provider.dart';
 import '../../utils/validators.dart';
 import '../../widgets/app_image.dart';
 import '../../widgets/custom_button.dart';
+import '../../widgets/error_snackbar.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -41,9 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (success && mounted) {
       Navigator.pushReplacementNamed(context, AppRoutes.home);
     } else if (mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(auth.error ?? 'Login failed')));
+      ErrorSnackbar.show(context, auth.error ?? 'Login failed');
     }
   }
 
