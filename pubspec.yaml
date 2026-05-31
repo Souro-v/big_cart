@@ -41,10 +41,10 @@ dependencies:
   shimmer: ^3.0.0
   flutter_native_splash: ^2.3.13
   photo_view: ^0.14.0
-
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+  firebase_messaging: ^15.1.3
 
 flutter_launcher_icons:
   android: true

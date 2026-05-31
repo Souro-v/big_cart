@@ -18,6 +18,21 @@ class _ProductsScreenState extends State<ProductsScreen> {
   String? _category;
   bool _loaded = false;
 
+  String _sortLabel(SortOption option) {
+    switch (option) {
+      case SortOption.priceLowHigh:
+        return 'Price: Low to High';
+      case SortOption.priceHighLow:
+        return 'Price: High to Low';
+      case SortOption.newest:
+        return 'Newest First';
+      case SortOption.discount:
+        return 'Best Discount';
+      default:
+        return '';
+    }
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -63,11 +78,109 @@ class _ProductsScreenState extends State<ProductsScreen> {
         ),
         title: Text(category, style: AppTextStyles.heading3),
         actions: [
+          // Sort button
+          PopupMenuButton<SortOption>(
+            icon: const Icon(Icons.sort, color: AppColors.textDark),
+            onSelected: (option) =>
+                context.read<ProductProvider>().sortBy(option),
+            itemBuilder: (_) => [
+              const PopupMenuItem(
+                value: SortOption.none,
+                child: Row(
+                  children: [
+                    Icon(Icons.clear_all, size: 20),
+                    SizedBox(width: 8),
+                    Text('Default'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: SortOption.priceLowHigh,
+                child: Row(
+                  children: [
+                    Icon(Icons.arrow_upward, size: 20),
+                    SizedBox(width: 8),
+                    Text('Price: Low to High'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: SortOption.priceHighLow,
+                child: Row(
+                  children: [
+                    Icon(Icons.arrow_downward, size: 20),
+                    SizedBox(width: 8),
+                    Text('Price: High to Low'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: SortOption.newest,
+                child: Row(
+                  children: [
+                    Icon(Icons.new_releases_outlined, size: 20),
+                    SizedBox(width: 8),
+                    Text('Newest First'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: SortOption.discount,
+                child: Row(
+                  children: [
+                    Icon(Icons.local_offer_outlined, size: 20),
+                    SizedBox(width: 8),
+                    Text('Best Discount'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          // Filter button
           IconButton(
             icon: const Icon(Icons.tune, color: AppColors.textDark),
             onPressed: () => Navigator.pushNamed(context, AppRoutes.filter),
           ),
         ],
+        // AppBar এ bottom add করো
+        bottom: context.watch<ProductProvider>().sortOption != SortOption.none
+            ? PreferredSize(
+                preferredSize: const Size.fromHeight(30),
+                child: Container(
+                  color: AppColors.primaryLight,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 4,
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.sort,
+                        size: 14,
+                        color: AppColors.primary,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        _sortLabel(context.watch<ProductProvider>().sortOption),
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: AppColors.primary,
+                        ),
+                      ),
+                      const Spacer(),
+                      GestureDetector(
+                        onTap: () =>
+                            context.read<ProductProvider>().clearSort(),
+                        child: const Icon(
+                          Icons.close,
+                          size: 14,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            : null,
       ),
       body: isLoading
           ? const Center(

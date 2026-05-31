@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:big_cart/providers/recently_viewed_provider.dart';
 import 'package:big_cart/providers/search_provider.dart';
 import 'package:big_cart/providers/wishlist_provider.dart';
+import 'package:big_cart/services/notification_service.dart';
 import 'package:big_cart/utils/app_colors.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +23,8 @@ void main() async {
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
+  // Notification initialize
+  await NotificationService().initialize();
   runApp(const MyApp());
 
   FlutterNativeSplash.remove();
