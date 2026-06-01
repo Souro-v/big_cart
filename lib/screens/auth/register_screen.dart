@@ -19,6 +19,7 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -27,18 +28,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   void dispose() {
+    _nameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
-
   Future<void> _register() async {
-    if (!_formKey.currentState!.validate()) return; // ← validation check
+    if (!_formKey.currentState!.validate()) return;
 
     final auth = context.read<AuthProvider>();
     final success = await auth.register(
-      '',
+      _nameController.text.trim(), //
       _emailController.text.trim(),
       _passwordController.text.trim(),
       _phoneController.text.trim(),
@@ -99,7 +100,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ),
                     const SizedBox(height: 24),
-
+                    //name
+                    TextFormField(
+                      controller: _nameController,
+                      validator: Validators.name,
+                      decoration: const InputDecoration(
+                        hintText: 'Full Name',
+                        prefixIcon: Icon(Icons.person_outline,
+                            color: AppColors.textGrey),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
                     // Email
                     TextFormField(
                       controller: _emailController,
