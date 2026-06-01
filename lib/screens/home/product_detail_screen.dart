@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../models/product_model.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/product_provider.dart';
@@ -62,6 +63,27 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     if (_quantity > 1) setState(() => _quantity--);
   }
 
+  void _shareProduct(ProductModel product) {
+    final discountedPrice = product.discount > 0
+        ? product.price - (product.price * product.discount / 100)
+        : product.price;
+
+    final message =
+        '''
+🛒 Check out this product on Big Cart!
+
+🏷️ ${product.name}
+💰 \$${discountedPrice.toStringAsFixed(2)} ${product.discount > 0 ? '(${product.discount}% OFF!)' : ''}
+📦 ${product.unit}
+
+${product.description}
+
+Download Big Cart app and get fresh groceries delivered to your doorstep! 🚀
+''';
+
+    Share.share(message);
+  }
+
   bool _added = false;
 
   @override
@@ -90,8 +112,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Image area — light green background
-                  // Image area — light green background
+                  // Image area — light green background                  // Image area — light green background
                   GestureDetector(
                     onTap: () => _showImageZoom(context, product.imageUrl),
                     child: Container(
@@ -127,16 +148,30 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             ),
                           ),
 
-                          // Back button
                           SafeArea(
                             child: Padding(
                               padding: const EdgeInsets.all(8),
-                              child: IconButton(
-                                onPressed: () => Navigator.pop(context),
-                                icon: const Icon(
-                                  Icons.arrow_back_ios,
-                                  color: AppColors.textDark,
-                                ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  // Back button
+                                  IconButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    icon: const Icon(
+                                      Icons.arrow_back_ios,
+                                      color: AppColors.textDark,
+                                    ),
+                                  ),
+
+                                  // Share button
+                                  IconButton(
+                                    onPressed: () => _shareProduct(product),
+                                    icon: const Icon(
+                                      Icons.share_outlined,
+                                      color: AppColors.textDark,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),

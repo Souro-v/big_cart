@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/order_model.dart';
+import '../../providers/cart_provider.dart';
 import '../../providers/order_provider.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_text_styles.dart';
@@ -11,6 +12,55 @@ import '../../widgets/error_snackbar.dart';
 
 class OrderDetailScreen extends StatelessWidget {
   const OrderDetailScreen({super.key});
+
+  void _reorder(BuildContext context, OrderModel order) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text('Reorder', style: AppTextStyles.heading3),
+        content: Text(
+          'Add all items from this order to cart?',
+          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'No',
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textGrey,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              final cart = context.read<CartProvider>();
+              cart.clearCart();
+              for (final item in order.items) {
+                for (int i = 0; i < item.quantity; i++) {
+                  cart.addToCart(item.product);
+                }
+              }
+              ErrorSnackbar.showSuccess(
+                context,
+                '${order.items.length} items added to cart!',
+              );
+              Navigator.pushNamed(context, AppRoutes.cart);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: Text('Yes, Reorder', style: AppTextStyles.buttonText),
+          ),
+        ],
+      ),
+    );
+  }
 
   void _showCancelDialog(BuildContext context, String orderId) {
     showDialog(
@@ -330,6 +380,11 @@ class OrderDetailScreen extends StatelessWidget {
                       text: 'Cancel Order',
                       isOutlined: true,
                       onPressed: () => _showCancelDialog(context, order.id),
+                    ),
+                    const SizedBox(height: 12),
+                    CustomButton(
+                      text: 'Reorder',
+                      onPressed: () => _reorder(context, order),
                     ),
                   ],
 
