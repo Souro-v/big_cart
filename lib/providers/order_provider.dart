@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/order_model.dart';
 import '../models/cart_item_model.dart';
 import '../services/order_service.dart';
+import '../utils/error_handler.dart';
 
 class OrderProvider extends ChangeNotifier {
   final OrderService _orderService = OrderService();
@@ -36,6 +37,16 @@ class OrderProvider extends ChangeNotifier {
       return false;
     } finally {
       _isLoading = false; notifyListeners();
+    }
+  }
+  Future<bool> cancelOrder(String orderId) async {
+    try {
+      await _orderService.cancelOrder(orderId);
+      return true;
+    } catch (e) {
+      _error = ErrorHandler.getMessage(e);
+      notifyListeners();
+      return false;
     }
   }
 

@@ -76,4 +76,10 @@ class OrderService {
               .toList(),
         );
   }
+  Future<void> cancelOrder(String orderId) async {
+    await _db
+        .collection(AppConstants.ordersCol)
+        .doc(orderId)
+        .update({'status': OrderStatus.cancelled.name});
+  }
 }
