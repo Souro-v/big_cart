@@ -12,7 +12,6 @@ class AppTheme {
     colorScheme: ColorScheme.fromSeed(
       seedColor: AppColors.primary,
       primary: AppColors.primary,
-      background:  AppColors.background,
       surface: AppColors.surface,
       error: AppColors.error,
     ),
@@ -90,6 +89,77 @@ class AppTheme {
       unselectedItemColor: AppColors.textLight,
       type: BottomNavigationBarType.fixed,
       elevation: 8,
+    ),
+  );
+  static ThemeData get darkTheme => ThemeData(
+    useMaterial3: true,
+    brightness: Brightness.dark,
+    scaffoldBackgroundColor: AppColors.darkBackground,
+    primaryColor: AppColors.primary,
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: AppColors.primary,
+      brightness: Brightness.dark,
+      primary: AppColors.primary,
+      surface: AppColors.darkSurface,
+      error: AppColors.error,
+    ),
+
+    appBarTheme: const AppBarTheme(
+      backgroundColor: AppColors.darkBackground,
+      elevation: 0,
+      centerTitle: true,
+      titleTextStyle: TextStyle(
+        color: AppColors.darkTextDark,
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+      ),
+      iconTheme: IconThemeData(color: AppColors.darkTextDark),
+    ),
+
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.primary,
+        foregroundColor: AppColors.white,
+        minimumSize: const Size(double.infinity, 56),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16)),
+        elevation: 0,
+      ),
+    ),
+
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: AppColors.darkCard,
+      contentPadding:
+      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: AppColors.darkBorder),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide:
+        const BorderSide(color: AppColors.primary, width: 1.5),
+      ),
+      hintStyle: TextStyle(color: AppColors.darkTextLight),
+    ),
+
+    cardTheme: CardThemeData(
+      color: AppColors.darkCard,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: const BorderSide(color: AppColors.darkBorder),
+      ),
+    ),
+
+    dividerTheme: const DividerThemeData(
+      color: AppColors.darkBorder,
+      thickness: 1,
     ),
   );
 }

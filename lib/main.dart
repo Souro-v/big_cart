@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:big_cart/providers/address_provider.dart';
 import 'package:big_cart/providers/recently_viewed_provider.dart';
 import 'package:big_cart/providers/search_provider.dart';
+import 'package:big_cart/providers/theme_provider.dart';
 import 'package:big_cart/providers/wishlist_provider.dart';
 import 'package:big_cart/services/notification_service.dart';
 import 'package:big_cart/utils/app_colors.dart';
@@ -45,14 +46,19 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => RecentlyViewedProvider()),
         ChangeNotifierProvider(create: (_) => SearchProvider()),
         ChangeNotifierProvider(create: (_) => AddressProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ],
-      child: MaterialApp(
-        title: 'Big Cart',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        initialRoute: AppRoutes.splash,
-        onGenerateRoute: AppRoutes.generateRoute,
-        builder: (context, child) => _ConnectivityWrapper(child: child!),
+      child: Consumer<ThemeProvider>(
+        builder: (_, themeProvider, __) => MaterialApp(
+          title: 'Big Cart',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: themeProvider.themeMode,
+          initialRoute: AppRoutes.splash,
+          onGenerateRoute: AppRoutes.generateRoute,
+          builder: (context, child) => _ConnectivityWrapper(child: child!),
+        ),
       ),
     );
   }

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/theme_provider.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_text_styles.dart';
 import '../../widgets/custom_button.dart';
@@ -11,9 +13,9 @@ class NotificationsScreen extends StatefulWidget {
 }
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
-  bool _allowNotifications   = true;
-  bool _emailNotifications   = false;
-  bool _orderNotifications   = false;
+  bool _allowNotifications = true;
+  bool _emailNotifications = false;
+  bool _orderNotifications = false;
   bool _generalNotifications = true;
 
   @override
@@ -43,31 +45,42 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   _NotificationItem(
                     title: 'Allow Notifications',
                     value: _allowNotifications,
-                    onChanged: (v) =>
-                        setState(() => _allowNotifications = v),
+                    onChanged: (v) => setState(() => _allowNotifications = v),
                   ),
                   const Divider(height: 1),
                   _NotificationItem(
                     title: 'Email Notifications',
                     value: _emailNotifications,
-                    onChanged: (v) =>
-                        setState(() => _emailNotifications = v),
+                    onChanged: (v) => setState(() => _emailNotifications = v),
                   ),
                   const Divider(height: 1),
                   _NotificationItem(
                     title: 'Order Notifications',
                     value: _orderNotifications,
-                    onChanged: (v) =>
-                        setState(() => _orderNotifications = v),
+                    onChanged: (v) => setState(() => _orderNotifications = v),
                   ),
                   const Divider(height: 1),
                   _NotificationItem(
                     title: 'General Notifications',
                     value: _generalNotifications,
-                    onChanged: (v) =>
-                        setState(() => _generalNotifications = v),
+                    onChanged: (v) => setState(() => _generalNotifications = v),
                   ),
                 ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              decoration: BoxDecoration(
+                color: AppColors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: Consumer<ThemeProvider>(
+                builder: (_, themeProvider, __) => _NotificationItem(
+                  title: 'Dark Mode',
+                  value: themeProvider.isDark,
+                  onChanged: (_) => themeProvider.toggleTheme(),
+                ),
               ),
             ),
 
@@ -105,7 +118,8 @@ class _NotificationItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title,
+                Text(
+                  title,
                   style: AppTextStyles.bodyLarge.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
