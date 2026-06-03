@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../../models/order_model.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/order_provider.dart';
+import '../../services/invoice_service.dart';
+import '../../services/order_service.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_text_styles.dart';
 import '../../utils/app_routes.dart';
@@ -10,8 +12,35 @@ import '../../widgets/app_image.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/error_snackbar.dart';
 
-class OrderDetailScreen extends StatelessWidget {
+class OrderDetailScreen extends StatefulWidget {
   const OrderDetailScreen({super.key});
+
+  @override
+  State<OrderDetailScreen> createState() => _OrderDetailScreenState();
+}
+
+class _OrderDetailScreenState extends State<OrderDetailScreen> {
+  OrderModel? _order;
+  bool _isLoading = true;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final order = ModalRoute.of(context)?.settings.arguments as OrderModel?;
+    if (order != null && _isLoading) {
+      _loadOrder(order.id);
+    }
+  }
+
+  Future<void> _loadOrder(String orderId) async {
+    final order = await OrderService().getOrder(orderId);
+    if (mounted) {
+      setState(() {
+        _order = order;
+        _isLoading = false;
+      });
+    }
+  }
 
   void _reorder(BuildContext context, OrderModel order) {
     showDialog(
@@ -113,8 +142,14 @@ class OrderDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final order = ModalRoute.of(context)!.settings.arguments as OrderModel?;
-
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(color: AppColors.primary),
+        ),
+      );
+    }
+    final order = _order;
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -356,9 +391,14 @@ class OrderDetailScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-
                   const SizedBox(height: 24),
+                  CustomButton(
+                    text: 'Download Invoice',
+                    isOutlined: true,
+                    onPressed: () => InvoiceService().generateAndPrint(order),
+                  ),
 
+                  const SizedBox(height: 12),
                   // Track order button
                   CustomButton(
                     text: 'Track Order',

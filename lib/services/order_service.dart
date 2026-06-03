@@ -1,12 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/order_model.dart';
 import '../models/cart_item_model.dart';
+import '../models/product_model.dart';
 import '../utils/constants.dart';
 
 class OrderService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  // Order place করো
+  // Order place
   Future<String> placeOrder({
     required String userId,
     required List<CartItemModel> items,
@@ -27,7 +28,7 @@ class OrderService {
     // Order save
     await orderRef.set(order.toMap());
 
-    // Items আলাদা subcollection-এ
+    // Items  subcollection
     for (final item in items) {
       await orderRef.collection('items').add({
         'productId': item.product.id,
@@ -59,8 +60,42 @@ class OrderService {
   Future<OrderModel?> getOrder(String orderId) async {
     final doc = await _db.collection(AppConstants.ordersCol).doc(orderId).get();
 
-    if (doc.exists) return OrderModel.fromMap(doc.data()!, doc.id);
-    return null;
+    if (!doc.exists) return null;
+
+    final order = OrderModel.fromMap(doc.data()!, doc.id);
+
+    // Items subcollection load
+    final itemsSnap = await _db
+        .collection(AppConstants.ordersCol)
+        .doc(orderId)
+        .collection('items')
+        .get();
+
+    // Items parse
+    final items = itemsSnap.docs.map((doc) {
+      final data = doc.data();
+      return CartItemModel(
+        product: ProductModel(
+          id: data['productId'] ?? '',
+          name: data['productName'] ?? '',
+          imageUrl: data['imageUrl'] ?? '',
+          category: '',
+          unit: '',
+          price: (data['price'] ?? 0).toDouble(),
+        ),
+        quantity: data['quantity'] ?? 1,
+      );
+    }).toList();
+
+    return OrderModel(
+      id: order.id,
+      userId: order.userId,
+      items: items,
+      totalAmount: order.totalAmount,
+      address: order.address,
+      status: order.status,
+      createdAt: order.createdAt,
+    );
   }
 
   // User orders real-time stream
@@ -76,10 +111,10 @@ class OrderService {
               .toList(),
         );
   }
+
   Future<void> cancelOrder(String orderId) async {
-    await _db
-        .collection(AppConstants.ordersCol)
-        .doc(orderId)
-        .update({'status': OrderStatus.cancelled.name});
+    await _db.collection(AppConstants.ordersCol).doc(orderId).update({
+      'status': OrderStatus.cancelled.name,
+    });
   }
 }
