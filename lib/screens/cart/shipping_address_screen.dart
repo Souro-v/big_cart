@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/address_provider.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_text_styles.dart';
 import '../../utils/app_routes.dart';
@@ -45,6 +47,8 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final addressProvider = context.watch<AddressProvider>();
+    final savedAddresses = addressProvider.addresses;
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -64,6 +68,100 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
               StepIndicator(currentStep: 2),
               const SizedBox(height: 24),
 
+              if (savedAddresses.isNotEmpty) ...[
+                Text('Saved Addresses', style: AppTextStyles.heading3),
+                const SizedBox(height: 12),
+                ...savedAddresses.map(
+                  (addr) => GestureDetector(
+                    onTap: () {
+                      addressProvider.selectAddress(addr);
+                      // Form fields fill করো
+                      _nameController.text = addr.name;
+                      _addressController.text = addr.address;
+                      _cityController.text = addr.city;
+                      _zipController.text = addr.zip;
+                      _phoneController.text = addr.phone;
+                      setState(() => _selectedCountry = addr.country);
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 10),
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: AppColors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: addressProvider.selectedAddress == addr
+                              ? AppColors.primary
+                              : AppColors.border,
+                          width: addressProvider.selectedAddress == addr
+                              ? 2
+                              : 1,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 40,
+                            decoration: const BoxDecoration(
+                              color: AppColors.primaryLight,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.location_on_outlined,
+                              color: AppColors.primary,
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  addr.name,
+                                  style: AppTextStyles.bodyMedium.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  addr.fullAddress,
+                                  style: AppTextStyles.bodySmall,
+                                ),
+                                Text(
+                                  addr.phone,
+                                  style: AppTextStyles.bodySmall,
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (addr.isDefault)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 3,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.primaryLight,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                'Default',
+                                style: AppTextStyles.bodySmall.copyWith(
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const Divider(height: 24),
+                Text('Add New Address', style: AppTextStyles.heading3),
+                const SizedBox(height: 12),
+              ],
               // Name
               TextFormField(
                 controller: _nameController,
@@ -204,6 +302,22 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
                 text: 'Next',
                 onPressed: () {
                   if (!_formKey.currentState!.validate()) return;
+
+                  // Address save করো
+                  final newAddress = AddressModel(
+                    name: _nameController.text.trim(),
+                    address: _addressController.text.trim(),
+                    city: _cityController.text.trim(),
+                    zip: _zipController.text.trim(),
+                    country: _selectedCountry,
+                    phone: _phoneController.text.trim(),
+                    isDefault: _saveAddress,
+                  );
+
+                  if (_saveAddress) {
+                    context.read<AddressProvider>().addAddress(newAddress);
+                  }
+
                   Navigator.pushNamed(
                     context,
                     AppRoutes.checkout,

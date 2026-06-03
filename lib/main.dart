@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:big_cart/providers/address_provider.dart';
 import 'package:big_cart/providers/recently_viewed_provider.dart';
 import 'package:big_cart/providers/search_provider.dart';
 import 'package:big_cart/providers/wishlist_provider.dart';
@@ -43,6 +44,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => WishlistProvider()),
         ChangeNotifierProvider(create: (_) => RecentlyViewedProvider()),
         ChangeNotifierProvider(create: (_) => SearchProvider()),
+        ChangeNotifierProvider(create: (_) => AddressProvider()),
       ],
       child: MaterialApp(
         title: 'Big Cart',
