@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../services/biometric_service.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_text_styles.dart';
 import '../../utils/app_routes.dart';
@@ -23,6 +24,31 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscurePassword = true;
   bool _rememberMe = false;
   final _formKey = GlobalKey<FormState>();
+  bool _biometricAvailable = false;
+  final BiometricService _biometricService = BiometricService();
+
+  @override
+  void initState() {
+    super.initState();
+    _checkBiometric();
+  }
+  Future<void> _checkBiometric() async {
+    final available = await _biometricService.isAvailable();
+    if (mounted) setState(() => _biometricAvailable = available);
+  }
+
+  Future<void> _loginWithBiometric() async {
+    final authenticated = await _biometricService.authenticate();
+    if (authenticated && mounted) {
+      // Last logged in user auto login
+      final auth = context.read<AuthProvider>();
+      if (auth.user != null) {
+        Navigator.pushReplacementNamed(context, AppRoutes.home);
+      } else {
+        ErrorSnackbar.show(context, 'Please login first to use biometric.');
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -182,6 +208,46 @@ class _LoginScreenState extends State<LoginScreen> {
                       onPressed: _login,
                       isLoading: isLoading,
                     ),
+                    //biometric login
+                    if (_biometricAvailable) ...[
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          const Expanded(child: Divider()),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            child: Text('OR', style: AppTextStyles.bodySmall),
+                          ),
+                          const Expanded(child: Divider()),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      GestureDetector(
+                        onTap: _loginWithBiometric,
+                        child: Container(
+                          width: double.infinity,
+                          height: 56,
+                          decoration: BoxDecoration(
+                            color: AppColors.surface,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: AppColors.border),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.fingerprint,
+                                  color: AppColors.primary, size: 28),
+                              const SizedBox(width: 12),
+                              Text('Login with Biometric',
+                                style: AppTextStyles.bodyLarge.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
 
                     const SizedBox(height: 16),
 
