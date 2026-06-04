@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/user_model.dart';
 import '../services/auth_service.dart';
 import '../utils/error_handler.dart';
+import 'analytics_service.dart';
 
 class AuthProvider extends ChangeNotifier {
   final AuthService _authService = AuthService();
@@ -34,6 +35,7 @@ class AuthProvider extends ChangeNotifier {
     _setError(null);
     try {
       _user = await _authService.login(email: email, password: password);
+      await AnalyticsService().logLogin('email');
       notifyListeners();
       return true;
     } catch (e) {
@@ -60,6 +62,7 @@ class AuthProvider extends ChangeNotifier {
         password: password,
         phone: phone,
       );
+      await AnalyticsService().logSignUp('email');
       notifyListeners();
       return true;
     } catch (e) {

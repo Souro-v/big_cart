@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../providers/analytics_service.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/order_provider.dart';
@@ -46,6 +47,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
 
     if (success && mounted) {
+      // Analytics Event
+      AnalyticsService().logPurchase(
+        DateTime.now().millisecondsSinceEpoch.toString(), // orderId
+        cart.totalAmount + 1.6,
+      );
       cart.clearCart();
       Navigator.pushReplacementNamed(context, AppRoutes.orderSuccess);
     } else if (mounted) {
@@ -335,7 +341,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             const SizedBox(height: 24),
 
             CustomButton(
-              text: 'Make a payment',
+              text: 'Make payment',
               onPressed: _makePayment,
               isLoading: isLoading,
             ),

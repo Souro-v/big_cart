@@ -5,6 +5,7 @@ import 'package:photo_view/photo_view.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../models/product_model.dart';
+import '../../providers/analytics_service.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/product_provider.dart';
 import '../../providers/recently_viewed_provider.dart';
@@ -99,6 +100,7 @@ Download Big Cart app and get fresh groceries delivered to your doorstep! 🚀
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           context.read<RecentlyViewedProvider>().add(product);
+          AnalyticsService().logProductView(product.id, product.name);
         }
       });
     }
@@ -152,7 +154,8 @@ Download Big Cart app and get fresh groceries delivered to your doorstep! 🚀
                             child: Padding(
                               padding: const EdgeInsets.all(8),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   // Back button
                                   IconButton(
@@ -345,6 +348,13 @@ Download Big Cart app and get fresh groceries delivered to your doorstep! 🚀
               onPressed: product.inStock
                   ? () {
                       HapticHelper.medium();
+
+                      // Analytics Event
+                      AnalyticsService().logAddToCart(
+                        product.id,
+                        product.name,
+                        product.price,
+                      );
                       final cart = context.read<CartProvider>();
                       for (int i = 0; i < _quantity; i++) {
                         cart.addToCart(product);

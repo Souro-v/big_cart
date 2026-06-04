@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../providers/analytics_service.dart';
 import '../../providers/product_provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/search_provider.dart';
@@ -46,6 +47,7 @@ class _SearchScreenState extends State<SearchScreen> {
   void _onSubmit(String query) {
     if (query.isNotEmpty) {
       context.read<SearchProvider>().addToHistory(query);
+      AnalyticsService().logSearch(query);
     }
   }
 

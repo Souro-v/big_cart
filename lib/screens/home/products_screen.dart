@@ -1,6 +1,7 @@
 import 'package:big_cart/utils/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../providers/analytics_service.dart';
 import '../../providers/product_provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../utils/app_colors.dart';
@@ -36,10 +37,14 @@ class _ProductsScreenState extends State<ProductsScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final newCategory = ModalRoute.of(context)?.settings.arguments as String?;
+    final newCategory = ModalRoute
+        .of(context)
+        ?.settings
+        .arguments as String?;
     if (!_loaded || _category != newCategory) {
       _category = newCategory;
       _loaded = true;
+      AnalyticsService().logCategoryView(_category ?? 'All');
       Future.microtask(() {
         if (mounted) {
           final provider = context.read<ProductProvider>();
@@ -65,8 +70,12 @@ class _ProductsScreenState extends State<ProductsScreen> {
   @override
   Widget build(BuildContext context) {
     final category = _category ?? 'All';
-    final products = context.watch<ProductProvider>().products;
-    final isLoading = context.watch<ProductProvider>().isLoading;
+    final products = context
+        .watch<ProductProvider>()
+        .products;
+    final isLoading = context
+        .watch<ProductProvider>()
+        .isLoading;
     final cart = context.watch<CartProvider>();
 
     return Scaffold(
@@ -83,7 +92,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
             icon: const Icon(Icons.sort, color: AppColors.textDark),
             onSelected: (option) =>
                 context.read<ProductProvider>().sortBy(option),
-            itemBuilder: (_) => [
+            itemBuilder: (_) =>
+            [
               const PopupMenuItem(
                 value: SortOption.none,
                 child: Row(
@@ -143,101 +153,106 @@ class _ProductsScreenState extends State<ProductsScreen> {
           ),
         ],
         // AppBar এ bottom add করো
-        bottom: context.watch<ProductProvider>().sortOption != SortOption.none
+        bottom: context
+            .watch<ProductProvider>()
+            .sortOption != SortOption.none
             ? PreferredSize(
-                preferredSize: const Size.fromHeight(30),
-                child: Container(
-                  color: AppColors.primaryLight,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 4,
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.sort,
-                        size: 14,
-                        color: AppColors.primary,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        _sortLabel(context.watch<ProductProvider>().sortOption),
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.primary,
-                        ),
-                      ),
-                      const Spacer(),
-                      GestureDetector(
-                        onTap: () =>
-                            context.read<ProductProvider>().clearSort(),
-                        child: const Icon(
-                          Icons.close,
-                          size: 14,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ],
+          preferredSize: const Size.fromHeight(30),
+          child: Container(
+            color: AppColors.primaryLight,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 4,
+            ),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.sort,
+                  size: 14,
+                  color: AppColors.primary,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  _sortLabel(context
+                      .watch<ProductProvider>()
+                      .sortOption),
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.primary,
                   ),
                 ),
-              )
+                const Spacer(),
+                GestureDetector(
+                  onTap: () =>
+                      context.read<ProductProvider>().clearSort(),
+                  child: const Icon(
+                    Icons.close,
+                    size: 14,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        )
             : null,
       ),
       body: isLoading
           ? const Center(
-              child: CircularProgressIndicator(color: AppColors.primary),
-            )
+        child: CircularProgressIndicator(color: AppColors.primary),
+      )
           : products.isEmpty
           ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.inbox_outlined,
-                    size: 80,
-                    color: AppColors.textLight,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No products in $category',
-                    style: AppTextStyles.bodyLarge.copyWith(
-                      color: AppColors.textGrey,
-                    ),
-                  ),
-                ],
-              ),
-            )
-          : Padding(
-              padding: const EdgeInsets.all(16),
-              child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 0.72,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                ),
-                itemCount: products.length,
-                itemBuilder: (_, i) {
-                  final p = products[i];
-                  final qty = cart.isInCart(p.id)
-                      ? cart.items
-                            .firstWhere((item) => item.product.id == p.id)
-                            .quantity
-                      : 0;
-                  return ProductCard(
-                    product: p,
-                    quantity: qty,
-                    onAdd: () => cart.addToCart(p),
-                    onIncrease: () => cart.increaseQty(p.id),
-                    onDecrease: () => cart.decreaseQty(p.id),
-                    onTap: () => Navigator.pushNamed(
-                      context,
-                      AppRoutes.productDetail,
-                      arguments: p,
-                    ),
-                  );
-                },
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.inbox_outlined,
+              size: 80,
+              color: AppColors.textLight,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No products in $category',
+              style: AppTextStyles.bodyLarge.copyWith(
+                color: AppColors.textGrey,
               ),
             ),
+          ],
+        ),
+      )
+          : Padding(
+        padding: const EdgeInsets.all(16),
+        child: GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            childAspectRatio: 0.72,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+          ),
+          itemCount: products.length,
+          itemBuilder: (_, i) {
+            final p = products[i];
+            final qty = cart.isInCart(p.id)
+                ? cart.items
+                .firstWhere((item) => item.product.id == p.id)
+                .quantity
+                : 0;
+            return ProductCard(
+              product: p,
+              quantity: qty,
+              onAdd: () => cart.addToCart(p),
+              onIncrease: () => cart.increaseQty(p.id),
+              onDecrease: () => cart.decreaseQty(p.id),
+              onTap: () =>
+                  Navigator.pushNamed(
+                    context,
+                    AppRoutes.productDetail,
+                    arguments: p,
+                  ),
+            );
+          },
+        ),
+      ),
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:big_cart/providers/address_provider.dart';
+import 'package:big_cart/providers/analytics_service.dart';
 import 'package:big_cart/providers/recently_viewed_provider.dart';
 import 'package:big_cart/providers/search_provider.dart';
 import 'package:big_cart/providers/theme_provider.dart';
@@ -27,6 +28,7 @@ void main() async {
 
   // Notification initialize
   await NotificationService().initialize();
+  await AnalyticsService().logAppOpen();
   runApp(const MyApp());
 
   FlutterNativeSplash.remove();
