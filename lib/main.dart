@@ -5,6 +5,7 @@ import 'package:big_cart/providers/search_provider.dart';
 import 'package:big_cart/providers/theme_provider.dart';
 import 'package:big_cart/providers/wishlist_provider.dart';
 import 'package:big_cart/services/notification_service.dart';
+import 'package:big_cart/services/session_service.dart';
 import 'package:big_cart/utils/app_colors.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
@@ -57,10 +58,76 @@ class MyApp extends StatelessWidget {
           themeMode: themeProvider.themeMode,
           initialRoute: AppRoutes.splash,
           onGenerateRoute: AppRoutes.generateRoute,
-          builder: (context, child) => _ConnectivityWrapper(child: child!),
+          builder: (context, child) =>
+              _SessionWrapper(child: _ConnectivityWrapper(child: child!)),
         ),
       ),
     );
+  }
+}
+
+class _SessionWrapper extends StatefulWidget {
+  final Widget child;
+
+  const _SessionWrapper({required this.child});
+
+  @override
+  State<_SessionWrapper> createState() => _SessionWrapperState();
+}
+
+class _SessionWrapperState extends State<_SessionWrapper>
+    with WidgetsBindingObserver {
+  final SessionService _sessionService = SessionService();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _checkSession();
+    } else if (state == AppLifecycleState.paused) {
+      _sessionService.updateLastActive();
+    }
+  }
+
+  Future<void> _checkSession() async {
+    final expired = await _sessionService.isSessionExpired();
+    if (expired && mounted) {
+      final auth = context.read<AuthProvider>();
+      if (auth.isLoggedIn) {
+        await auth.logout();
+        await _sessionService.clearSession();
+        if (mounted) {
+          Navigator.of(
+            context,
+          ).pushNamedAndRemoveUntil('/login', (route) => false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Session expired. Please login again.'),
+              backgroundColor: Colors.orange,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      }
+    } else {
+      _sessionService.updateLastActive();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.child;
   }
 }
 
