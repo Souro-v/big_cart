@@ -14,7 +14,8 @@ class ProductProvider extends ChangeNotifier {
   String _selectedCategory = 'All';
   bool _isLoading = false;
   SortOption _sortOption = SortOption.none;
-
+  bool _isSearching = false;
+  bool get isSearching => _isSearching;
   List<ProductModel> get searchResults => _searchResults;
   List<String> get categories => ['All', ..._categories];
   String get selectedCategory => _selectedCategory;
@@ -77,15 +78,20 @@ class ProductProvider extends ChangeNotifier {
     _sortOption = SortOption.none;
     notifyListeners();
   }
-
   Future<void> search(String query) async {
     if (query.isEmpty) {
       _searchResults = [];
       notifyListeners();
       return;
     }
-    _searchResults = await _productService.search(query);
+    _isSearching = true;
     notifyListeners();
+    try {
+      _searchResults = await _productService.search(query);
+    } finally {
+      _isSearching = false;
+      notifyListeners();
+    }
   }
 
   List<ProductModel> getRelated(String category, String excludeId) {
