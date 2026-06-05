@@ -9,6 +9,8 @@ import 'package:big_cart/services/notification_service.dart';
 import 'package:big_cart/services/session_service.dart';
 import 'package:big_cart/utils/app_colors.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -26,6 +28,21 @@ void main() async {
   FlutterNativeSplash.preserve(widgetsBinding: binding);
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
+  // Crashlytics setup
+  if (!kDebugMode) {
+    // Release mode এ Crashlytics enable
+    await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+
+    // Flutter errors catch
+    FlutterError.onError =
+        FirebaseCrashlytics.instance.recordFlutterFatalError;
+
+    // Async errors catch
+    PlatformDispatcher.instance.onError = (error, stack) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      return true;
+    };
+  }
   // Notification initialize
   await NotificationService().initialize();
   await AnalyticsService().logAppOpen();

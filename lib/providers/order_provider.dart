@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../models/order_model.dart';
 import '../models/cart_item_model.dart';
+import '../services/crashlytics_service.dart';
 import '../services/order_service.dart';
 import '../utils/error_handler.dart';
 
@@ -31,9 +32,12 @@ class OrderProvider extends ChangeNotifier {
         totalAmount: totalAmount,
         address: address,
       );
+      await CrashlyticsService().log('Order placed successfully');
       return true;
-    } catch (e) {
-      _error = e.toString();
+    } catch (e , stack) {
+      _error = ErrorHandler.getMessage(e);
+      await CrashlyticsService().logError(e, stack,
+          reason: 'Failed to place order');
       return false;
     } finally {
       _isLoading = false; notifyListeners();

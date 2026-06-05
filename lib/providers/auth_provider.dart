@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/user_model.dart';
 import '../services/auth_service.dart';
+import '../services/crashlytics_service.dart';
 import '../utils/error_handler.dart';
 import 'analytics_service.dart';
 
@@ -36,6 +37,7 @@ class AuthProvider extends ChangeNotifier {
     try {
       _user = await _authService.login(email: email, password: password);
       await AnalyticsService().logLogin('email');
+      await CrashlyticsService().setUser(_user!.uid, _user!.email);
       notifyListeners();
       return true;
     } catch (e) {
@@ -90,10 +92,10 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> logout() async {
     await _authService.logout();
+    await CrashlyticsService().clearUser();
     _user = null;
     notifyListeners();
   }
-
   Future<void> updateUser(UserModel updated) async {
     await _authService.updateUser(updated);
     _user = updated;

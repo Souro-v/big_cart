@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/product_model.dart';
+import '../services/crashlytics_service.dart';
 import '../services/product_service.dart';
 
 enum SortOption { none, priceLowHigh, priceHighLow, newest, discount }
@@ -48,17 +49,17 @@ class ProductProvider extends ChangeNotifier {
   }
 
   Future<void> loadProducts() async {
-    _isLoading = true;
-    notifyListeners();
+    _isLoading = true; notifyListeners();
     try {
       _products = await _productService.getAllProducts();
       _categories = await _productService.getCategories();
-    } catch (e) {
+    } catch (e, stack) {
       _products = [];
-      debugPrint('Error loading products: $e');
+      await CrashlyticsService().logError(e, stack,
+          reason: 'Failed to load products');
+      debugPrint('Error: $e');
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _isLoading = false; notifyListeners();
     }
   }
 
