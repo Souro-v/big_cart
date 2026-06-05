@@ -1,3 +1,4 @@
+import 'package:big_cart/providers/wishlist_provider.dart';
 import 'package:flutter/material.dart';
 import '../models/user_model.dart';
 import '../services/auth_service.dart';
@@ -38,6 +39,7 @@ class AuthProvider extends ChangeNotifier {
       _user = await _authService.login(email: email, password: password);
       await AnalyticsService().logLogin('email');
       await CrashlyticsService().setUser(_user!.uid, _user!.email);
+
       notifyListeners();
       return true;
     } catch (e) {

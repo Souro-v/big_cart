@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../providers/wishlist_provider.dart';
 import '../../services/biometric_service.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_text_styles.dart';
@@ -66,6 +67,8 @@ class _LoginScreenState extends State<LoginScreen> {
       _passwordController.text.trim(),
     );
     if (success && mounted) {
+      final uid = context.read<AuthProvider>().user?.uid ?? '';
+      context.read<WishlistProvider>().loadWishlist(uid);
       Navigator.pushReplacementNamed(context, AppRoutes.home);
     } else if (mounted) {
       ErrorSnackbar.show(context, auth.error ?? 'Login failed');

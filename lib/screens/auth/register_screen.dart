@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../providers/wishlist_provider.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_text_styles.dart';
 import '../../utils/app_routes.dart';
@@ -45,6 +46,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _phoneController.text.trim(),
     );
     if (success && mounted) {
+      final uid = context.read<AuthProvider>().user?.uid ?? '';
+      context.read<WishlistProvider>().loadWishlist(uid);
       Navigator.pushReplacementNamed(context, AppRoutes.home);
     } else if (mounted) {
       ErrorSnackbar.show(context, auth.error ?? 'Registration failed');

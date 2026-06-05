@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../providers/wishlist_provider.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_text_styles.dart';
 import '../../utils/app_routes.dart';
@@ -111,6 +113,7 @@ class _SplashScreenState extends State<SplashScreen>
     if (user != null) {
       // Already logged in
       await _fadeOut();
+       context.read<WishlistProvider>().loadWishlist(user.uid);
       if (mounted) Navigator.pushReplacementNamed(context, AppRoutes.home);
     } else if (seen) {
       // Seen onboarding
