@@ -11,6 +11,10 @@ class AuthService {
   User? get currentUser => _auth.currentUser;
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
+  // Referral code generate
+  String _generateReferralCode(String uid) {
+    return 'BIGCART${uid.substring(0, 6).toUpperCase()}';
+  }
   // Register
   Future<UserModel?> register({
     required String name,
@@ -28,6 +32,7 @@ class AuthService {
       name: name,
       email: email,
       phone: phone,
+      referralCode: _generateReferralCode(cred.user!.uid),
     );
 
     await _db

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/wishlist_provider.dart';
 import '../../utils/app_colors.dart';
@@ -9,6 +10,7 @@ import '../../utils/app_text_styles.dart';
 import '../../utils/app_routes.dart';
 import '../../widgets/bottom_nav_bar.dart';
 import '../../widgets/error_snackbar.dart';
+import '../../widgets/shimmer_loading.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -92,6 +94,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     if (source == null) return;
 
+    if (!mounted) return;
     setState(() => _isUploading = true);
 
     final picker = ImagePicker();
@@ -110,10 +113,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final bytes = await picked.readAsBytes();
     final base64Image = 'data:image/jpeg;base64,${base64Encode(bytes)}';
 
-    if (mounted) {
-      final auth = context.read<AuthProvider>();
+    if (!mounted) return;
+    final auth = context.read<AuthProvider>();
+
+    if (auth.user != null) {
       await auth.updateUser(auth.user!.copyWith(imageUrl: base64Image));
+      if (!mounted) return;
       ErrorSnackbar.showSuccess(context, 'Profile photo updated!');
+    }
+
+    if (mounted) {
       setState(() => _isUploading = false);
     }
   }
@@ -180,6 +189,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ],
                 ),
               )
+            : user == null
+            ? _ProfileShimmer()
             : SingleChildScrollView(
                 child: Column(
                   children: [
@@ -192,8 +203,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         CircleAvatar(
                           radius: 50,
                           backgroundColor: AppColors.surface,
-                          backgroundImage: user?.imageUrl.isNotEmpty == true
-                              ? (user!.imageUrl.startsWith('data:image')
+                          backgroundImage: user.imageUrl.isNotEmpty == true
+                              ? (user.imageUrl.startsWith('data:image')
                                     ? MemoryImage(
                                         base64Decode(
                                           user.imageUrl.split(',')[1],
@@ -202,7 +213,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     : NetworkImage(user.imageUrl)
                                           as ImageProvider)
                               : null,
-                          child: user?.imageUrl.isEmpty != false
+                          child: user.imageUrl.isEmpty != false
                               ? const Icon(
                                   Icons.person,
                                   size: 50,
@@ -231,9 +242,49 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                     const SizedBox(height: 12),
 
-                    Text(user?.name ?? 'User', style: AppTextStyles.heading3),
+                    Text(user.name, style: AppTextStyles.heading3),
+                    // Name এর নিচে
+                    if (user.referralCode.isNotEmpty == true) ...[
+                      const SizedBox(height: 8),
+                      GestureDetector(
+                        onTap: () {
+                          Share.share(
+                            'Join Big Cart with my referral code: ${user.referralCode}\nGet 10% off your first order!',
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryLight,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: AppColors.primary),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'Code: ${user.referralCode}',
+                                style: AppTextStyles.bodySmall.copyWith(
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              const Icon(
+                                Icons.share,
+                                size: 14,
+                                color: AppColors.primary,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 4),
-                    Text(user?.email ?? '', style: AppTextStyles.bodySmall),
+                    Text(user.email, style: AppTextStyles.bodySmall),
 
                     const SizedBox(height: 24),
 
@@ -261,27 +312,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             title: 'Sign out',
                             showArrow: false,
                             onTap: () async {
-                              await context.read<AuthProvider>().logout();
-                              context.read<WishlistProvider>().clearLocal();
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Logged out!'),
-                                    duration: Duration(seconds: 2),
-                                    backgroundColor: AppColors.primary,
-                                    behavior: SnackBarBehavior.floating,
-                                  ),
-                                );
-                                await Future.delayed(
-                                  const Duration(seconds: 2),
-                                );
-                                if (context.mounted) {
-                                  Navigator.pushReplacementNamed(
-                                    context,
-                                    AppRoutes.login,
-                                  );
-                                }
-                              }
+                              final authProvider = context.read<AuthProvider>();
+                              final wishlistProvider = context
+                                  .read<WishlistProvider>();
+
+                              await authProvider.logout();
+                              wishlistProvider.clearLocal();
+
+                              if (!context.mounted) return;
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Logged out!'),
+                                  duration: Duration(seconds: 2),
+                                  backgroundColor: AppColors.primary,
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+
+                              await Future.delayed(const Duration(seconds: 2));
+
+                              if (!context.mounted) return;
+                              Navigator.pushReplacementNamed(
+                                context,
+                                AppRoutes.login,
+                              );
                             },
                           ),
                         ],
@@ -292,6 +347,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ],
                 ),
               ),
+      ),
+    );
+  }
+}
+
+class _ProfileShimmer extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          const SizedBox(height: 32),
+
+          // Avatar shimmer
+          const Center(
+            child: ShimmerLoading(width: 100, height: 100, borderRadius: 50),
+          ),
+          const SizedBox(height: 12),
+
+          // Name shimmer
+          Center(child: ShimmerLoading(width: 120, height: 16)),
+          const SizedBox(height: 8),
+          Center(child: ShimmerLoading(width: 180, height: 12)),
+
+          const SizedBox(height: 24),
+
+          // Menu items shimmer
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              children: List.generate(
+                6,
+                (_) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: ShimmerLoading(width: double.infinity, height: 56),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -4,6 +4,8 @@ class UserModel {
   final String email;
   final String phone;
   final String imageUrl;
+  final String referralCode;
+  final int points;
 
   UserModel({
     required this.uid,
@@ -11,6 +13,8 @@ class UserModel {
     required this.email,
     required this.phone,
     this.imageUrl = '',
+    this.referralCode = '',
+    this.points = 0,
   });
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
@@ -20,6 +24,8 @@ class UserModel {
       email: map['email'] ?? '',
       phone: map['phone'] ?? '',
       imageUrl: map['imageUrl'] ?? '',
+      referralCode: map['referralCode'] ?? '',
+      points: map['points'] ?? 0,
     );
   }
 
@@ -30,6 +36,8 @@ class UserModel {
       'email': email,
       'phone': phone,
       'imageUrl': imageUrl,
+      'referralCode': referralCode,
+      'points': points,
     };
   }
 
