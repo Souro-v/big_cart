@@ -5,6 +5,35 @@ import '../utils/constants.dart';
 class ProductService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
+  static const int _pageSize = 10;
+
+  // Pagination use in products load
+  Future<List<ProductModel>> getProducts({
+    String? category,
+    DocumentSnapshot? lastDoc,
+  }) async {
+    Query query = _db
+        .collection(AppConstants.productsCol)
+        .where('inStock', isEqualTo: true)
+        .limit(_pageSize);
+
+    if (category != null && category != 'All') {
+      query = query.where('category', isEqualTo: category);
+    }
+
+    if (lastDoc != null) {
+      query = query.startAfterDocument(lastDoc);
+    }
+
+    final snap = await query.get();
+    return snap.docs
+        .map(
+          (doc) =>
+              ProductModel.fromMap(doc.data() as Map<String, dynamic>, doc.id),
+        )
+        .toList();
+  }
+
   //  products
   Future<List<ProductModel>> getAllProducts() async {
     final snap = await _db
@@ -32,11 +61,9 @@ class ProductService {
 
   // Search by name
   Future<List<ProductModel>> search(String query) async {
-    final snap = await _db
-        .collection(AppConstants.productsCol)
-        .get();
+    final snap = await _db.collection(AppConstants.productsCol).get();
 
-    // Firestore-এ full text search নেই, তাই client-side filter
+    // Firestore full text search is of so client-side filter
     final q = query.toLowerCase();
     return snap.docs
         .map((doc) => ProductModel.fromMap(doc.data(), doc.id))
@@ -46,20 +73,15 @@ class ProductService {
 
   // Single product
   Future<ProductModel?> getProduct(String id) async {
-    final doc = await _db
-        .collection(AppConstants.productsCol)
-        .doc(id)
-        .get();
+    final doc = await _db.collection(AppConstants.productsCol).doc(id).get();
 
     if (doc.exists) return ProductModel.fromMap(doc.data()!, doc.id);
     return null;
   }
 
-  // সব categories (distinct)
+  //categories (distinct)
   Future<List<String>> getCategories() async {
-    final snap = await _db
-        .collection(AppConstants.productsCol)
-        .get();
+    final snap = await _db.collection(AppConstants.productsCol).get();
 
     final categories = snap.docs
         .map((doc) => doc.data()['category'] as String)

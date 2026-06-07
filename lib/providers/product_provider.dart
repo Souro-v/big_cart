@@ -1,6 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../models/product_model.dart';
-import '../services/crashlytics_service.dart';
 import '../services/product_service.dart';
 
 enum SortOption { none, priceLowHigh, priceHighLow, newest, discount }
@@ -13,20 +13,41 @@ class ProductProvider extends ChangeNotifier {
   List<String> _categories = [];
   String _selectedCategory = 'All';
   bool _isLoading = false;
-  SortOption _sortOption = SortOption.none;
+  bool _isLoadingMore = false;
+  bool _hasMore = true;
   bool _isSearching = false;
-  bool get isSearching => _isSearching;
+  SortOption _sortOption = SortOption.none;
+  double? _minPrice;
+  double? _maxPrice;
+  int? _minRating;
+  DocumentSnapshot? _lastDoc;
+
   List<ProductModel> get searchResults => _searchResults;
   List<String> get categories => ['All', ..._categories];
   String get selectedCategory => _selectedCategory;
   bool get isLoading => _isLoading;
+  bool get isLoadingMore => _isLoadingMore;
+  bool get hasMore => _hasMore;
+  bool get isSearching => _isSearching;
   SortOption get sortOption => _sortOption;
 
   List<ProductModel> get products {
-    List<ProductModel> filtered = _selectedCategory == 'All'
-        ? List.from(_products)
-        : _products.where((p) => p.category == _selectedCategory).toList();
+    List<ProductModel> filtered = List.from(_products);
 
+    // Price filter
+    if (_minPrice != null) {
+      filtered = filtered.where((p) => p.price >= _minPrice!).toList();
+    }
+    if (_maxPrice != null) {
+      filtered = filtered.where((p) => p.price <= _maxPrice!).toList();
+    }
+
+    // Rating filter
+    if (_minRating != null) {
+      filtered = filtered.where((p) => p.rating >= _minRating!).toList();
+    }
+
+    // Sort
     switch (_sortOption) {
       case SortOption.priceLowHigh:
         filtered.sort((a, b) => a.price.compareTo(b.price));
@@ -49,18 +70,70 @@ class ProductProvider extends ChangeNotifier {
     return filtered;
   }
 
+  // First page load
   Future<void> loadProducts() async {
-    _isLoading = true; notifyListeners();
+    _isLoading = true;
+    _products = [];
+    _lastDoc = null;
+    _hasMore = true;
+    notifyListeners();
+
     try {
-      _products = await _productService.getAllProducts();
+      final snap = await FirebaseFirestore.instance
+          .collection('products')
+          .where('inStock', isEqualTo: true)
+          .limit(10)
+          .get();
+
+      _products = snap.docs
+          .map((doc) => ProductModel.fromMap(doc.data(), doc.id))
+          .toList();
+
+      if (snap.docs.isNotEmpty) {
+        _lastDoc = snap.docs.last;
+      }
+
+      _hasMore = snap.docs.length == 10;
       _categories = await _productService.getCategories();
-    } catch (e, stack) {
-      _products = [];
-      await CrashlyticsService().logError(e, stack,
-          reason: 'Failed to load products');
+    } catch (e) {
       debugPrint('Error: $e');
     } finally {
-      _isLoading = false; notifyListeners();
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Load more — pagination
+  Future<void> loadMore() async {
+    if (_isLoadingMore || !_hasMore || _lastDoc == null) return;
+
+    _isLoadingMore = true;
+    notifyListeners();
+
+    try {
+      final snap = await FirebaseFirestore.instance
+          .collection('products')
+          .where('inStock', isEqualTo: true)
+          .startAfterDocument(_lastDoc!)
+          .limit(10)
+          .get();
+
+      final newProducts = snap.docs
+          .map((doc) => ProductModel.fromMap(doc.data(), doc.id))
+          .toList();
+
+      _products.addAll(newProducts);
+
+      if (snap.docs.isNotEmpty) {
+        _lastDoc = snap.docs.last;
+      }
+
+      _hasMore = snap.docs.length == 10;
+    } catch (e) {
+      debugPrint('Error loading more: $e');
+    } finally {
+      _isLoadingMore = false;
+      notifyListeners();
     }
   }
 
@@ -78,6 +151,25 @@ class ProductProvider extends ChangeNotifier {
     _sortOption = SortOption.none;
     notifyListeners();
   }
+
+  void applyFilter({
+    double? minPrice,
+    double? maxPrice,
+    int? minRating,
+  }) {
+    _minPrice = minPrice;
+    _maxPrice = maxPrice;
+    _minRating = minRating;
+    notifyListeners();
+  }
+
+  void clearFilter() {
+    _minPrice = null;
+    _maxPrice = null;
+    _minRating = null;
+    notifyListeners();
+  }
+
   Future<void> search(String query) async {
     if (query.isEmpty) {
       _searchResults = [];

@@ -33,6 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
     {'name': 'Edible oil', 'image': AppAssets.catEdibleOil},
     {'name': 'Household', 'image': AppAssets.catHousehold},
   ];
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -40,11 +41,20 @@ class _HomeScreenState extends State<HomeScreen> {
     Future.microtask(() {
       if (mounted) context.read<ProductProvider>().loadProducts();
     });
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      context.read<ProductProvider>().loadMore();
+    }
   }
 
   @override
   void dispose() {
     _bannerController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -64,6 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
             await context.read<ProductProvider>().loadProducts();
           },
           child: SingleChildScrollView(
+            controller: _scrollController,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -323,6 +334,15 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                     ),
                   ),
+                  if (context.watch<ProductProvider>().isLoadingMore)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 24),
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ),
 
                   const SizedBox(height: 20),
 
