@@ -1,3 +1,4 @@
+import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_text_styles.dart';
@@ -14,10 +15,24 @@ class OrderSuccessScreen extends StatefulWidget {
 }
 
 class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
+  late ConfettiController _confettiController;
+
   @override
   void initState() {
     super.initState();
+    _confettiController = ConfettiController(
+      duration: const Duration(seconds: 3),
+    );
     HapticHelper.heavy();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _confettiController.play();
+    });
+  }
+
+  @override
+  void dispose() {
+    _confettiController.dispose();
+    super.dispose();
   }
 
   @override
@@ -29,21 +44,28 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
         leading: IconButton(
           onPressed: () =>
               Navigator.pushReplacementNamed(context, AppRoutes.home),
-          icon: const Icon(
-            Icons.arrow_back,
-            color: AppColors.textDark,
-          ),
+          icon: const Icon(Icons.arrow_back, color: AppColors.textDark),
         ),
-        title: Text(
-          'Order Success',
-          style: AppTextStyles.heading3,
-        ),
+        title: Text('Order Success', style: AppTextStyles.heading3),
       ),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // Confetti
+            ConfettiWidget(
+              confettiController: _confettiController,
+              blastDirectionality: BlastDirectionality.explosive,
+              shouldLoop: false,
+              colors: const [
+                AppColors.primary,
+                Colors.blue,
+                Colors.orange,
+                Colors.pink,
+                Colors.purple,
+              ],
+            ),
             // Bag icon
             Container(
               width: 120,
@@ -51,10 +73,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
               decoration: BoxDecoration(
                 color: AppColors.surface,
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: AppColors.border,
-                  width: 2,
-                ),
+                border: Border.all(color: AppColors.border, width: 2),
               ),
               child: const Icon(
                 Icons.shopping_bag_outlined,
@@ -87,10 +106,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
             CustomButton(
               text: 'Track Order',
               onPressed: () async {
-                await Navigator.pushNamed(
-                  context,
-                  AppRoutes.trackOrder,
-                );
+                await Navigator.pushNamed(context, AppRoutes.trackOrder);
               },
             ),
 

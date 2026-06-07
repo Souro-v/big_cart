@@ -108,7 +108,8 @@ class _NavItem extends StatelessWidget {
   }
 }
 
-class _NavItemWithBadge extends StatelessWidget {
+// _NavItemWithBadge AnimatedScale add
+class _NavItemWithBadge extends StatefulWidget {
   final String icon;
   final bool isActive;
   final int badgeCount;
@@ -122,41 +123,87 @@ class _NavItemWithBadge extends StatelessWidget {
   });
 
   @override
+  State<_NavItemWithBadge> createState() => _NavItemWithBadgeState();
+}
+
+class _NavItemWithBadgeState extends State<_NavItemWithBadge>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  int _prevCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 1.3,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.elasticOut));
+    _prevCount = widget.badgeCount;
+  }
+
+  @override
+  void didUpdateWidget(_NavItemWithBadge oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.badgeCount > _prevCount) {
+      _controller.forward().then((_) => _controller.reverse());
+    }
+    _prevCount = widget.badgeCount;
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: widget.onTap,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Stack(
             clipBehavior: Clip.none,
             children: [
-              Image.asset(
-                icon,
-                height: 24,
-                color: isActive ? AppColors.primary : AppColors.textLight,
+              ScaleTransition(
+                scale: _scaleAnimation,
+                child: Image.asset(
+                  widget.icon,
+                  height: 24,
+                  color: widget.isActive
+                      ? AppColors.primary
+                      : AppColors.textLight,
+                ),
               ),
-              if (badgeCount > 0)
+              if (widget.badgeCount > 0)
                 Positioned(
                   top: -6,
                   right: -8,
-                  child: Container(
-                    constraints: const BoxConstraints(
-                      minWidth: 16,
-                      maxHeight: 16,
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    decoration: const BoxDecoration(
-                      color: AppColors.error,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: Text(
-                        badgeCount > 99 ? '99+' : '$badgeCount',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
+                  child: ScaleTransition(
+                    scale: _scaleAnimation,
+                    child: Container(
+                      width: 16,
+                      height: 16,
+                      decoration: const BoxDecoration(
+                        color: AppColors.error,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: Text(
+                          widget.badgeCount > 99
+                              ? '99+'
+                              : '${widget.badgeCount}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
@@ -164,7 +211,7 @@ class _NavItemWithBadge extends StatelessWidget {
                 ),
             ],
           ),
-          if (isActive) ...[
+          if (widget.isActive) ...[
             const SizedBox(height: 4),
             Container(
               width: 6,
