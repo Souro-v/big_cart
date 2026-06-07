@@ -5,6 +5,7 @@ import 'package:big_cart/providers/recently_viewed_provider.dart';
 import 'package:big_cart/providers/search_provider.dart';
 import 'package:big_cart/providers/theme_provider.dart';
 import 'package:big_cart/providers/wishlist_provider.dart';
+import 'package:big_cart/services/deep_link_service.dart';
 import 'package:big_cart/services/notification_service.dart';
 import 'package:big_cart/services/session_service.dart';
 import 'package:big_cart/utils/app_colors.dart';
@@ -23,19 +24,19 @@ import 'providers/order_provider.dart';
 import 'utils/app_theme.dart';
 import 'utils/app_routes.dart';
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 void main() async {
   final binding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: binding);
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
   // Crashlytics setup
   if (!kDebugMode) {
     // Release mode এ Crashlytics enable
     await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
 
     // Flutter errors catch
-    FlutterError.onError =
-        FirebaseCrashlytics.instance.recordFlutterFatalError;
+    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
 
     // Async errors catch
     PlatformDispatcher.instance.onError = (error, stack) {
@@ -46,6 +47,7 @@ void main() async {
   // Notification initialize
   await NotificationService().initialize();
   await AnalyticsService().logAppOpen();
+  DeepLinkService().initialize(navigatorKey);
   runApp(const MyApp());
 
   FlutterNativeSplash.remove();
@@ -70,6 +72,7 @@ class MyApp extends StatelessWidget {
       ],
       child: Consumer<ThemeProvider>(
         builder: (_, themeProvider, __) => MaterialApp(
+          navigatorKey: navigatorKey,
           title: 'Big Cart',
           debugShowCheckedModeBanner: false,
           theme: AppTheme.lightTheme,
