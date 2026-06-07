@@ -4,6 +4,7 @@ import '../../providers/analytics_service.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/order_provider.dart';
+import '../../services/order_service.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_text_styles.dart';
 import '../../utils/app_routes.dart';
@@ -51,6 +52,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       AnalyticsService().logPurchase(
         DateTime.now().millisecondsSinceEpoch.toString(), // orderId
         cart.totalAmount + 1.6,
+      );
+      await OrderService().addLoyaltyPoints(
+        auth.user?.uid ?? '',
+        cart.totalAmount,
       );
       cart.clearCart();
       Navigator.pushReplacementNamed(context, AppRoutes.orderSuccess);

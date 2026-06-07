@@ -42,6 +42,16 @@ class OrderService {
 
     return orderRef.id;
   }
+  //loyalty points
+  Future<void> addLoyaltyPoints(
+      String userId, double amount) async {
+    // $1 spend এ 10 points
+    final points = (amount * 10).toInt();
+    await _db
+        .collection(AppConstants.usersCol)
+        .doc(userId)
+        .update({'points': FieldValue.increment(points)});
+  }
 
   // User- orders
   Future<List<OrderModel>> getUserOrders(String userId) async {

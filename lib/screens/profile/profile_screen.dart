@@ -241,9 +241,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
 
                     const SizedBox(height: 12),
-
+                    //reffer code
                     Text(user.name, style: AppTextStyles.heading3),
-                    // Name এর নিচে
                     if (user.referralCode.isNotEmpty == true) ...[
                       const SizedBox(height: 8),
                       GestureDetector(
@@ -283,6 +282,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                     ],
+                    // loyalty points
+                    if (user.points > 0) ...[
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF8E1),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: AppColors.warning),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.stars,
+                              size: 16,
+                              color: AppColors.warning,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              '${user.points} Points',
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: AppColors.warning,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+
                     const SizedBox(height: 4),
                     Text(user.email, style: AppTextStyles.bodySmall),
 
