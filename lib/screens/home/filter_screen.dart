@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/product_provider.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_text_styles.dart';
 import '../../widgets/custom_button.dart';
@@ -11,19 +13,12 @@ class FilterScreen extends StatefulWidget {
 }
 
 class _FilterScreenState extends State<FilterScreen> {
-  final _minController = TextEditingController();
-  final _maxController = TextEditingController();
   int _selectedRating = 4;
-  bool _discount      = true;
-  bool _freeShipping  = true;
+  bool _discount = true;
+  bool _freeShipping = true;
   bool _sameDayDelivery = true;
-
-  @override
-  void dispose() {
-    _minController.dispose();
-    _maxController.dispose();
-    super.dispose();
-  }
+  RangeValues _priceRange = const RangeValues(0, 100);
+  static const double _maxPriceLimit = 100;
 
   @override
   Widget build(BuildContext context) {
@@ -39,12 +34,12 @@ class _FilterScreenState extends State<FilterScreen> {
           IconButton(
             icon: const Icon(Icons.refresh, color: AppColors.textDark),
             onPressed: () => setState(() {
-              _minController.clear();
-              _maxController.clear();
-              _selectedRating  = 4;
-              _discount        = true;
-              _freeShipping    = true;
-              _sameDayDelivery = true;
+              _priceRange = const RangeValues(0, 100);
+              _selectedRating = 0;
+              _discount = false;
+              _freeShipping = false;
+              _sameDayDelivery = false;
+              context.read<ProductProvider>().clearFilter();
             }),
           ),
         ],
@@ -57,24 +52,45 @@ class _FilterScreenState extends State<FilterScreen> {
             // Price Range
             Text('Price Range', style: AppTextStyles.heading3),
             const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: _minController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(hintText: 'Min.'),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '\$${_priceRange.start.toStringAsFixed(0)}',
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        '\$${_priceRange.end.toStringAsFixed(0)}',
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: TextFormField(
-                    controller: _maxController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(hintText: 'Max.'),
+                  RangeSlider(
+                    values: _priceRange,
+                    min: 0,
+                    max: _maxPriceLimit,
+                    divisions: 20,
+                    activeColor: AppColors.primary,
+                    inactiveColor: AppColors.border,
+                    onChanged: (values) => setState(() => _priceRange = values),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
 
             const SizedBox(height: 24),
@@ -91,17 +107,22 @@ class _FilterScreenState extends State<FilterScreen> {
               ),
               child: Row(
                 children: [
-                  ...List.generate(5, (i) => GestureDetector(
-                    onTap: () => setState(() => _selectedRating = i + 1),
-                    child: Icon(
-                      i < _selectedRating ? Icons.star : Icons.star_border,
-                      color: const Color(0xFFF3A93C),
-                      size: 28,
+                  ...List.generate(
+                    5,
+                    (i) => GestureDetector(
+                      onTap: () => setState(() => _selectedRating = i + 1),
+                      child: Icon(
+                        i < _selectedRating ? Icons.star : Icons.star_border,
+                        color: const Color(0xFFF3A93C),
+                        size: 28,
+                      ),
                     ),
-                  )),
+                  ),
                   const Spacer(),
-                  Text('$_selectedRating stars',
-                      style: AppTextStyles.bodySmall),
+                  Text(
+                    '$_selectedRating stars',
+                    style: AppTextStyles.bodySmall,
+                  ),
                 ],
               ),
             ),
@@ -147,7 +168,16 @@ class _FilterScreenState extends State<FilterScreen> {
 
             CustomButton(
               text: 'Apply filter',
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                context.read<ProductProvider>().applyFilter(
+                  minPrice: _priceRange.start > 0 ? _priceRange.start : null,
+                  maxPrice: _priceRange.end < _maxPriceLimit
+                      ? _priceRange.end
+                      : null,
+                  minRating: _selectedRating > 0 ? _selectedRating : null,
+                );
+                Navigator.pop(context);
+              },
             ),
           ],
         ),
@@ -177,15 +207,11 @@ class _FilterOption extends StatelessWidget {
         children: [
           Icon(icon, color: AppColors.textGrey, size: 20),
           const SizedBox(width: 12),
-          Expanded(
-            child: Text(label, style: AppTextStyles.bodyMedium),
-          ),
+          Expanded(child: Text(label, style: AppTextStyles.bodyMedium)),
           GestureDetector(
             onTap: () => onChanged(!value),
             child: Icon(
-              value
-                  ? Icons.check_circle_outline
-                  : Icons.radio_button_unchecked,
+              value ? Icons.check_circle_outline : Icons.radio_button_unchecked,
               color: value ? AppColors.primary : AppColors.textLight,
               size: 22,
             ),
