@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../providers/wishlist_provider.dart';
+import '../../services/update_service.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_text_styles.dart';
 import '../../utils/app_routes.dart';
@@ -102,6 +103,12 @@ class _SplashScreenState extends State<SplashScreen>
 
     // Wait
     await Future.delayed(const Duration(milliseconds: 800));
+    //update check
+    final update = await UpdateService().checkUpdate();
+    if (update != null && mounted) {
+      _showUpdateDialog(update);
+      if (update['isForced'] == true) return;
+    }
 
     // Check auth + onboarding
     final prefs = await SharedPreferences.getInstance();
@@ -113,7 +120,7 @@ class _SplashScreenState extends State<SplashScreen>
     if (user != null) {
       // Already logged in
       await _fadeOut();
-       context.read<WishlistProvider>().loadWishlist(user.uid);
+      context.read<WishlistProvider>().loadWishlist(user.uid);
       if (mounted) Navigator.pushReplacementNamed(context, AppRoutes.home);
     } else if (seen) {
       // Seen onboarding
@@ -124,6 +131,44 @@ class _SplashScreenState extends State<SplashScreen>
       await _fadeOut();
       if (mounted) setState(() => _showOnboarding = true);
     }
+  }
+
+  void _showUpdateDialog(Map<String, dynamic> update) {
+    showDialog(
+      context: context,
+      barrierDismissible: !(update['isForced'] as bool),
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text('Update Available', style: AppTextStyles.heading3),
+        content: Text(
+          'A new version ${update['latestVersion']} is available. Please update to continue.',
+          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey),
+        ),
+        actions: [
+          if (!(update['isForced'] as bool))
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'Later',
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.textGrey,
+                ),
+              ),
+            ),
+          ElevatedButton(
+            onPressed: () {
+              // Play Store link open
+            },
+            style: ElevatedButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text('Update Now'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _fadeOut() async {
