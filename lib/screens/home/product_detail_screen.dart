@@ -229,6 +229,25 @@ Download Big Cart app and get fresh groceries delivered to your doorstep! 🚀
                         Text(product.unit, style: AppTextStyles.bodySmall),
 
                         const SizedBox(height: 12),
+                        if (product.stockCount > 0 && product.stockCount <= 5)
+                          Container(
+                            margin: const EdgeInsets.only(top: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.error.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              '⚠️ Only ${product.stockCount} items left!',
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: AppColors.error,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
 
                         // Rating
                         Row(

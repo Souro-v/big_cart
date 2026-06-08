@@ -164,7 +164,7 @@ class ProductCard extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Discount থাকলে original price strike through
+                      // Discount  original price strike through
                       if (product.discount > 0) ...[
                         Text(
                           '\$${product.price.toStringAsFixed(2)}',
@@ -201,6 +201,18 @@ class ProductCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(product.unit, style: AppTextStyles.bodySmall),
+                  //product counter
+                  if (product.stockCount > 0 && product.stockCount <= 5) ...[
+                    const SizedBox(height: 4), // Text tar sathe padding dilam
+                    Text(
+                      'Only ${product.stockCount} left!',
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.error,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+
                   const SizedBox(height: 10),
 
                   // Add to cart OR quantity control

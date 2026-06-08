@@ -13,6 +13,7 @@ class ProductModel {
   final int discount;
   final double rating;
   final int reviewCount;
+  final int stockCount;
 
   ProductModel({
     required this.id,
@@ -27,6 +28,7 @@ class ProductModel {
     this.discount = 0,
     this.rating = 0.0,
     this.reviewCount = 0,
+    this.stockCount = 0,
   });
 
   factory ProductModel.fromMap(Map<String, dynamic> map, String id) {
@@ -43,6 +45,7 @@ class ProductModel {
       discount: map['discount'] ?? 0,
       rating: (map['rating'] ?? 0).toDouble(),
       reviewCount: map['reviewCount'] ?? 0,
+      stockCount: map['stockCount'] ?? 0,
     );
   }
 
@@ -59,6 +62,7 @@ class ProductModel {
       'discount': discount,
       'rating': rating,
       'reviewCount': reviewCount,
+      'stockCount': stockCount,
     };
   }
 }
