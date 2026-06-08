@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/order_provider.dart';
 import '../../services/flash_sale_service.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_text_styles.dart';
@@ -42,7 +44,14 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      if (mounted) context.read<ProductProvider>().loadProducts();
+      if (mounted) {
+        context.read<ProductProvider>().loadProducts();
+        // Orders load
+        final uid = context.read<AuthProvider>().user?.uid ?? '';
+        if (uid.isNotEmpty) {
+          context.read<OrderProvider>().listenToOrders(uid);
+        }
+      }
     });
     _scrollController.addListener(_onScroll);
   }
@@ -426,6 +435,122 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 );
                               },
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                        ],
+                      );
+                    },
+                  ),
+                  //recent ordered
+                  Consumer<OrderProvider>(
+                    builder: (_, orderProvider, __) {
+                      if (orderProvider.orders.isEmpty) return const SizedBox();
+                      final lastOrder = orderProvider.orders.first;
+                      if (lastOrder.items.isEmpty) return const SizedBox();
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Order Again',
+                                  style: AppTextStyles.heading3,
+                                ),
+                                GestureDetector(
+                                  onTap: () => Navigator.pushNamed(
+                                    context,
+                                    AppRoutes.myOrders,
+                                  ),
+                                  child: const Icon(
+                                    Icons.arrow_forward_ios,
+                                    size: 16,
+                                    color: AppColors.textGrey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: AppColors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: AppColors.border),
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 48,
+                                    height: 48,
+                                    decoration: const BoxDecoration(
+                                      color: AppColors.primaryLight,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.replay,
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Order #${lastOrder.id.substring(0, 5).toUpperCase()}',
+                                          style: AppTextStyles.bodyMedium
+                                              .copyWith(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                        ),
+                                        Text(
+                                          '${lastOrder.items.length} items • \$${lastOrder.totalAmount.toStringAsFixed(2)}',
+                                          style: AppTextStyles.bodySmall,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      final cartProvider = context
+                                          .read<CartProvider>();
+                                      cartProvider.clearCart();
+                                      for (final item in lastOrder.items) {
+                                        for (
+                                          int i = 0;
+                                          i < item.quantity;
+                                          i++
+                                        ) {
+                                          cartProvider.addToCart(item.product);
+                                        }
+                                      }
+                                      Navigator.pushNamed(
+                                        context,
+                                        AppRoutes.cart,
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      minimumSize: const Size(80, 36),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                    child: const Text('Reorder'),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                           const SizedBox(height: 20),
