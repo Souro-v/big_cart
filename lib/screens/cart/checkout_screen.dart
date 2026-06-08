@@ -23,6 +23,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   final _cardController = TextEditingController();
   final _expiryController = TextEditingController();
   final _cvvController = TextEditingController();
+  final _notesController = TextEditingController();
+  final _addressController = TextEditingController();
   bool _saveCard = true;
   int _selectedPayment = 1; // 0=Paypal, 1=Credit Card, 2=Apple Pay
 
@@ -32,6 +34,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     _cardController.dispose();
     _expiryController.dispose();
     _cvvController.dispose();
+    _notesController.dispose();
+    _addressController.dispose();
     super.dispose();
   }
 
@@ -39,12 +43,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final cart = context.read<CartProvider>();
     final auth = context.read<AuthProvider>();
     final orders = context.read<OrderProvider>();
-
+    final address = _addressController.text.trim();
     final success = await orders.placeOrder(
       userId: auth.user?.uid ?? '',
       items: cart.items,
       totalAmount: cart.totalAmount + 1.6,
-      address: 'Default Address',
+      address: address,
+      notes: _notesController.text.trim(),
     );
 
     if (success && mounted) {
@@ -259,6 +264,41 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     ],
                   ),
                 ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text('Delivery Address', style: AppTextStyles.heading3),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _addressController, // <-- Ekhane use korben!
+              decoration: const InputDecoration(
+                hintText: 'Enter your full address',
+                prefixIcon: Icon(
+                  Icons.location_on_outlined,
+                  color: AppColors.textGrey,
+                ),
+              ),
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Please enter your address';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+
+            Text('Delivery Instructions', style: AppTextStyles.heading3),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _notesController,
+              maxLines: 3,
+              decoration: const InputDecoration(
+                hintText: 'e.g. Leave at door, Ring bell twice...',
+                prefixIcon: Padding(
+                  padding: EdgeInsets.only(left: 12, bottom: 40),
+                  child: Icon(Icons.note_outlined, color: AppColors.textGrey),
+                ),
+                alignLabelWithHint: true,
               ),
             ),
 

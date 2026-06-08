@@ -10,6 +10,7 @@ class OrderModel {
   final String address;
   final OrderStatus status;
   final DateTime createdAt;
+  final String notes;
 
   OrderModel({
     required this.id,
@@ -19,6 +20,7 @@ class OrderModel {
     required this.address,
     this.status = OrderStatus.pending,
     required this.createdAt,
+    this.notes = '',
   });
 
   String get statusText {
@@ -42,6 +44,7 @@ class OrderModel {
         orElse: () => OrderStatus.pending,
       ),
       createdAt: DateTime.parse(map['createdAt'] ?? DateTime.now().toIso8601String()),
+      notes: map['notes'] ?? '',
     );
   }
 
@@ -52,6 +55,7 @@ class OrderModel {
       'address': address,
       'status': status.name,
       'createdAt': createdAt.toIso8601String(),
+      'notes': notes,
     };
   }
 }

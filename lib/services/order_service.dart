@@ -13,6 +13,7 @@ class OrderService {
     required List<CartItemModel> items,
     required double totalAmount,
     required String address,
+    String notes = '',
   }) async {
     final orderRef = _db.collection(AppConstants.ordersCol).doc();
 
@@ -23,6 +24,7 @@ class OrderService {
       totalAmount: totalAmount,
       address: address,
       createdAt: DateTime.now(),
+      notes: notes,
     );
 
     // Order save

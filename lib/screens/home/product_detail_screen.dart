@@ -5,11 +5,13 @@ import 'package:photo_view/photo_view.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../models/product_model.dart';
+import '../../models/review_model.dart';
 import '../../providers/analytics_service.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/product_provider.dart';
 import '../../providers/recently_viewed_provider.dart';
 import '../../providers/wishlist_provider.dart';
+import '../../services/review_service.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_text_styles.dart';
 import '../../utils/haptic_helper.dart';
@@ -328,6 +330,7 @@ Download Big Cart app and get fresh groceries delivered to your doorstep! 🚀
                           category: product.category,
                           excludeId: product.id,
                         ),
+                        _ReviewsSection(productId: product.id),
                       ],
                     ),
                   ),
@@ -510,6 +513,101 @@ class _ImageZoomScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _ReviewsSection extends StatelessWidget {
+  final String productId;
+
+  const _ReviewsSection({required this.productId});
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<ReviewModel>>(
+      future: ReviewService().getProductReviews(productId),
+      builder: (_, snapshot) {
+        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const SizedBox();
+        }
+        final reviews = snapshot.data!;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Reviews (${reviews.length})',
+                    style: AppTextStyles.heading3,
+                  ),
+                  GestureDetector(
+                    onTap: () => Navigator.pushNamed(
+                      context,
+                      AppRoutes.writeReview,
+                      arguments: productId,
+                    ),
+                    child: Text(
+                      'Write Review',
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            ...reviews
+                .take(3)
+                .map(
+                  (review) => Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+                    child: Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: AppColors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: AppColors.border),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              ...List.generate(
+                                5,
+                                (i) => Icon(
+                                  i < review.rating
+                                      ? Icons.star
+                                      : Icons.star_border,
+                                  color: const Color(0xFFF3A93C),
+                                  size: 14,
+                                ),
+                              ),
+                              const Spacer(),
+                              Text(
+                                '${review.createdAt.day}/${review.createdAt.month}/${review.createdAt.year}',
+                                style: AppTextStyles.bodySmall,
+                              ),
+                            ],
+                          ),
+                          if (review.review.isNotEmpty) ...[
+                            const SizedBox(height: 6),
+                            Text(review.review, style: AppTextStyles.bodySmall),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+            const SizedBox(height: 24),
+          ],
+        );
+      },
     );
   }
 }

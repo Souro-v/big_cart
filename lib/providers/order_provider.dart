@@ -23,6 +23,7 @@ class OrderProvider extends ChangeNotifier {
     required List<CartItemModel> items,
     required double totalAmount,
     required String address,
+     required String notes,
   }) async {
     _isLoading = true; _error = null; notifyListeners();
     try {
@@ -31,6 +32,7 @@ class OrderProvider extends ChangeNotifier {
         items: items,
         totalAmount: totalAmount,
         address: address,
+        notes: notes,
       );
       await CrashlyticsService().log('Order placed successfully');
       return true;
