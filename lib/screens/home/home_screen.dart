@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../services/flash_sale_service.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_text_styles.dart';
 import '../../utils/app_routes.dart';
@@ -191,6 +194,16 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
 
                 const SizedBox(height: 20),
+                // Flash Sale Timer widget
+                FutureBuilder<List<Map<String, dynamic>>>(
+                  future: FlashSaleService().getActiveFlashSales(),
+                  builder: (_, snapshot) {
+                    if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const SizedBox();
+                    }
+                    return _FlashSaleSection(sales: snapshot.data!);
+                  },
+                ),
 
                 // Categories
                 if (isLoading) ...[
@@ -478,6 +491,94 @@ class _CategoryItem extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _FlashSaleSection extends StatefulWidget {
+  final List<Map<String, dynamic>> sales;
+
+  const _FlashSaleSection({required this.sales});
+
+  @override
+  State<_FlashSaleSection> createState() => _FlashSaleSectionState();
+}
+
+class _FlashSaleSectionState extends State<_FlashSaleSection> {
+  late Timer _timer;
+  Duration _remaining = Duration.zero;
+
+  @override
+  void initState() {
+    super.initState();
+    _calculateRemaining();
+    _timer = Timer.periodic(
+      const Duration(seconds: 1),
+      (_) => _calculateRemaining(),
+    );
+  }
+
+  void _calculateRemaining() {
+    if (widget.sales.isEmpty) return;
+    final endTime = DateTime.parse(widget.sales.first['endTime'] as String);
+    final now = DateTime.now();
+    if (mounted) {
+      setState(() => _remaining = endTime.difference(now));
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+  String _twoDigits(int n) => n.toString().padLeft(2, '0');
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  const Icon(
+                    Icons.local_fire_department,
+                    color: Colors.orange,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 6),
+                  Text('Flash Sale', style: AppTextStyles.heading3),
+                ],
+              ),
+              // Countdown timer
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  '${_twoDigits(_remaining.inHours)}:${_twoDigits(_remaining.inMinutes.remainder(60))}:${_twoDigits(_remaining.inSeconds.remainder(60))}',
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: Colors.orange,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+      ],
     );
   }
 }
