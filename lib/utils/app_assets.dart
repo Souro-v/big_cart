@@ -42,4 +42,25 @@ class AppAssets {
   static final String blackGrapes   = AppConstants.imageUrl('black_grapes');
   static final String pomegranate   = AppConstants.imageUrl('pomegranate');
   static final String freshBroccoli = AppConstants.imageUrl('fresh_broccoli');
+
+  // Category banners
+  static final String bannerVegetables = AppConstants.imageUrl('vegetabless');
+  static final String bannerFruits     = AppConstants.imageUrl('fruitss');
+  static final String bannerBeverages  = AppConstants.imageUrl('beveragess');
+  static final String bannerGrocery    = AppConstants.imageUrl('groceryss');
+  static final String bannerEdibleOil  = AppConstants.imageUrl('edible_oils');
+  static final String bannerHousehold  = AppConstants.imageUrl('householdss');
+
+  static String getCategoryBanner(String category) {
+    switch (category.toLowerCase()) {
+      case 'vegetables': return bannerVegetables;
+      case 'fruits':     return bannerFruits;
+      case 'beverages':  return bannerBeverages;
+      case 'grocery':    return bannerGrocery;
+      case 'edible oil': return bannerEdibleOil;
+      case 'household':  return bannerHousehold;
+      default:           return bannerFruits;
+    }
+  }
+
 }

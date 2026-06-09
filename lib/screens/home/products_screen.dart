@@ -7,6 +7,8 @@ import '../../providers/cart_provider.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_text_styles.dart';
 import '../../widgets/product_card.dart';
+import '../../widgets/app_image.dart';
+import '../../utils/app_assets.dart';
 
 class ProductsScreen extends StatefulWidget {
   const ProductsScreen({super.key});
@@ -62,11 +64,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
   }
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final category = _category ?? 'All';
     final products = context.watch<ProductProvider>().products;
@@ -97,7 +94,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
           style: AppTextStyles.heading3,
         ),
         actions: [
-          // Show 'Add All' button only during selection mode and when items are selected
           if (_isSelecting && _selectedIds.isNotEmpty)
             TextButton(
               onPressed: () {
@@ -106,7 +102,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
                   cart.addToCart(product);
                 }
 
-                // Show success feedback before resetting state to preserve accurate count
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
@@ -128,7 +123,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
                 ),
               ),
             ),
-          // Sort button
           PopupMenuButton<SortOption>(
             icon: const Icon(Icons.sort, color: AppColors.textDark),
             onSelected: (option) =>
@@ -186,13 +180,11 @@ class _ProductsScreenState extends State<ProductsScreen> {
               ),
             ],
           ),
-          // Filter button
           IconButton(
             icon: const Icon(Icons.tune, color: AppColors.textDark),
             onPressed: () => Navigator.pushNamed(context, AppRoutes.filter),
           ),
         ],
-        // AppBar এ bottom add করো
         bottom: context.watch<ProductProvider>().sortOption != SortOption.none
             ? PreferredSize(
                 preferredSize: const Size.fromHeight(30),
@@ -258,86 +250,106 @@ class _ProductsScreenState extends State<ProductsScreen> {
             )
           : Padding(
               padding: const EdgeInsets.all(16),
-              child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 0.72,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                ),
-                itemCount: products.length,
-                itemBuilder: (_, i) {
-                  final p = products[i];
-                  final qty = cart.isInCart(p.id)
-                      ? cart.items
-                            .firstWhere((item) => item.product.id == p.id)
-                            .quantity
-                      : 0;
-
-                  // Wrap ProductCard with GestureDetector and Stack for selection overlay mechanics
-                  return GestureDetector(
-                    onLongPress: () {
-                      if (!_isSelecting) {
-                        setState(() {
-                          _isSelecting = true;
-                          _selectedIds.add(p.id);
-                        });
-                      }
-                    },
-                    onTap: _isSelecting
-                        ? () => setState(() {
-                            _selectedIds.contains(p.id)
-                                ? _selectedIds.remove(p.id)
-                                : _selectedIds.add(p.id);
-
-                            // Automatically exit selection mode if all items are deselected
-                            if (_selectedIds.isEmpty) {
-                              _isSelecting = false;
-                            }
-                          })
-                        : () => Navigator.pushNamed(
-                            context,
-                            AppRoutes.productDetail,
-                            arguments: p,
-                          ),
-                    child: Stack(
-                      children: [
-                        ProductCard(
-                          product: p,
-                          quantity: qty,
-                          onAdd: () => cart.addToCart(p),
-                          onIncrease: () => cart.increaseQty(p.id),
-                          onDecrease: () => cart.decreaseQty(p.id),
-                          onTap: () => Navigator.pushNamed(
-                            context,
-                            AppRoutes.productDetail,
-                            arguments: p,
-                          ),
-                        ),
-                        if (_isSelecting && _selectedIds.contains(p.id))
-                          Positioned.fill(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: AppColors.primary.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(
-                                  color: AppColors.primary,
-                                  width: 2,
-                                ),
-                              ),
-                              child: const Center(
-                                child: Icon(
-                                  Icons.check_circle,
-                                  color: AppColors.primary,
-                                  size: 32,
-                                ),
-                              ),
-                            ),
-                          ),
-                      ],
+              // ---- Column for banners
+              child: Column(
+                children: [
+                  if (_category != null && _category != 'All') ...[
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: AppImage(
+                        url: AppAssets.getCategoryBanner(_category!),
+                        width: double.infinity,
+                        height: 120,
+                        fit: BoxFit.cover,
+                      ),
                     ),
-                  );
-                },
+                    const SizedBox(height: 16),
+                  ],
+                  Expanded(
+                    child: GridView.builder(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 0.72,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
+                          ),
+                      itemCount: products.length,
+                      itemBuilder: (_, i) {
+                        final p = products[i];
+                        final qty = cart.isInCart(p.id)
+                            ? cart.items
+                                  .firstWhere((item) => item.product.id == p.id)
+                                  .quantity
+                            : 0;
+
+                        return GestureDetector(
+                          onLongPress: () {
+                            if (!_isSelecting) {
+                              setState(() {
+                                _isSelecting = true;
+                                _selectedIds.add(p.id);
+                              });
+                            }
+                          },
+                          onTap: _isSelecting
+                              ? () => setState(() {
+                                  _selectedIds.contains(p.id)
+                                      ? _selectedIds.remove(p.id)
+                                      : _selectedIds.add(p.id);
+
+                                  if (_selectedIds.isEmpty) {
+                                    _isSelecting = false;
+                                  }
+                                })
+                              : () => Navigator.pushNamed(
+                                  context,
+                                  AppRoutes.productDetail,
+                                  arguments: p,
+                                ),
+                          child: Stack(
+                            children: [
+                              ProductCard(
+                                product: p,
+                                quantity: qty,
+                                onAdd: () => cart.addToCart(p),
+                                onIncrease: () => cart.increaseQty(p.id),
+                                onDecrease: () => cart.decreaseQty(p.id),
+                                onTap: () => Navigator.pushNamed(
+                                  context,
+                                  AppRoutes.productDetail,
+                                  arguments: p,
+                                ),
+                              ),
+                              if (_isSelecting && _selectedIds.contains(p.id))
+                                Positioned.fill(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primary.withValues(
+                                        alpha: 0.2,
+                                      ),
+                                      borderRadius: BorderRadius.circular(16),
+                                      border: Border.all(
+                                        color: AppColors.primary,
+                                        width: 2,
+                                      ),
+                                    ),
+                                    child: const Center(
+                                      child: Icon(
+                                        Icons.check_circle,
+                                        color: AppColors.primary,
+                                        size: 32,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
     );
