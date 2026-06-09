@@ -92,4 +92,14 @@ class AuthService {
         .doc(user.uid)
         .update(user.toMap());
   }
+  Future<void> deleteAccount() async {
+    final uid = _auth.currentUser?.uid;
+    if (uid == null) return;
+
+    // Firestore data delete
+    await _db.collection(AppConstants.usersCol).doc(uid).delete();
+
+    // Firebase Auth account delete
+    await _auth.currentUser?.delete();
+  }
 }

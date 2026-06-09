@@ -103,4 +103,15 @@ class AuthProvider extends ChangeNotifier {
     _user = updated;
     notifyListeners();
   }
+  Future<bool> deleteAccount() async {
+    try {
+      await _authService.deleteAccount();
+      _user = null;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _setError(ErrorHandler.getMessage(e));
+      return false;
+    }
+  }
 }

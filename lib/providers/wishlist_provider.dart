@@ -15,7 +15,7 @@ class WishlistProvider extends ChangeNotifier {
   bool isWishlisted(String productId) =>
       _items.any((p) => p.id == productId);
 
-  // User login হলে wishlist load করো
+  // User login  wishlist load
   Future<void> loadWishlist(String userId) async {
     _userId = userId;
     try {

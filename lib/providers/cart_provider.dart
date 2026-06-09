@@ -57,7 +57,11 @@ class CartProvider extends ChangeNotifier {
     _items.clear();
     notifyListeners();
   }
-
   bool isInCart(String productId) =>
       _items.any((i) => i.product.id == productId);
+
+  void clearLocal() {
+    _items.clear();
+    notifyListeners();
+  }
 }
