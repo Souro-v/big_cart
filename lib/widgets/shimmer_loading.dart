@@ -47,11 +47,7 @@ class ProductCardShimmer extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Image placeholder
-          ShimmerLoading(
-            width: double.infinity,
-            height: 130,
-            borderRadius: 16,
-          ),
+          ShimmerLoading(width: double.infinity, height: 130, borderRadius: 16),
           Padding(
             padding: const EdgeInsets.all(10),
             child: Column(

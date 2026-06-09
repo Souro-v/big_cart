@@ -19,20 +19,23 @@ class CustomButton extends StatelessWidget {
     this.width,
     this.height = 56,
   });
-
   @override
   Widget build(BuildContext context) {
     final child = isLoading
         ? const SizedBox(
-      height: 22, width: 22,
-      child: CircularProgressIndicator(
-        strokeWidth: 2.5,
-        valueColor: AlwaysStoppedAnimation(AppColors.white),
-      ),
-    )
-        : Text(text, style: AppTextStyles.buttonText.copyWith(
-      color: isOutlined ? AppColors.primary : AppColors.white,
-    ));
+            height: 22,
+            width: 22,
+            child: CircularProgressIndicator(
+              strokeWidth: 2.5,
+              valueColor: AlwaysStoppedAnimation(AppColors.white),
+            ),
+          )
+        : Text(
+            text,
+            style: AppTextStyles.buttonText.copyWith(
+              color: isOutlined ? AppColors.primary : AppColors.white,
+            ),
+          );
 
     final btn = isOutlined
         ? OutlinedButton(onPressed: onPressed, child: child)
