@@ -4,6 +4,7 @@ import 'package:big_cart/screens/profile/transactions_screen.dart';
 import 'package:flutter/material.dart';
 import '../screens/auth/otp_screen.dart';
 import '../screens/auth/welcome_screen.dart';
+import '../screens/cart/order_summary_screen.dart';
 import '../screens/cart/shipping_address_screen.dart';
 import '../screens/cart/shipping_method_screen.dart';
 import '../screens/home/filter_screen.dart';
@@ -59,6 +60,7 @@ class AppRoutes {
   static const String myAddress = '/my-address';
   static const String editProfile = '/edit-profile';
   static const String about = '/about';
+  static const String orderSummary = '/order-summary';
   static const String myCards = '/my-cards';
   static const String addCard = '/add-card';
   static const String notification = '/notification';
@@ -120,6 +122,8 @@ class AppRoutes {
         return _slideRoute(const MyAddressScreen(), settings);
       case myCards:
         return _slideRoute(const MyCardsScreen(), settings);
+      case orderSummary:
+        return _slideRoute(const OrderSummaryScreen(), settings);
       case addCard:
         return _slideRoute(const AddCardScreen(), settings);
       case notification:

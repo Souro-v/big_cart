@@ -109,7 +109,7 @@ class CartScreen extends StatelessWidget {
                         text: 'Checkout',
                         onPressed: () => Navigator.pushNamed(
                           context,
-                          AppRoutes.shippingMethod,
+                          AppRoutes.orderSummary,
                         ),
                       ),
                     ],
