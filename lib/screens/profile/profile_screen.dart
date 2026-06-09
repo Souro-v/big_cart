@@ -172,6 +172,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         'title': 'About App',
         'route': AppRoutes.about,
       },
+      {
+        'icon': Icons.privacy_tip_outlined,
+        'title': 'Privacy Settings',
+        'route': AppRoutes.privacy,
+      },
     ];
 
     return Scaffold(

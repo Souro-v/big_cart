@@ -13,6 +13,7 @@ import '../screens/orders/track_order_screen.dart';
 import '../screens/profile/about_screen.dart';
 import '../screens/profile/add_card_screen.dart';
 import '../screens/profile/my_cards_screen.dart';
+import '../screens/profile/privacy_screen.dart';
 import '../screens/review/write_review_screen.dart';
 import '../screens/splash/splash_screen.dart';
 import '../screens/auth/login_screen.dart';
@@ -46,6 +47,7 @@ class AppRoutes {
   static const String category = '/category';
   static const String search = '/search';
   static const String cart = '/cart';
+  static const String privacy = '/privacy';
   static const String shippingMethod = '/shipping-method';
   static const String shippingAddress = '/shipping-address';
   static const String checkout = '/checkout';
@@ -108,8 +110,10 @@ class AppRoutes {
         return _slideRoute(const OrderDetailScreen(), settings);
       case profile:
         return _fadeRoute(const ProfileScreen(), settings);
-      case about: return _slideRoute(const AboutScreen(), settings);
-
+      case about:
+        return _slideRoute(const AboutScreen(), settings);
+      case privacy:
+        return _slideRoute(const PrivacyScreen(), settings);
       case editProfile:
         return _slideRoute(const EditProfileScreen(), settings);
       case myAddress:
