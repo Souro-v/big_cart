@@ -7,10 +7,7 @@ class SessionService {
   // Last active time save
   Future<void> updateLastActive() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(
-      _lastActiveKey,
-      DateTime.now().millisecondsSinceEpoch,
-    );
+    await prefs.setInt(_lastActiveKey, DateTime.now().millisecondsSinceEpoch);
   }
 
   // Session expired check
@@ -19,8 +16,7 @@ class SessionService {
     final lastActive = prefs.getInt(_lastActiveKey);
     if (lastActive == null) return false;
 
-    final lastActiveTime =
-    DateTime.fromMillisecondsSinceEpoch(lastActive);
+    final lastActiveTime = DateTime.fromMillisecondsSinceEpoch(lastActive);
     final difference = DateTime.now().difference(lastActiveTime);
     return difference.inMinutes >= _timeoutMinutes;
   }

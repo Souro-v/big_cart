@@ -7,6 +7,7 @@ import '../../utils/app_colors.dart';
 import '../../utils/app_text_styles.dart';
 import '../../widgets/app_image.dart';
 import '../../widgets/bottom_nav_bar.dart';
+import '../../widgets/error_snackbar.dart';
 
 class FavoritesScreen extends StatelessWidget {
   const FavoritesScreen({super.key});
@@ -25,6 +26,29 @@ class FavoritesScreen extends StatelessWidget {
           icon: const Icon(Icons.arrow_back, color: AppColors.textDark),
         ),
         title: Text('Favorites', style: AppTextStyles.heading3),
+        // AppBar action
+        actions: [
+          if (!wishlist.isEmpty)
+            TextButton(
+              onPressed: () {
+                final cart = context.read<CartProvider>();
+                for (final product in wishlist.items) {
+                  cart.addToCart(product);
+                }
+                ErrorSnackbar.showSuccess(
+                  context,
+                  '${wishlist.count} items added to cart!',
+                );
+              },
+              child: Text(
+                'Add All',
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+        ],
       ),
       body: wishlist.isEmpty
           ? const EmptyState(

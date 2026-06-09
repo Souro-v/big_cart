@@ -6,11 +6,7 @@ class NotificationService {
 
   Future<void> initialize() async {
     // Permission request
-    await _messaging.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
+    await _messaging.requestPermission(alert: true, badge: true, sound: true);
 
     // FCM Token
     final token = await _messaging.getToken();
@@ -23,7 +19,9 @@ class NotificationService {
 
     // Background message handler
     FirebaseMessaging.onMessageOpenedApp.listen((message) {
-      debugPrint('App opened from notification: ${message.notification?.title}');
+      debugPrint(
+        'App opened from notification: ${message.notification?.title}',
+      );
     });
   }
 

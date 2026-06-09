@@ -45,11 +45,10 @@ class ProductService {
         .map((doc) => ProductModel.fromMap(doc.data(), doc.id))
         .toList();
   }
+
   Future<List<String>> getSuggestions(String query) async {
     if (query.isEmpty) return [];
-    final snap = await _db
-        .collection(AppConstants.productsCol)
-        .get();
+    final snap = await _db.collection(AppConstants.productsCol).get();
 
     final q = query.toLowerCase();
     return snap.docs
