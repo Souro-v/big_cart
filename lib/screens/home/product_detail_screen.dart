@@ -7,10 +7,12 @@ import 'package:share_plus/share_plus.dart';
 import '../../models/product_model.dart';
 import '../../models/review_model.dart';
 import '../../providers/analytics_service.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/product_provider.dart';
 import '../../providers/recently_viewed_provider.dart';
 import '../../providers/wishlist_provider.dart';
+import '../../services/activity_service.dart';
 import '../../services/review_service.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_text_styles.dart';
@@ -73,16 +75,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
     final message =
         '''
-🛒 Check out this product on Big Cart!
+        🛒 Check out this product on Big Cart!
 
-🏷️ ${product.name}
-💰 \$${discountedPrice.toStringAsFixed(2)} ${product.discount > 0 ? '(${product.discount}% OFF!)' : ''}
-📦 ${product.unit}
+        🏷️ ${product.name}
+        💰 \$${discountedPrice.toStringAsFixed(2)} ${product.discount > 0 ? '(${product.discount}% OFF!)' : ''}
+        📦 ${product.unit}
 
-${product.description}
+        ${product.description}
 
-Download Big Cart app and get fresh groceries delivered to your doorstep! 🚀
-''';
+        Download Big Cart app and get fresh groceries delivered to your doorstep! 🚀
+        ''';
 
     Share.share(message);
   }
@@ -103,6 +105,13 @@ Download Big Cart app and get fresh groceries delivered to your doorstep! 🚀
         if (mounted) {
           context.read<RecentlyViewedProvider>().add(product);
           AnalyticsService().logProductView(product.id, product.name);
+
+          // Added Activity Log for Product View
+          ActivityService().log(
+            userId: context.read<AuthProvider>().user?.uid ?? '',
+            action: 'product_viewed',
+            details: product.name,
+          );
         }
       });
     }

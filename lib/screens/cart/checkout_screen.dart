@@ -4,6 +4,7 @@ import '../../providers/analytics_service.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/order_provider.dart';
+import '../../services/activity_service.dart';
 import '../../services/order_service.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_text_styles.dart';
@@ -19,6 +20,8 @@ class CheckoutScreen extends StatefulWidget {
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
+  // Added GlobalKey to validate the Form fields (Address validation)
+  final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _cardController = TextEditingController();
   final _expiryController = TextEditingController();
@@ -40,6 +43,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   Future<void> _makePayment() async {
+    // Validate form before proceeding with payment
+    if (_formKey.currentState?.validate() != true) {
+      return;
+    }
+
     final cart = context.read<CartProvider>();
     final auth = context.read<AuthProvider>();
     final orders = context.read<OrderProvider>();
@@ -53,11 +61,22 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
 
     if (success && mounted) {
+      // Generated a unique orderId to pass into both Analytics and Activity log
+      final orderId = DateTime.now().millisecondsSinceEpoch.toString();
+
       // Analytics Event
       AnalyticsService().logPurchase(
-        DateTime.now().millisecondsSinceEpoch.toString(), // orderId
+        orderId, // orderId
         cart.totalAmount + 1.6,
       );
+
+      // Added Activity Log for Order Placement
+      await ActivityService().log(
+        userId: auth.user?.uid ?? '',
+        action: 'order_placed',
+        details: 'Order #$orderId - \$${cart.totalAmount}',
+      );
+
       await OrderService().addLoyaltyPoints(
         auth.user?.uid ?? '',
         cart.totalAmount,
@@ -84,313 +103,320 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Progress indicator
-            _StepIndicator(),
-            const SizedBox(height: 24),
-            _PromoCode(),
-            const SizedBox(height: 20),
-            // Payment options
-            Row(
-              children: [
-                _PaymentOption(
-                  icon: Icons.paypal,
-                  label: 'Paypal',
-                  selected: _selectedPayment == 0,
-                  onTap: () => setState(() => _selectedPayment = 0),
-                ),
-                const SizedBox(width: 12),
-                _PaymentOption(
-                  icon: Icons.credit_card,
-                  label: 'Credit Card',
-                  selected: _selectedPayment == 1,
-                  onTap: () => setState(() => _selectedPayment = 1),
-                ),
-                const SizedBox(width: 12),
-                _PaymentOption(
-                  icon: Icons.apple,
-                  label: 'Apple pay',
-                  selected: _selectedPayment == 2,
-                  onTap: () => setState(() => _selectedPayment = 2),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 20),
-
-            // Card preview
-            Container(
-              width: double.infinity,
-              height: 180,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF4CAF50), Color(0xFF2E7D32)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Stack(
+        // Wrapped with Form widget to make validators work properly
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Progress indicator
+              _StepIndicator(),
+              const SizedBox(height: 24),
+              _PromoCode(),
+              const SizedBox(height: 20),
+              // Payment options
+              Row(
                 children: [
-                  // Circles decoration
-                  Positioned(
-                    right: -20,
-                    top: -20,
-                    child: Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white.withValues(alpha: 0.1),
-                      ),
-                    ),
+                  _PaymentOption(
+                    icon: Icons.paypal,
+                    label: 'Paypal',
+                    selected: _selectedPayment == 0,
+                    onTap: () => setState(() => _selectedPayment = 0),
                   ),
-                  Positioned(
-                    right: 40,
-                    bottom: -30,
-                    child: Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white.withValues(alpha: 0.1),
-                      ),
-                    ),
+                  const SizedBox(width: 12),
+                  _PaymentOption(
+                    icon: Icons.credit_card,
+                    label: 'Credit Card',
+                    selected: _selectedPayment == 1,
+                    onTap: () => setState(() => _selectedPayment = 1),
                   ),
-
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Mastercard logo
-                      Row(
-                        children: [
-                          Container(
-                            width: 30,
-                            height: 30,
-                            decoration: const BoxDecoration(
-                              color: Colors.red,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          Transform.translate(
-                            offset: const Offset(-10, 0),
-                            child: Container(
-                              width: 30,
-                              height: 30,
-                              decoration: BoxDecoration(
-                                color: Colors.orange.withValues(alpha: 0.8),
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                          ),
-                          const Spacer(),
-                          const Icon(
-                            Icons.more_vert,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                        ],
-                      ),
-
-                      const Spacer(),
-
-                      // Card number
-                      Text(
-                        _cardController.text.isEmpty
-                            ? 'XXXX  XXXX  XXXX  8790'
-                            : _cardController.text,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 2,
-                        ),
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      Row(
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'CARD HOLDER',
-                                style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.7),
-                                  fontSize: 10,
-                                ),
-                              ),
-                              Text(
-                                _nameController.text.isEmpty
-                                    ? 'RUSSELL AUSTIN'
-                                    : _nameController.text.toUpperCase(),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const Spacer(),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'EXPIRES',
-                                style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.7),
-                                  fontSize: 10,
-                                ),
-                              ),
-                              Text(
-                                _expiryController.text.isEmpty
-                                    ? '01 / 22'
-                                    : _expiryController.text,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ],
+                  const SizedBox(width: 12),
+                  _PaymentOption(
+                    icon: Icons.apple,
+                    label: 'Apple pay',
+                    selected: _selectedPayment == 2,
+                    onTap: () => setState(() => _selectedPayment = 2),
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: 16),
-            Text('Delivery Address', style: AppTextStyles.heading3),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _addressController, // <-- Ekhane use korben!
-              decoration: const InputDecoration(
-                hintText: 'Enter your full address',
-                prefixIcon: Icon(
-                  Icons.location_on_outlined,
-                  color: AppColors.textGrey,
+
+              const SizedBox(height: 20),
+
+              // Card preview
+              Container(
+                width: double.infinity,
+                height: 180,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF4CAF50), Color(0xFF2E7D32)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Stack(
+                  children: [
+                    // Circles decoration
+                    Positioned(
+                      right: -20,
+                      top: -20,
+                      child: Container(
+                        width: 120,
+                        height: 120,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withValues(alpha: 0.1),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      right: 40,
+                      bottom: -30,
+                      child: Container(
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withValues(alpha: 0.1),
+                        ),
+                      ),
+                    ),
+
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Mastercard logo
+                        Row(
+                          children: [
+                            Container(
+                              width: 30,
+                              height: 30,
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            Transform.translate(
+                              offset: const Offset(-10, 0),
+                              child: Container(
+                                width: 30,
+                                height: 30,
+                                decoration: BoxDecoration(
+                                  color: Colors.orange.withValues(alpha: 0.8),
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                            ),
+                            const Spacer(),
+                            const Icon(
+                              Icons.more_vert,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ],
+                        ),
+
+                        const Spacer(),
+
+                        // Card number
+                        Text(
+                          _cardController.text.isEmpty
+                              ? 'XXXX  XXXX  XXXX  8790'
+                              : _cardController.text,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 2,
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        Row(
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'CARD HOLDER',
+                                  style: TextStyle(
+                                    color: Colors.white.withValues(alpha: 0.7),
+                                    fontSize: 10,
+                                  ),
+                                ),
+                                Text(
+                                  _nameController.text.isEmpty
+                                      ? 'RUSSELL AUSTIN'
+                                      : _nameController.text.toUpperCase(),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const Spacer(),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'EXPIRES',
+                                  style: TextStyle(
+                                    color: Colors.white.withValues(alpha: 0.7),
+                                    fontSize: 10,
+                                  ),
+                                ),
+                                Text(
+                                  _expiryController.text.isEmpty
+                                      ? '01 / 22'
+                                      : _expiryController.text,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Please enter your address';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-
-            Text('Delivery Instructions', style: AppTextStyles.heading3),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _notesController,
-              maxLines: 3,
-              decoration: const InputDecoration(
-                hintText: 'e.g. Leave at door, Ring bell twice...',
-                prefixIcon: Padding(
-                  padding: EdgeInsets.only(left: 12, bottom: 40),
-                  child: Icon(Icons.note_outlined, color: AppColors.textGrey),
+              const SizedBox(height: 16),
+              Text('Delivery Address', style: AppTextStyles.heading3),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _addressController, // Activated here!
+                decoration: const InputDecoration(
+                  hintText: 'Enter your full address',
+                  prefixIcon: Icon(
+                    Icons.location_on_outlined,
+                    color: AppColors.textGrey,
+                  ),
                 ),
-                alignLabelWithHint: true,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Please enter your address';
+                  }
+                  return null;
+                },
               ),
-            ),
+              const SizedBox(height: 16),
 
-            const SizedBox(height: 20),
-
-            // Name on card
-            TextFormField(
-              controller: _nameController,
-              onChanged: (_) => setState(() {}),
-              decoration: const InputDecoration(
-                hintText: 'Name on the card',
-                prefixIcon: Icon(
-                  Icons.person_outline,
-                  color: AppColors.textGrey,
+              Text('Delivery Instructions', style: AppTextStyles.heading3),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _notesController,
+                maxLines: 3,
+                decoration: const InputDecoration(
+                  hintText: 'e.g. Leave at door, Ring bell twice...',
+                  prefixIcon: Padding(
+                    padding: EdgeInsets.only(left: 12, bottom: 40),
+                    child: Icon(Icons.note_outlined, color: AppColors.textGrey),
+                  ),
+                  alignLabelWithHint: true,
                 ),
               ),
-            ),
-            const SizedBox(height: 12),
 
-            // Card number
-            TextFormField(
-              controller: _cardController,
-              onChanged: (_) => setState(() {}),
-              keyboardType: TextInputType.number,
-              maxLength: 19,
-              decoration: const InputDecoration(
-                hintText: 'Card number',
-                counterText: '',
-                prefixIcon: Icon(Icons.credit_card, color: AppColors.textGrey),
+              const SizedBox(height: 20),
+
+              // Name on card
+              TextFormField(
+                controller: _nameController,
+                onChanged: (_) => setState(() {}),
+                decoration: const InputDecoration(
+                  hintText: 'Name on the card',
+                  prefixIcon: Icon(
+                    Icons.person_outline,
+                    color: AppColors.textGrey,
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
+              const SizedBox(height: 12),
 
-            // Expiry + CVV
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: _expiryController,
-                    onChanged: (_) => setState(() {}),
-                    keyboardType: TextInputType.datetime,
-                    decoration: const InputDecoration(
-                      hintText: 'Month / Year',
-                      prefixIcon: Icon(
-                        Icons.calendar_today_outlined,
-                        color: AppColors.textGrey,
+              // Card number
+              TextFormField(
+                controller: _cardController,
+                onChanged: (_) => setState(() {}),
+                keyboardType: TextInputType.number,
+                maxLength: 19,
+                decoration: const InputDecoration(
+                  hintText: 'Card number',
+                  counterText: '',
+                  prefixIcon: Icon(
+                    Icons.credit_card,
+                    color: AppColors.textGrey,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              // Expiry + CVV
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _expiryController,
+                      onChanged: (_) => setState(() {}),
+                      keyboardType: TextInputType.datetime,
+                      decoration: const InputDecoration(
+                        hintText: 'Month / Year',
+                        prefixIcon: Icon(
+                          Icons.calendar_today_outlined,
+                          color: AppColors.textGrey,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: TextFormField(
-                    controller: _cvvController,
-                    keyboardType: TextInputType.number,
-                    obscureText: true,
-                    maxLength: 3,
-                    decoration: const InputDecoration(
-                      hintText: 'CVV',
-                      counterText: '',
-                      prefixIcon: Icon(
-                        Icons.lock_outline,
-                        color: AppColors.textGrey,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: TextFormField(
+                      controller: _cvvController,
+                      keyboardType: TextInputType.number,
+                      obscureText: true,
+                      maxLength: 3,
+                      decoration: const InputDecoration(
+                        hintText: 'CVV',
+                        counterText: '',
+                        prefixIcon: Icon(
+                          Icons.lock_outline,
+                          color: AppColors.textGrey,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
+                ],
+              ),
+              const SizedBox(height: 16),
 
-            // Save card
-            Row(
-              children: [
-                Switch(
-                  value: _saveCard,
-                  onChanged: (v) => setState(() => _saveCard = v),
-                  activeThumbColor: AppColors.primary,
-                ),
-                const SizedBox(width: 8),
-                Text('Save this card', style: AppTextStyles.bodyMedium),
-              ],
-            ),
+              // Save card
+              Row(
+                children: [
+                  Switch(
+                    value: _saveCard,
+                    onChanged: (v) => setState(() => _saveCard = v),
+                    activeThumbColor: AppColors.primary,
+                  ),
+                  const SizedBox(width: 8),
+                  Text('Save this card', style: AppTextStyles.bodyMedium),
+                ],
+              ),
 
-            const SizedBox(height: 24),
+              const SizedBox(height: 24),
 
-            CustomButton(
-              text: 'Make payment',
-              onPressed: _makePayment,
-              isLoading: isLoading,
-            ),
-          ],
+              CustomButton(
+                text: 'Make payment',
+                onPressed: _makePayment,
+                isLoading: isLoading,
+              ),
+            ],
+          ),
         ),
       ),
     );
