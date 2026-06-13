@@ -33,7 +33,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Select Photo', style: AppTextStyles.heading3),
+            const Text('Select Photo', style: AppTextStyles.heading3),
             const SizedBox(height: 20),
             Row(
               children: [
@@ -168,14 +168,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
         'route': AppRoutes.notification,
       },
       {
-        'icon': Icons.info_outline,
-        'title': 'About App',
-        'route': AppRoutes.about,
-      },
-      {
         'icon': Icons.privacy_tip_outlined,
         'title': 'Privacy Settings',
         'route': AppRoutes.privacy,
+      },
+      {
+        'icon': Icons.info_outline,
+        'title': 'About App',
+        'route': AppRoutes.about,
       },
     ];
 
@@ -195,196 +195,198 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               )
             : user == null
-            ? _ProfileShimmer()
-            : SingleChildScrollView(
-                child: Column(
-                  children: [
-                    const SizedBox(height: 32),
-
-                    // Profile image
-                    Stack(
-                      alignment: Alignment.bottomRight,
+                ? _ProfileShimmer()
+                : SingleChildScrollView(
+                    child: Column(
                       children: [
-                        CircleAvatar(
-                          radius: 50,
-                          backgroundColor: AppColors.surface,
-                          backgroundImage: user.imageUrl.isNotEmpty == true
-                              ? (user.imageUrl.startsWith('data:image')
-                                    ? MemoryImage(
-                                        base64Decode(
-                                          user.imageUrl.split(',')[1],
-                                        ),
-                                      )
-                                    : NetworkImage(user.imageUrl)
-                                          as ImageProvider)
-                              : null,
-                          child: user.imageUrl.isEmpty != false
-                              ? const Icon(
-                                  Icons.person,
-                                  size: 50,
-                                  color: AppColors.textLight,
-                                )
-                              : null,
-                        ),
-                        GestureDetector(
-                          onTap: () => _pickImage(context),
-                          child: Container(
-                            width: 28,
-                            height: 28,
-                            decoration: const BoxDecoration(
-                              color: AppColors.primary,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.camera_alt,
-                              color: AppColors.white,
-                              size: 16,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                        const SizedBox(height: 32),
 
-                    const SizedBox(height: 12),
-                    //reffer code
-                    Text(user.name, style: AppTextStyles.heading3),
-                    if (user.referralCode.isNotEmpty == true) ...[
-                      const SizedBox(height: 8),
-                      GestureDetector(
-                        onTap: () {
-                          Share.share(
-                            'Join Big Cart with my referral code: ${user.referralCode}\nGet 10% off your first order!',
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.primaryLight,
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: AppColors.primary),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                'Code: ${user.referralCode}',
-                                style: AppTextStyles.bodySmall.copyWith(
-                                  color: AppColors.primary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              const Icon(
-                                Icons.share,
-                                size: 14,
-                                color: AppColors.primary,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                    // loyalty points
-                    if (user.points > 0) ...[
-                      const SizedBox(height: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFF8E1),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: AppColors.warning),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
+                        // Profile image
+                        Stack(
+                          alignment: Alignment.bottomRight,
                           children: [
-                            const Icon(
-                              Icons.stars,
-                              size: 16,
-                              color: AppColors.warning,
+                            CircleAvatar(
+                              radius: 50,
+                              backgroundColor: AppColors.surface,
+                              backgroundImage: user.imageUrl.isNotEmpty == true
+                                  ? (user.imageUrl.startsWith('data:image')
+                                      ? MemoryImage(
+                                          base64Decode(
+                                            user.imageUrl.split(',')[1],
+                                          ),
+                                        )
+                                      : NetworkImage(user.imageUrl)
+                                          as ImageProvider)
+                                  : null,
+                              child: user.imageUrl.isEmpty != false
+                                  ? const Icon(
+                                      Icons.person,
+                                      size: 50,
+                                      color: AppColors.textLight,
+                                    )
+                                  : null,
                             ),
-                            const SizedBox(width: 6),
-                            Text(
-                              '${user.points} Points',
-                              style: AppTextStyles.bodySmall.copyWith(
-                                color: AppColors.warning,
-                                fontWeight: FontWeight.bold,
+                            GestureDetector(
+                              onTap: () => _pickImage(context),
+                              child: Container(
+                                width: 28,
+                                height: 28,
+                                decoration: const BoxDecoration(
+                                  color: AppColors.primary,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.camera_alt,
+                                  color: AppColors.white,
+                                  size: 16,
+                                ),
                               ),
                             ),
                           ],
                         ),
-                      ),
-                    ],
 
-                    const SizedBox(height: 4),
-                    Text(user.email, style: AppTextStyles.bodySmall),
-
-                    const SizedBox(height: 24),
-
-                    // Menu items
-                    Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 16),
-                      decoration: BoxDecoration(
-                        color: AppColors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppColors.border),
-                      ),
-                      child: Column(
-                        children: [
-                          ...items.map(
-                            (item) => _MenuItem(
-                              icon: item['icon'],
-                              title: item['title'],
-                              onTap: () =>
-                                  Navigator.pushNamed(context, item['route']),
-                            ),
-                          ),
-                          const Divider(height: 1),
-                          _MenuItem(
-                            icon: Icons.logout,
-                            title: 'Sign out',
-                            showArrow: false,
-                            onTap: () async {
-                              final authProvider = context.read<AuthProvider>();
-                              final wishlistProvider = context
-                                  .read<WishlistProvider>();
-
-                              await authProvider.logout();
-                              wishlistProvider.clearLocal();
-
-                              if (!context.mounted) return;
-
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Logged out!'),
-                                  duration: Duration(seconds: 2),
-                                  backgroundColor: AppColors.primary,
-                                  behavior: SnackBarBehavior.floating,
-                                ),
-                              );
-
-                              await Future.delayed(const Duration(seconds: 2));
-
-                              if (!context.mounted) return;
-                              Navigator.pushReplacementNamed(
-                                context,
-                                AppRoutes.login,
+                        const SizedBox(height: 12),
+                        //reffer code
+                        Text(user.name, style: AppTextStyles.heading3),
+                        if (user.referralCode.isNotEmpty == true) ...[
+                          const SizedBox(height: 8),
+                          GestureDetector(
+                            onTap: () {
+                              Share.share(
+                                'Join Big Cart with my referral code: ${user.referralCode}\nGet 10% off your first order!',
                               );
                             },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.primaryLight,
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(color: AppColors.primary),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    'Code: ${user.referralCode}',
+                                    style: AppTextStyles.bodySmall.copyWith(
+                                      color: AppColors.primary,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  const Icon(
+                                    Icons.share,
+                                    size: 14,
+                                    color: AppColors.primary,
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ],
-                      ),
-                    ),
+                        // loyalty points
+                        if (user.points > 0) ...[
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFF8E1),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: AppColors.warning),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.stars,
+                                  size: 16,
+                                  color: AppColors.warning,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  '${user.points} Points',
+                                  style: AppTextStyles.bodySmall.copyWith(
+                                    color: AppColors.warning,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
 
-                    const SizedBox(height: 24),
-                  ],
-                ),
-              ),
+                        const SizedBox(height: 4),
+                        Text(user.email, style: AppTextStyles.bodySmall),
+
+                        const SizedBox(height: 24),
+
+                        // Menu items
+                        Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 16),
+                          decoration: BoxDecoration(
+                            color: AppColors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: AppColors.border),
+                          ),
+                          child: Column(
+                            children: [
+                              ...items.map(
+                                (item) => _MenuItem(
+                                  icon: item['icon'],
+                                  title: item['title'],
+                                  onTap: () => Navigator.pushNamed(
+                                      context, item['route']),
+                                ),
+                              ),
+                              const Divider(height: 1),
+                              _MenuItem(
+                                icon: Icons.logout,
+                                title: 'Sign out',
+                                showArrow: false,
+                                onTap: () async {
+                                  final authProvider =
+                                      context.read<AuthProvider>();
+                                  final wishlistProvider =
+                                      context.read<WishlistProvider>();
+
+                                  await authProvider.logout();
+                                  wishlistProvider.clearLocal();
+
+                                  if (!context.mounted) return;
+
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Logged out!'),
+                                      duration: Duration(seconds: 2),
+                                      backgroundColor: AppColors.primary,
+                                      behavior: SnackBarBehavior.floating,
+                                    ),
+                                  );
+
+                                  await Future.delayed(
+                                      const Duration(seconds: 2));
+
+                                  if (!context.mounted) return;
+                                  Navigator.pushReplacementNamed(
+                                    context,
+                                    AppRoutes.login,
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 24),
+                      ],
+                    ),
+                  ),
       ),
     );
   }
@@ -405,9 +407,9 @@ class _ProfileShimmer extends StatelessWidget {
           const SizedBox(height: 12),
 
           // Name shimmer
-          Center(child: ShimmerLoading(width: 120, height: 16)),
+          const Center(child: ShimmerLoading(width: 120, height: 16)),
           const SizedBox(height: 8),
-          Center(child: ShimmerLoading(width: 180, height: 12)),
+          const Center(child: ShimmerLoading(width: 180, height: 12)),
 
           const SizedBox(height: 24),
 
@@ -417,8 +419,8 @@ class _ProfileShimmer extends StatelessWidget {
             child: Column(
               children: List.generate(
                 6,
-                (_) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
+                (_) => const Padding(
+                  padding: EdgeInsets.only(bottom: 12),
                   child: ShimmerLoading(width: double.infinity, height: 56),
                 ),
               ),

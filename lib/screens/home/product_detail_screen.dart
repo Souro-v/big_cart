@@ -258,34 +258,43 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             ),
                           ),
 
-                        // Rating
-                        Row(
-                          children: [
-                            ...List.generate(
-                              5,
-                              (i) => Icon(
+                        // Rating row
+                        GestureDetector(
+                          onTap: () => Navigator.pushNamed(
+                            context,
+                            AppRoutes.reviews,
+                            arguments: product.id,
+                          ),
+                          child: Row(
+                            children: [
+                              ...List.generate(5, (i) => Icon(
                                 i < product.rating.floor()
                                     ? Icons.star
                                     : (i < product.rating
-                                          ? Icons.star_half
-                                          : Icons.star_border),
+                                    ? Icons.star_half
+                                    : Icons.star_border),
                                 color: const Color(0xFFF3A93C),
                                 size: 18,
+                              )),
+                              const SizedBox(width: 6),
+                              Text(
+                                product.rating.toStringAsFixed(1),
+                                style: AppTextStyles.bodyMedium.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              product.rating.toStringAsFixed(1),
-                              style: AppTextStyles.bodyMedium.copyWith(
-                                fontWeight: FontWeight.bold,
+                              const SizedBox(width: 4),
+                              Text(
+                                '(${product.reviewCount} reviews)',
+                                style: AppTextStyles.bodySmall.copyWith(
+                                  color: AppColors.primary,
+                                  decoration: TextDecoration.underline,
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              '(${product.reviewCount} reviews)',
-                              style: AppTextStyles.bodySmall,
-                            ),
-                          ],
+                              const Icon(Icons.arrow_forward_ios,
+                                  size: 12, color: AppColors.primary),
+                            ],
+                          ),
                         ),
                         GestureDetector(
                           onTap: () => Navigator.pushNamed(
@@ -544,7 +553,6 @@ class _ImageZoomScreen extends StatelessWidget {
     );
   }
 }
-
 class _ReviewsSection extends StatelessWidget {
   final String productId;
 
@@ -589,49 +597,73 @@ class _ReviewsSection extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            ...reviews
-                .take(3)
-                .map(
+            ...reviews.take(3).map(
                   (review) => Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-                    child: Container(
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: AppColors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppColors.border),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+                child: Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
                         children: [
-                          Row(
-                            children: [
-                              ...List.generate(
-                                5,
+                          ...List.generate(
+                            5,
                                 (i) => Icon(
-                                  i < review.rating
-                                      ? Icons.star
-                                      : Icons.star_border,
-                                  color: const Color(0xFFF3A93C),
-                                  size: 14,
-                                ),
-                              ),
-                              const Spacer(),
-                              Text(
-                                '${review.createdAt.day}/${review.createdAt.month}/${review.createdAt.year}',
-                                style: AppTextStyles.bodySmall,
-                              ),
-                            ],
+                              i < review.rating ? Icons.star : Icons.star_border,
+                              color: const Color(0xFFF3A93C),
+                              size: 14,
+                            ),
                           ),
-                          if (review.review.isNotEmpty) ...[
-                            const SizedBox(height: 6),
-                            Text(review.review, style: AppTextStyles.bodySmall),
-                          ],
+                          const Spacer(),
+                          Text(
+                            '${review.createdAt.day}/${review.createdAt.month}/${review.createdAt.year}',
+                            style: AppTextStyles.bodySmall,
+                          ),
                         ],
+                      ),
+                      if (review.review.isNotEmpty) ...[
+                        const SizedBox(height: 6),
+                        Text(review.review, style: AppTextStyles.bodySmall),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            if (reviews.length > 3)
+              GestureDetector(
+                onTap: () => Navigator.pushNamed(
+                  context,
+                  AppRoutes.reviews,
+                  arguments: productId,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 16),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: AppColors.border),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'View All ${reviews.length} Reviews',
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
                 ),
+              ),
             const SizedBox(height: 24),
           ],
         );
