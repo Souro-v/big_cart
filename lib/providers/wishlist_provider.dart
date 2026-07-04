@@ -28,10 +28,11 @@ class WishlistProvider extends ChangeNotifier {
       _items.clear();
       for (final doc in snap.docs) {
         final data = doc.data();
+        // imageUrl already full URL — AppConstants.imageUrl() call
         _items.add(ProductModel(
           id: doc.id,
           name: data['name'] ?? '',
-          imageUrl: AppConstants.imageUrl(data['imageUrl'] ?? ''),
+          imageUrl: data['imageUrl'] ?? '', // ← raw URL, no wrap
           category: data['category'] ?? '',
           unit: data['unit'] ?? '',
           price: (data['price'] ?? 0).toDouble(),
@@ -68,7 +69,7 @@ class WishlistProvider extends ChangeNotifier {
           .doc(product.id)
           .set({
         'name': product.name,
-        'imageUrl': product.imageUrl,
+        'imageUrl': product.imageUrl, // ← full URL save
         'category': product.category,
         'unit': product.unit,
         'price': product.price,
