@@ -1,4 +1,4 @@
-import 'package:big_cart/providers/wishlist_provider.dart';
+
 import 'package:flutter/material.dart';
 import '../models/user_model.dart';
 import '../services/auth_service.dart';
@@ -24,6 +24,13 @@ class AuthProvider extends ChangeNotifier {
   void _setLoading(bool val) {
     _isLoading = val;
     notifyListeners();
+  }
+  Future<void> sendVerificationEmail() async {
+    try {
+      await _authService.sendEmailVerification();
+    } catch (e) {
+      debugPrint('Error sending verification email: $e');
+    }
   }
 
   void _setError(String? val) {
