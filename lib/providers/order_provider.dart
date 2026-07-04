@@ -23,7 +23,7 @@ class OrderProvider extends ChangeNotifier {
     required List<CartItemModel> items,
     required double totalAmount,
     required String address,
-     required String notes,
+    String notes = '',
   }) async {
     _isLoading = true; _error = null; notifyListeners();
     try {

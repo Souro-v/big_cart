@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../providers/cart_provider.dart';
 import '../../providers/wishlist_provider.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_text_styles.dart';
@@ -35,6 +36,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _passwordController.dispose();
     super.dispose();
   }
+
   Future<void> _register() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -46,9 +48,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _phoneController.text.trim(),
     );
     if (success && mounted) {
-      final uid = context.read<AuthProvider>().user?.uid ?? '';
+      final uid = auth.user?.uid ?? '';
+      // Wishlist + Cart load
       context.read<WishlistProvider>().loadWishlist(uid);
-      Navigator.pushReplacementNamed(context, AppRoutes.home);
+      context.read<CartProvider>().loadCart(uid);
+
+      // Email verification
+      await auth.sendVerificationEmail();
+
+      // Verification screen
+      Navigator.pushReplacementNamed(
+          context, AppRoutes.emailVerification);
     } else if (mounted) {
       ErrorSnackbar.show(context, auth.error ?? 'Registration failed');
     }
@@ -94,7 +104,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Create account', style: AppTextStyles.heading2),
+                    const Text('Create account', style: AppTextStyles.heading2),
                     const SizedBox(height: 4),
                     Text(
                       'Quickly create account',
@@ -145,7 +155,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                           ),
                           const SizedBox(height: 16),
-
                           TextFormField(
                             controller: _phoneController,
                             keyboardType: TextInputType.phone,
@@ -159,7 +168,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                           ),
                           const SizedBox(height: 16),
-
                           TextFormField(
                             controller: _passwordController,
                             obscureText: _obscurePassword,

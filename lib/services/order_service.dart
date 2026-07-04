@@ -7,7 +7,6 @@ import '../utils/constants.dart';
 class OrderService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  // Order place
   Future<String> placeOrder({
     required String userId,
     required List<CartItemModel> items,
@@ -27,10 +26,8 @@ class OrderService {
       notes: notes,
     );
 
-    // Order save
     await orderRef.set(order.toMap());
 
-    // Items  subcollection
     for (final item in items) {
       await orderRef.collection('items').add({
         'productId': item.product.id,
@@ -44,10 +41,8 @@ class OrderService {
 
     return orderRef.id;
   }
-  //loyalty points
-  Future<void> addLoyaltyPoints(
-      String userId, double amount) async {
-    // $1 spend এ 10 points
+
+  Future<void> addLoyaltyPoints(String userId, double amount) async {
     final points = (amount * 10).toInt();
     await _db
         .collection(AppConstants.usersCol)
@@ -55,36 +50,14 @@ class OrderService {
         .update({'points': FieldValue.increment(points)});
   }
 
-  // User- orders
-  Future<List<OrderModel>> getUserOrders(String userId) async {
-    final snap = await _db
-        .collection(AppConstants.ordersCol)
-        .where('userId', isEqualTo: userId)
-        .orderBy('createdAt', descending: true)
-        .get();
-
-    return snap.docs
-        .map((doc) => OrderModel.fromMap(doc.data(), doc.id))
-        .toList();
-  }
-
-  // Single order detail
-  Future<OrderModel?> getOrder(String orderId) async {
-    final doc = await _db.collection(AppConstants.ordersCol).doc(orderId).get();
-
-    if (!doc.exists) return null;
-
-    final order = OrderModel.fromMap(doc.data()!, doc.id);
-
-    // Items subcollection load
+  Future<List<CartItemModel>> _loadOrderItems(String orderId) async {
     final itemsSnap = await _db
         .collection(AppConstants.ordersCol)
         .doc(orderId)
         .collection('items')
         .get();
 
-    // Items parse
-    final items = itemsSnap.docs.map((doc) {
+    return itemsSnap.docs.map((doc) {
       final data = doc.data();
       return CartItemModel(
         product: ProductModel(
@@ -98,6 +71,40 @@ class OrderService {
         quantity: data['quantity'] ?? 1,
       );
     }).toList();
+  }
+
+  Future<List<OrderModel>> getUserOrders(String userId) async {
+    final snap = await _db
+        .collection(AppConstants.ordersCol)
+        .where('userId', isEqualTo: userId)
+        .orderBy('createdAt', descending: true)
+        .get();
+
+    final orders = <OrderModel>[];
+    for (final doc in snap.docs) {
+      final order = OrderModel.fromMap(doc.data(), doc.id);
+      final items = await _loadOrderItems(doc.id);
+      orders.add(OrderModel(
+        id: order.id,
+        userId: order.userId,
+        items: items,
+        totalAmount: order.totalAmount,
+        address: order.address,
+        status: order.status,
+        notes: order.notes,
+        createdAt: order.createdAt,
+      ));
+    }
+    return orders;
+  }
+
+  Future<OrderModel?> getOrder(String orderId) async {
+    final doc = await _db.collection(AppConstants.ordersCol).doc(orderId).get();
+
+    if (!doc.exists) return null;
+
+    final order = OrderModel.fromMap(doc.data()!, doc.id);
+    final items = await _loadOrderItems(orderId);
 
     return OrderModel(
       id: order.id,
@@ -106,22 +113,35 @@ class OrderService {
       totalAmount: order.totalAmount,
       address: order.address,
       status: order.status,
+      notes: order.notes,
       createdAt: order.createdAt,
     );
   }
 
-  // User orders real-time stream
   Stream<List<OrderModel>> getUserOrdersStream(String userId) {
     return _db
         .collection(AppConstants.ordersCol)
         .where('userId', isEqualTo: userId)
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .map(
-          (snap) => snap.docs
-              .map((doc) => OrderModel.fromMap(doc.data(), doc.id))
-              .toList(),
-        );
+        .asyncMap((snap) async {
+      final orders = <OrderModel>[];
+      for (final doc in snap.docs) {
+        final order = OrderModel.fromMap(doc.data(), doc.id);
+        final items = await _loadOrderItems(doc.id);
+        orders.add(OrderModel(
+          id: order.id,
+          userId: order.userId,
+          items: items,
+          totalAmount: order.totalAmount,
+          address: order.address,
+          status: order.status,
+          notes: order.notes,
+          createdAt: order.createdAt,
+        ));
+      }
+      return orders;
+    });
   }
 
   Future<void> cancelOrder(String orderId) async {

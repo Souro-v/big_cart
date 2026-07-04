@@ -9,12 +9,14 @@ class AuthService {
 
   // Current user
   User? get currentUser => _auth.currentUser;
+
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
   // Referral code generate
   String _generateReferralCode(String uid) {
     return 'BIGCART${uid.substring(0, 6).toUpperCase()}';
   }
+
   // Register
   Future<UserModel?> register({
     required String name,
@@ -35,10 +37,7 @@ class AuthService {
       referralCode: _generateReferralCode(cred.user!.uid),
     );
 
-    await _db
-        .collection(AppConstants.usersCol)
-        .doc(user.uid)
-        .set(user.toMap());
+    await _db.collection(AppConstants.usersCol).doc(user.uid).set(user.toMap());
 
     return user;
   }
@@ -53,10 +52,8 @@ class AuthService {
       password: password,
     );
 
-    final doc = await _db
-        .collection(AppConstants.usersCol)
-        .doc(cred.user!.uid)
-        .get();
+    final doc =
+        await _db.collection(AppConstants.usersCol).doc(cred.user!.uid).get();
 
     if (doc.exists) {
       return UserModel.fromMap(doc.data()!);
@@ -69,6 +66,10 @@ class AuthService {
     await _auth.sendPasswordResetEmail(email: email);
   }
 
+  Future<void> sendEmailVerification() async {
+    await _auth.currentUser?.sendEmailVerification();
+  }
+
   // Logout
   Future<void> logout() async {
     await _auth.signOut();
@@ -76,10 +77,7 @@ class AuthService {
 
   // Get user data
   Future<UserModel?> getUser(String uid) async {
-    final doc = await _db
-        .collection(AppConstants.usersCol)
-        .doc(uid)
-        .get();
+    final doc = await _db.collection(AppConstants.usersCol).doc(uid).get();
 
     if (doc.exists) return UserModel.fromMap(doc.data()!);
     return null;
@@ -92,6 +90,7 @@ class AuthService {
         .doc(user.uid)
         .update(user.toMap());
   }
+
   Future<void> deleteAccount() async {
     final uid = _auth.currentUser?.uid;
     if (uid == null) return;
