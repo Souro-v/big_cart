@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../providers/wishlist_provider.dart';
 import '../../services/biometric_service.dart';
 import '../../utils/app_colors.dart';
@@ -32,10 +33,21 @@ class _LoginScreenState extends State<LoginScreen> {
   void initState() {
     super.initState();
     _checkBiometric();
+    _loadSavedEmail();
   }
   Future<void> _checkBiometric() async {
     final available = await _biometricService.isAvailable();
     if (mounted) setState(() => _biometricAvailable = available);
+  }
+  Future<void> _loadSavedEmail() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getString('saved_email');
+    if (saved != null && mounted) {
+      setState(() {
+        _emailController.text = saved;
+        _rememberMe = true;
+      });
+    }
   }
 
   Future<void> _loginWithBiometric() async {
@@ -67,6 +79,13 @@ class _LoginScreenState extends State<LoginScreen> {
       _passwordController.text.trim(),
     );
     if (success && mounted) {
+      final prefs = await SharedPreferences.getInstance();
+      if (_rememberMe) {
+        await prefs.setString('saved_email', _emailController.text.trim());
+      } else {
+        await prefs.remove('saved_email');
+      }
+
       final uid = context.read<AuthProvider>().user?.uid ?? '';
       context.read<WishlistProvider>().loadWishlist(uid);
       Navigator.pushReplacementNamed(context, AppRoutes.home);
