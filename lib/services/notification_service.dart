@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 class NotificationService {
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
 
+  // Global callback —
+  static Function(String title, String body)? onNotificationReceived;
   Future<void> initialize() async {
     // Permission request
     await _messaging.requestPermission(alert: true, badge: true, sound: true);
@@ -14,13 +16,17 @@ class NotificationService {
 
     // Foreground message handler
     FirebaseMessaging.onMessage.listen((message) {
-      debugPrint('Foreground message: ${message.notification?.title}');
+      final title = message.notification?.title ?? '';
+      final body  = message.notification?.body  ?? '';
+      debugPrint('Foreground: $title');
+      // Callback
+      onNotificationReceived?.call(title, body);
     });
 
     // Background message handler
     FirebaseMessaging.onMessageOpenedApp.listen((message) {
       debugPrint(
-        'App opened from notification: ${message.notification?.title}',
+        'Opened from notification: ${message.notification?.title}',
       );
     });
   }
@@ -30,7 +36,7 @@ class NotificationService {
     final token = await _messaging.getToken();
     if (token != null) {
       // Firestore user token save
-      debugPrint('Saving token for user: $userId');
+      debugPrint('token saved for: $userId');
     }
   }
 }

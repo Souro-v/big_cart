@@ -21,18 +21,29 @@ class ProductProvider extends ChangeNotifier {
   double? _maxPrice;
   int? _minRating;
   DocumentSnapshot? _lastDoc;
+  bool _hasDiscount = false;
+  bool _freeShipping = false;
 
   List<ProductModel> get searchResults => _searchResults;
+
   List<String> get categories => ['All', ..._categories];
+
   String get selectedCategory => _selectedCategory;
+
   bool get isLoading => _isLoading;
+
   bool get isLoadingMore => _isLoadingMore;
+
   bool get hasMore => _hasMore;
+
   bool get isSearching => _isSearching;
+
   SortOption get sortOption => _sortOption;
 
   List<ProductModel> get products {
-    List<ProductModel> filtered = List.from(_products);
+    List<ProductModel> filtered = _selectedCategory == 'All'
+        ? List.from(_products)
+        : _products.where((p) => p.category == _selectedCategory).toList();
 
     // Price filter
     if (_minPrice != null) {
@@ -46,7 +57,14 @@ class ProductProvider extends ChangeNotifier {
     if (_minRating != null) {
       filtered = filtered.where((p) => p.rating >= _minRating!).toList();
     }
-
+    //discount
+    if (_hasDiscount) {
+      filtered = filtered.where((p) => p.discount > 0).toList();
+    }
+    //free shipping
+    if (_freeShipping) {
+      filtered = filtered.where((p) => p.stockCount > 0).toList();
+    }
     // Sort
     switch (_sortOption) {
       case SortOption.priceLowHigh:
@@ -156,10 +174,14 @@ class ProductProvider extends ChangeNotifier {
     double? minPrice,
     double? maxPrice,
     int? minRating,
+    bool hasDiscount = false,
+    bool freeShipping = false,
   }) {
     _minPrice = minPrice;
     _maxPrice = maxPrice;
     _minRating = minRating;
+    _hasDiscount = hasDiscount;
+    _freeShipping = freeShipping;
     notifyListeners();
   }
 
@@ -167,6 +189,8 @@ class ProductProvider extends ChangeNotifier {
     _minPrice = null;
     _maxPrice = null;
     _minRating = null;
+    _hasDiscount = false;
+    _freeShipping = false;
     notifyListeners();
   }
 

@@ -29,7 +29,7 @@ class _FilterScreenState extends State<FilterScreen> {
           onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back_ios, color: AppColors.textDark),
         ),
-        title: Text('Apply Filters', style: AppTextStyles.heading3),
+        title: const Text('Apply Filters', style: AppTextStyles.heading3),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh, color: AppColors.textDark),
@@ -50,7 +50,7 @@ class _FilterScreenState extends State<FilterScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Price Range
-            Text('Price Range', style: AppTextStyles.heading3),
+            const Text('Price Range', style: AppTextStyles.heading3),
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(16),
@@ -96,7 +96,7 @@ class _FilterScreenState extends State<FilterScreen> {
             const SizedBox(height: 24),
 
             // Star Rating
-            Text('Star Rating', style: AppTextStyles.heading3),
+            const Text('Star Rating', style: AppTextStyles.heading3),
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -109,7 +109,7 @@ class _FilterScreenState extends State<FilterScreen> {
                 children: [
                   ...List.generate(
                     5,
-                    (i) => GestureDetector(
+                        (i) => GestureDetector(
                       onTap: () => setState(() => _selectedRating = i + 1),
                       child: Icon(
                         i < _selectedRating ? Icons.star : Icons.star_border,
@@ -130,7 +130,7 @@ class _FilterScreenState extends State<FilterScreen> {
             const SizedBox(height: 24),
 
             // Others
-            Text('Others', style: AppTextStyles.heading3),
+            const Text('Others', style: AppTextStyles.heading3),
             const SizedBox(height: 12),
             Container(
               decoration: BoxDecoration(
@@ -175,6 +175,8 @@ class _FilterScreenState extends State<FilterScreen> {
                       ? _priceRange.end
                       : null,
                   minRating: _selectedRating > 0 ? _selectedRating : null,
+                  hasDiscount: _discount,
+                  freeShipping: _freeShipping,
                 );
                 Navigator.pop(context);
               },
