@@ -31,6 +31,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   bool _saveCard = true;
   int _selectedPayment = 1; // 0=Paypal, 1=Credit Card, 2=Apple Pay
 
+  // Track the promo discount amount applied to the order
+  double _promoDiscount = 0.0;
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -52,10 +55,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final auth = context.read<AuthProvider>();
     final orders = context.read<OrderProvider>();
     final address = _addressController.text.trim();
+
+    // Calculate final total including delivery charge and deducting promo discount
+    final total = cart.totalAmount + 1.6 - _promoDiscount;
+
     final success = await orders.placeOrder(
       userId: auth.user?.uid ?? '',
       items: cart.items,
-      totalAmount: cart.totalAmount + 1.6,
+      totalAmount: total,
       address: address,
       notes: _notesController.text.trim(),
     );
@@ -64,17 +71,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       // Generated a unique orderId to pass into both Analytics and Activity log
       final orderId = DateTime.now().millisecondsSinceEpoch.toString();
 
-      // Analytics Event
+      // Analytics Event with the updated final total
       AnalyticsService().logPurchase(
-        orderId, // orderId
-        cart.totalAmount + 1.6,
+        orderId,
+        total,
       );
 
       // Added Activity Log for Order Placement
       await ActivityService().log(
         userId: auth.user?.uid ?? '',
         action: 'order_placed',
-        details: 'Order #$orderId - \$${cart.totalAmount}',
+        details: 'Order #$orderId - \$$total',
       );
 
       await OrderService().addLoyaltyPoints(
@@ -99,7 +106,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back, color: AppColors.textDark),
         ),
-        title: Text('Payment Method', style: AppTextStyles.heading3),
+        title: const Text('Payment Method', style: AppTextStyles.heading3),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -112,7 +119,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               // Progress indicator
               _StepIndicator(),
               const SizedBox(height: 24),
-              _PromoCode(),
+
+              // Pass the callback to update the discount state in parent screen
+              _PromoCode(
+                onDiscountApplied: (discount) {
+                  setState(() => _promoDiscount = discount);
+                },
+              ),
               const SizedBox(height: 20),
               // Payment options
               Row(
@@ -289,7 +302,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              Text('Delivery Address', style: AppTextStyles.heading3),
+              const Text('Delivery Address', style: AppTextStyles.heading3),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _addressController, // Activated here!
@@ -309,7 +322,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ),
               const SizedBox(height: 16),
 
-              Text('Delivery Instructions', style: AppTextStyles.heading3),
+              const Text('Delivery Instructions',
+                  style: AppTextStyles.heading3),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _notesController,
@@ -404,7 +418,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     activeThumbColor: AppColors.primary,
                   ),
                   const SizedBox(width: 8),
-                  Text('Save this card', style: AppTextStyles.bodyMedium),
+                  const Text('Save this card', style: AppTextStyles.bodyMedium),
                 ],
               ),
 
@@ -428,11 +442,11 @@ class _StepIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        _Step(number: 1, label: 'DELIVERY', done: true),
+        const _Step(number: 1, label: 'DELIVERY', done: true),
         _StepLine(),
-        _Step(number: 2, label: 'ADDRESS', done: true),
+        const _Step(number: 2, label: 'ADDRESS', done: true),
         _StepLine(),
-        _Step(number: 3, label: 'PAYMENT', done: false, isActive: true),
+        const _Step(number: 3, label: 'PAYMENT', done: false, isActive: true),
       ],
     );
   }
@@ -555,6 +569,11 @@ class _PaymentOption extends StatelessWidget {
 }
 
 class _PromoCode extends StatefulWidget {
+  // Callback parameter definition to notify parent about the calculated discount
+  final Function(double discount) onDiscountApplied;
+
+  const _PromoCode({required this.onDiscountApplied});
+
   @override
   State<_PromoCode> createState() => _PromoCodeState();
 }
@@ -574,11 +593,23 @@ class _PromoCodeState extends State<_PromoCode> {
   void _applyCode() {
     final code = _controller.text.trim().toUpperCase();
     if (_promoCodes.containsKey(code)) {
+      final discountPercent = _promoCodes[code]!;
+
+      // Calculate the discount amount based on the current cart total amount
+      final cart = context.read<CartProvider>();
+      final discountAmount = cart.totalAmount * discountPercent / 100;
+
+      // Notify parent widget with the actual discount amount
+      widget.onDiscountApplied(discountAmount);
+
       setState(() {
         _applied = true;
-        _message = '${_promoCodes[code]}% discount applied! 🎉';
+        _message = '$discountPercent% discount applied! 🎉';
       });
     } else {
+      // Clear discount in parent state if an invalid code is typed
+      widget.onDiscountApplied(0.0);
+
       setState(() {
         _applied = false;
         _message = 'Invalid promo code!';
@@ -597,7 +628,7 @@ class _PromoCodeState extends State<_PromoCode> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Promo Code', style: AppTextStyles.heading3),
+        const Text('Promo Code', style: AppTextStyles.heading3),
         const SizedBox(height: 12),
         Row(
           children: [

@@ -12,7 +12,7 @@ import '../../widgets/product_card.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/shimmer_loading.dart';
 
-// যদি ActivityService এরর দেয়, তবে নিচের ইম্পোর্টটি আনকমেন্ট করে সঠিক পাথ বসাও:
+// If ActivityService throws an error, uncomment and adjust the path:
 // import '../../services/activity_service.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -26,6 +26,9 @@ class _SearchScreenState extends State<SearchScreen> {
   final _searchController = TextEditingController();
   bool _isSearching = false;
   List<String> _suggestions = [];
+
+  // Track the selected category filter
+  String _selectedCategory = 'All';
 
   final List<String> _discoverMore = [
     'Fresh Grocery',
@@ -80,6 +83,11 @@ class _SearchScreenState extends State<SearchScreen> {
     final history = context.watch<SearchProvider>().history;
     final isSearching = context.watch<ProductProvider>().isSearching;
 
+    // Filter products based on the selected category chip
+    final filteredProducts = _selectedCategory == 'All'
+        ? products
+        : products.where((p) => p.category == _selectedCategory).toList();
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -131,38 +139,79 @@ class _SearchScreenState extends State<SearchScreen> {
             title: 'No results found!',
             subtitle: 'Try searching with\ndifferent keywords.',
           )
-              : Padding(
-            padding: const EdgeInsets.all(16),
-            child: GridView.builder(
-              gridDelegate:
-              const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 0.72,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
+              : Column(
+            children: [
+              const SizedBox(height: 12),
+              // Category filter chips layout
+              SizedBox(
+                height: 40,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  children: [
+                    'All',
+                    'Fruits',
+                    'Vegetables',
+                    'Beverages',
+                    'Grocery',
+                    'Edible oil',
+                    'Household'
+                  ]
+                      .map((cat) => Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: FilterChip(
+                      label: Text(cat),
+                      selected: _selectedCategory == cat,
+                      selectedColor: AppColors.primaryLight,
+                      checkmarkColor: AppColors.primary,
+                      onSelected: (_) => setState(() => _selectedCategory = cat),
+                    ),
+                  ))
+                      .toList(),
+                ),
               ),
-              itemCount: products.length,
-              itemBuilder: (_, i) {
-                final p = products[i];
-                final qty = cart.isInCart(p.id)
-                    ? cart.items
-                    .firstWhere((item) => item.product.id == p.id)
-                    .quantity
-                    : 0;
-                return ProductCard(
-                  product: p,
-                  quantity: qty,
-                  onAdd: () => cart.addToCart(p),
-                  onIncrease: () => cart.increaseQty(p.id),
-                  onDecrease: () => cart.decreaseQty(p.id),
-                  onTap: () => Navigator.pushNamed(
-                    context,
-                    AppRoutes.productDetail, // তোমার রাউটের নাম আলাদা হলে চেঞ্জ করো
-                    arguments: p,
+
+              // Main products grid matching the filtered results
+              Expanded(
+                child: filteredProducts.isEmpty
+                    ? const EmptyState(
+                  icon: Icons.category_outlined,
+                  title: 'No items in this category!',
+                  subtitle: 'Try selecting another category.',
+                )
+                    : GridView.builder(
+                  padding: const EdgeInsets.all(16),
+                  gridDelegate:
+                  const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 0.72,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
                   ),
-                );
-              },
-            ),
+                  itemCount: filteredProducts.length,
+                  itemBuilder: (_, i) {
+                    final p = filteredProducts[i];
+                    final qty = cart.isInCart(p.id)
+                        ? cart.items
+                        .firstWhere((item) => item.product.id == p.id)
+                        .quantity
+                        : 0;
+                    return ProductCard(
+                      product: p,
+                      quantity: qty,
+                      onAdd: () => cart.addToCart(p),
+                      onIncrease: () => cart.increaseQty(p.id),
+                      onDecrease: () => cart.decreaseQty(p.id),
+                      onTap: () => Navigator.pushNamed(
+                        context,
+                        AppRoutes.productDetail,
+                        arguments: p,
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
           )
               : Column(
             children: [
@@ -175,9 +224,10 @@ class _SearchScreenState extends State<SearchScreen> {
                       // Search History
                       if (history.isNotEmpty) ...[
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment:
+                          MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
+                            const Text(
                               'Search History',
                               style: AppTextStyles.heading3,
                             ),
@@ -214,7 +264,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       ],
 
                       // Discover more
-                      Row(
+                      const Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
@@ -246,7 +296,8 @@ class _SearchScreenState extends State<SearchScreen> {
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
                 decoration: const BoxDecoration(
                   color: AppColors.white,
-                  border: Border(top: BorderSide(color: AppColors.border)),
+                  border:
+                  Border(top: BorderSide(color: AppColors.border)),
                 ),
                 child: Row(
                   children: [
@@ -264,7 +315,8 @@ class _SearchScreenState extends State<SearchScreen> {
                           ),
                         ),
                         style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          padding:
+                          const EdgeInsets.symmetric(vertical: 14),
                           side: const BorderSide(color: AppColors.border),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -287,7 +339,8 @@ class _SearchScreenState extends State<SearchScreen> {
                           ),
                         ),
                         style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          padding:
+                          const EdgeInsets.symmetric(vertical: 14),
                           side: const BorderSide(color: AppColors.border),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
