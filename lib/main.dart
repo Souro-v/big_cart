@@ -37,23 +37,18 @@ void main() async {
   final binding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: binding);
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  //Background handler
+
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  // Crashlytics setup
+
   if (!kDebugMode) {
-    // Release mode এ Crashlytics enable
     await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
-
-    // Flutter errors catch
     FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
-
-    // Async errors catch
     PlatformDispatcher.instance.onError = (error, stack) {
       FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
       return true;
     };
   }
-  // Notification initialize
+
   await NotificationService().initialize();
   await AnalyticsService().logAppOpen();
   DeepLinkService().initialize(navigatorKey);
@@ -174,12 +169,34 @@ class _ConnectivityWrapper extends StatefulWidget {
 class _ConnectivityWrapperState extends State<_ConnectivityWrapper> {
   late final StreamSubscription _sub;
   bool _isOnline = true;
+  bool _wasOffline = false;
 
   @override
   void initState() {
     super.initState();
-    _sub = Connectivity().onConnectivityChanged.listen((result) {
-      setState(() => _isOnline = !result.contains(ConnectivityResult.none));
+    _sub = Connectivity().onConnectivityChanged.listen((results) {
+      final isOnline = !results.contains(ConnectivityResult.none);
+      setState(() => _isOnline = isOnline);
+
+      if (!isOnline) {
+        _wasOffline = true;
+      } else if (_wasOffline) {
+        _wasOffline = false;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.wifi, color: Colors.white, size: 18),
+                SizedBox(width: 8),
+                Text('Back online!'),
+              ],
+            ),
+            backgroundColor: AppColors.primary,
+            duration: Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     });
   }
 
