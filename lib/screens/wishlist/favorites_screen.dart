@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../providers/wishlist_provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../utils/app_colors.dart';
+import '../../utils/app_routes.dart';
 import '../../utils/app_text_styles.dart';
 import '../../widgets/app_image.dart';
 import '../../widgets/bottom_nav_bar.dart';
@@ -25,7 +26,7 @@ class FavoritesScreen extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back, color: AppColors.textDark),
         ),
-        title: Text('Favorites', style: AppTextStyles.heading3),
+        title: const Text('Favorites', style: AppTextStyles.heading3),
         // AppBar action
         actions: [
           if (!wishlist.isEmpty)
@@ -51,10 +52,13 @@ class FavoritesScreen extends StatelessWidget {
         ],
       ),
       body: wishlist.isEmpty
-          ? const EmptyState(
+          ? EmptyState(
               icon: Icons.favorite_border,
               title: 'No favourite yet!',
               subtitle: 'Save your favourite products\nhere for easy access',
+              buttonText: 'Start Shopping',
+              onButtonTap: () =>
+                  Navigator.pushReplacementNamed(context, AppRoutes.home),
             )
           : ListView.builder(
               padding: const EdgeInsets.all(16),
@@ -63,8 +67,8 @@ class FavoritesScreen extends StatelessWidget {
                 final product = wishlist.items[i];
                 final qty = cart.isInCart(product.id)
                     ? cart.items
-                          .firstWhere((item) => item.product.id == product.id)
-                          .quantity
+                        .firstWhere((item) => item.product.id == product.id)
+                        .quantity
                     : 0;
 
                 return Dismissible(

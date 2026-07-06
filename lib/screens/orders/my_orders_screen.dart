@@ -30,6 +30,45 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     });
   }
 
+  // Colorful Status Badge Helper Method
+  Widget _statusBadge(OrderStatus status) {
+    Color color;
+    String text;
+    switch (status) {
+      case OrderStatus.pending:
+        color = AppColors.warning;
+        text = '⏳ Pending';
+        break;
+      case OrderStatus.confirmed:
+        color = Colors.blue;
+        text = '✅ Confirmed';
+        break;
+      case OrderStatus.delivered:
+        color = AppColors.primary;
+        text = '📦 Delivered';
+        break;
+      case OrderStatus.cancelled:
+        color = AppColors.error;
+        text = '❌ Cancelled';
+        break;
+    }
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Text(
+        text,
+        style: AppTextStyles.bodySmall.copyWith(
+          color: color,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final orders = context.watch<OrderProvider>().orders;
@@ -45,7 +84,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
           onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back, color: AppColors.textDark),
         ),
-        title: Text('My Order', style: AppTextStyles.heading3),
+        title: const Text('My Order', style: AppTextStyles.heading3),
         actions: [
           PopupMenuButton<OrderStatus?>(
             icon: const Icon(Icons.tune, color: AppColors.textDark),
@@ -74,133 +113,146 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
       ),
       body: isLoading
           ? const Center(
-              child: CircularProgressIndicator(color: AppColors.primary),
-            )
+        child: CircularProgressIndicator(color: AppColors.primary),
+      )
           : filteredOrders.isEmpty
           ? EmptyState(
-              icon: Icons.shopping_bag_outlined,
-              title: _selectedStatus == null
-                  ? 'No orders yet!'
-                  : 'No ${_selectedStatus!.name} orders!',
-              subtitle: 'You have no orders in this category.',
-            )
+        icon: Icons.shopping_bag_outlined,
+        title: _selectedStatus == null
+            ? 'No orders yet!'
+            : 'No ${_selectedStatus!.name} orders!',
+        subtitle: 'You have no orders in this category.',
+      )
           : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: filteredOrders.length,
-              itemBuilder: (_, i) {
-                final order = filteredOrders[i];
-                final isExpanded = _expanded.contains(order.id);
+        padding: const EdgeInsets.all(16),
+        itemCount: filteredOrders.length,
+        itemBuilder: (_, i) {
+          final order = filteredOrders[i];
+          final isExpanded = _expanded.contains(order.id);
 
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.border),
+          return Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: Column(
+              children: [
+                // Order header
+                GestureDetector(
+                  onTap: () => Navigator.pushNamed(
+                    context,
+                    AppRoutes.orderDetail,
+                    arguments: order,
                   ),
-                  child: Column(
-                    children: [
-                      // Order header
-                      GestureDetector(
-                        onTap: () => Navigator.pushNamed(
-                          context,
-                          AppRoutes.orderDetail,
-                          arguments: order,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 48,
+                          height: 48,
+                          decoration: const BoxDecoration(
+                            color: AppColors.primaryLight,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.inventory_2_outlined,
+                            color: AppColors.primary,
+                          ),
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Row(
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment:
+                            CrossAxisAlignment.start,
                             children: [
-                              Container(
-                                width: 48,
-                                height: 48,
-                                decoration: const BoxDecoration(
-                                  color: AppColors.primaryLight,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.inventory_2_outlined,
-                                  color: AppColors.primary,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Order #${order.id.substring(0, 5).toUpperCase()}',
-                                      style: AppTextStyles.bodyMedium.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    Text(
-                                      'Placed on ${order.createdAt.day} ${_month(order.createdAt.month)} ${order.createdAt.year}',
-                                      style: AppTextStyles.bodySmall,
-                                    ),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          'Items: ${order.items.length}  ',
-                                          style: AppTextStyles.bodySmall
-                                              .copyWith(
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                        ),
-                                        Text(
-                                          'Items: \$${order.totalAmount.toStringAsFixed(2)}',
-                                          style: AppTextStyles.bodySmall
-                                              .copyWith(
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: () => setState(() {
-                                  isExpanded
-                                      ? _expanded.remove(order.id)
-                                      : _expanded.add(order.id);
-                                }),
-                                child: Container(
-                                  width: 28,
-                                  height: 28,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: AppColors.primary,
+                              Row(
+                                mainAxisAlignment:
+                                MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Order #${order.id.substring(0, 5).toUpperCase()}',
+                                    style: AppTextStyles.bodyMedium
+                                        .copyWith(
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  child: Icon(
-                                    isExpanded
-                                        ? Icons.keyboard_arrow_up
-                                        : Icons.keyboard_arrow_down,
-                                    color: AppColors.primary,
-                                    size: 20,
+                                  // Status Badge added here
+                                  _statusBadge(order.status),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Placed on ${order.createdAt.day} ${_month(order.createdAt.month)} ${order.createdAt.year}',
+                                style: AppTextStyles.bodySmall,
+                              ),
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  Text(
+                                    'Items: ${order.items.length}  |  ',
+                                    style: AppTextStyles.bodySmall
+                                        .copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
+                                  Text(
+                                    'Total: \$${order.totalAmount.toStringAsFixed(2)}',
+                                    style: AppTextStyles.bodySmall
+                                        .copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
                         ),
-                      ),
-
-                      // Expanded tracking
-                      if (isExpanded) ...[
-                        const Divider(height: 1),
-                        Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: _OrderTracking(order: order),
+                        const SizedBox(width: 8),
+                        GestureDetector(
+                          onTap: () => setState(() {
+                            isExpanded
+                                ? _expanded.remove(order.id)
+                                : _expanded.add(order.id);
+                          }),
+                          child: Container(
+                            width: 28,
+                            height: 28,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: AppColors.primary,
+                              ),
+                            ),
+                            child: Icon(
+                              isExpanded
+                                  ? Icons.keyboard_arrow_up
+                                  : Icons.keyboard_arrow_down,
+                              color: AppColors.primary,
+                              size: 20,
+                            ),
+                          ),
                         ),
                       ],
-                    ],
+                    ),
                   ),
-                );
-              },
+                ),
+
+                // Expanded tracking
+                if (isExpanded) ...[
+                  const Divider(height: 1),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: _OrderTracking(order: order),
+                  ),
+                ],
+              ],
             ),
+          );
+        },
+      ),
     );
   }
 

@@ -81,26 +81,29 @@ class ProductCard extends StatelessWidget {
                       ),
                     ),
                   ),
-
                 // Discount badge
                 if (product.discount > 0)
                   Positioned(
-                    top: 8,
-                    left: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 3,
+                    top: 8, left: 8,
+                    child: TweenAnimationBuilder<double>(
+                      tween: Tween(begin: 0.0, end: 1.0),
+                      duration: const Duration(milliseconds: 500),
+                      builder: (_, value, child) => Transform.scale(
+                        scale: value,
+                        child: child,
                       ),
-                      decoration: BoxDecoration(
-                        color: AppColors.error,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        '-${product.discount}%',
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.white,
-                          fontWeight: FontWeight.bold,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: AppColors.error,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text('-${product.discount}%',
+                          style: AppTextStyles.bodySmall.copyWith(
+                            color: AppColors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
