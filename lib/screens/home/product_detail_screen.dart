@@ -91,7 +91,7 @@ Download Big Cart now 🚀
       subject: '${product.name} — Big Cart',
     );
 
-    // Analytics log করো
+    // Analytics log
     AnalyticsService().logEvent('product_shared', parameters: {
       'product_id': product.id,
       'product_name': product.name,

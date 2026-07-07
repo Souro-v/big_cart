@@ -109,9 +109,18 @@ class _SplashScreenState extends State<SplashScreen>
       _showUpdateDialog(update);
       if (update['isForced'] == true) return;
     }
+    final prefs = await SharedPreferences.getInstance();
+    final isFirstLaunch = prefs.getBool('is_first_launch') ?? true;
+
+    if (isFirstLaunch) {
+      await prefs.setBool('is_first_launch', false);
+      // Show onboarding
+    } else {
+      // Normal flow
+    }
 
     // Check auth + onboarding
-    final prefs = await SharedPreferences.getInstance();
+
     final seen = prefs.getBool('onboarding_seen') ?? false;
     final user = FirebaseAuth.instance.currentUser;
 
@@ -139,7 +148,7 @@ class _SplashScreenState extends State<SplashScreen>
       barrierDismissible: !(update['isForced'] as bool),
       builder: (_) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text('Update Available', style: AppTextStyles.heading3),
+        title: const Text('Update Available', style: AppTextStyles.heading3),
         content: Text(
           'A new version ${update['latestVersion']} is available. Please update to continue.',
           style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGrey),
@@ -326,7 +335,6 @@ class _SlidePage extends StatelessWidget {
           height: double.infinity,
           fit: BoxFit.cover,
         ),
-
         Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -339,7 +347,6 @@ class _SlidePage extends StatelessWidget {
             ),
           ),
         ),
-
         SafeArea(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
@@ -362,9 +369,7 @@ class _SlidePage extends StatelessWidget {
                       color: AppColors.white,
                     ),
                   ),
-
                 const SizedBox(height: 16),
-
                 Text(
                   data.subtitle,
                   style: AppTextStyles.bodyMedium.copyWith(

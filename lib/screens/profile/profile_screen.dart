@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../models/user_model.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/cart_provider.dart';
 import '../../providers/wishlist_provider.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_text_styles.dart';
@@ -351,35 +352,89 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 icon: Icons.logout,
                                 title: 'Sign out',
                                 showArrow: false,
-                                onTap: () async {
-                                  final authProvider =
-                                      context.read<AuthProvider>();
-                                  final wishlistProvider =
-                                      context.read<WishlistProvider>();
-
-                                  await authProvider.logout();
-                                  wishlistProvider.clearLocal();
-
-                                  if (!context.mounted) return;
-
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Logged out!'),
-                                      duration: Duration(seconds: 2),
-                                      backgroundColor: AppColors.primary,
-                                      behavior: SnackBarBehavior.floating,
+                                onTap: () => showDialog(
+                                  context: context,
+                                  builder: (dialogContext) => AlertDialog(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
                                     ),
-                                  );
+                                    title: const Text('Sign Out',
+                                        style: AppTextStyles.heading3),
+                                    content: Text(
+                                      'Are you sure you want to sign out?',
+                                      style: AppTextStyles.bodyMedium.copyWith(
+                                        color: AppColors.textGrey,
+                                      ),
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.pop(dialogContext),
+                                        child: Text(
+                                          'Cancel',
+                                          style:
+                                              AppTextStyles.bodyMedium.copyWith(
+                                            color: AppColors.textGrey,
+                                          ),
+                                        ),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () async {
+                                          // Dismiss the confirmation dialog first
+                                          Navigator.pop(dialogContext);
 
-                                  await Future.delayed(
-                                      const Duration(seconds: 2));
+                                          // Read providers using the parent context
+                                          final authProvider =
+                                              context.read<AuthProvider>();
+                                          final wishlistProvider =
+                                              context.read<WishlistProvider>();
+                                          final cartProvider =
+                                              context.read<CartProvider>();
 
-                                  if (!context.mounted) return;
-                                  Navigator.pushReplacementNamed(
-                                    context,
-                                    AppRoutes.login,
-                                  );
-                                },
+                                          await authProvider.logout();
+                                          wishlistProvider.clearLocal();
+                                          cartProvider.clearLocal();
+
+                                          if (!context.mounted) return;
+
+                                          // Show success snackbar
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                              content: Text('Logged out!'),
+                                              backgroundColor:
+                                                  AppColors.primary,
+                                              duration: Duration(seconds: 2),
+                                              behavior:
+                                                  SnackBarBehavior.floating,
+                                            ),
+                                          );
+
+                                          // Wait for the snackbar duration
+                                          await Future.delayed(
+                                              const Duration(seconds: 2));
+
+                                          if (!context.mounted) return;
+
+                                          // Navigate back to the login screen
+                                          Navigator.pushReplacementNamed(
+                                            context,
+                                            AppRoutes.login,
+                                          );
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: AppColors.error,
+                                          foregroundColor: AppColors.white,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                        ),
+                                        child: const Text('Sign Out'),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
                             ],
                           ),
