@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
+import '../../models/user_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/wishlist_provider.dart';
 import '../../utils/app_colors.dart';
@@ -244,9 +245,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ],
                         ),
-
+                        const SizedBox(height: 15),
+                        _ProfileCompletion(user: user),
                         const SizedBox(height: 12),
-                        //reffer code
+                        //refer code
                         Text(user.name, style: AppTextStyles.heading3),
                         if (user.referralCode.isNotEmpty == true) ...[
                           const SizedBox(height: 8),
@@ -464,6 +466,70 @@ class _MenuItem extends StatelessWidget {
               ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _ProfileCompletion extends StatelessWidget {
+  final UserModel? user;
+
+  const _ProfileCompletion({this.user});
+
+  int get _completionPercent {
+    int score = 0;
+    if (user?.name.isNotEmpty == true) score += 25;
+    if (user?.email.isNotEmpty == true) score += 25;
+    if (user?.phone.isNotEmpty == true) score += 25;
+    if (user?.imageUrl.isNotEmpty == true) score += 25;
+    return score;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_completionPercent == 100) return const SizedBox();
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Profile Completion',
+                style: AppTextStyles.bodySmall.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Text(
+                '$_completionPercent%',
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: _completionPercent / 100,
+              backgroundColor: AppColors.border,
+              valueColor: const AlwaysStoppedAnimation(AppColors.primary),
+              minHeight: 6,
+            ),
+          ),
+          if (_completionPercent < 100) ...[
+            const SizedBox(height: 4),
+            Text(
+              'Complete your profile for better experience',
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.textGrey,
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }

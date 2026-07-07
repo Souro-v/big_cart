@@ -10,8 +10,15 @@ import '../../widgets/bottom_nav_bar.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/empty_state.dart';
 
-class CartScreen extends StatelessWidget {
+class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
+
+  @override
+  State<CartScreen> createState() => _CartScreenState();
+}
+
+class _CartScreenState extends State<CartScreen> {
+  bool _showSwipeHint = true;
 
   @override
   Widget build(BuildContext context) {
@@ -25,98 +32,130 @@ class CartScreen extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back_ios, color: AppColors.textDark),
         ),
-        title: Text('Shopping Cart', style: AppTextStyles.heading3),
+        title: const Text('Shopping Cart', style: AppTextStyles.heading3),
       ),
       body: cart.isEmpty
           ? EmptyState(
-              icon: Icons.shopping_bag_outlined,
-              title: 'Your cart is empty!',
-              subtitle:
-                  'Looks like you haven\'t added\nanything to your cart yet.',
-              buttonText: 'Start Shopping',
-              onButtonTap: () =>
-                  Navigator.pushReplacementNamed(context, AppRoutes.home),
-            )
+        icon: Icons.shopping_bag_outlined,
+        title: 'Your cart is empty!',
+        subtitle:
+        'Looks like you haven\'t added\nanything to your cart yet.',
+        buttonText: 'Start Shopping',
+        onButtonTap: () =>
+            Navigator.pushReplacementNamed(context, AppRoutes.home),
+      )
           : Column(
-              children: [
-                // Cart items
-                Expanded(
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: cart.items.length,
-                    itemBuilder: (_, i) {
-                      final item = cart.items[i];
-                      return _CartItem(
-                        key: ValueKey(item.product.id),
-                        item: item,
-                        onIncrease: () => context
-                            .read<CartProvider>()
-                            .increaseQty(item.product.id),
-                        onDecrease: () => context
-                            .read<CartProvider>()
-                            .decreaseQty(item.product.id),
-                        onDelete: () => context
-                            .read<CartProvider>()
-                            .removeFromCart(item.product.id),
-                      );
-                    },
-                  ),
+        children: [
+          if (_showSwipeHint && cart.items.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 16, vertical: 8),
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryLight, // নিশ্চিত করুন AppColors-এ primaryLight ডিফাইন করা আছে
+                  borderRadius: BorderRadius.circular(12),
                 ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.swipe_left,
+                        color: AppColors.primary, size: 18),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Swipe left to remove item',
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    const Spacer(),
+                    GestureDetector(
+                      onTap: () => setState(() => _showSwipeHint = false),
+                      child: const Icon(Icons.close,
+                          color: AppColors.primary, size: 16),
+                    ),
+                  ],
+                ),
+              ),
+            ),
 
-                // Summary + Checkout
-                Container(
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
-                  decoration: const BoxDecoration(
-                    color: AppColors.white,
-                    border: Border(top: BorderSide(color: AppColors.border)),
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Subtotal', style: AppTextStyles.bodyMedium),
-                          Text(
-                            '\$${cart.totalAmount.toStringAsFixed(1)}',
-                            style: AppTextStyles.bodyMedium,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Shipping charges',
-                            style: AppTextStyles.bodyMedium,
-                          ),
-                          Text('\$1.6', style: AppTextStyles.bodyMedium),
-                        ],
-                      ),
-                      const Divider(height: 24),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Total', style: AppTextStyles.heading3),
-                          Text(
-                            '\$${(cart.totalAmount + 1.6).toStringAsFixed(1)}',
-                            style: AppTextStyles.heading3,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      CustomButton(
-                        text: 'Checkout',
-                        onPressed: () => Navigator.pushNamed(
-                          context,
-                          AppRoutes.orderSummary,
-                        ),
-                      ),
-                    ],
+          // Cart items
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: cart.items.length,
+              itemBuilder: (_, i) {
+                final item = cart.items[i];
+                return _CartItem(
+                  key: ValueKey(item.product.id),
+                  item: item,
+                  onIncrease: () => context
+                      .read<CartProvider>()
+                      .increaseQty(item.product.id),
+                  onDecrease: () => context
+                      .read<CartProvider>()
+                      .decreaseQty(item.product.id),
+                  onDelete: () => context
+                      .read<CartProvider>()
+                      .removeFromCart(item.product.id),
+                );
+              },
+            ),
+          ),
+
+          // Summary + Checkout
+          Container(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+            decoration: const BoxDecoration(
+              color: AppColors.white,
+              border: Border(top: BorderSide(color: AppColors.border)),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Subtotal', style: AppTextStyles.bodyMedium),
+                    Text(
+                      '\$${cart.totalAmount.toStringAsFixed(1)}',
+                      style: AppTextStyles.bodyMedium,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                const Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Shipping charges',
+                      style: AppTextStyles.bodyMedium,
+                    ),
+                    Text('\$1.6', style: AppTextStyles.bodyMedium),
+                  ],
+                ),
+                const Divider(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Total', style: AppTextStyles.heading3),
+                    Text(
+                      '\$${(cart.totalAmount + 1.6).toStringAsFixed(1)}',
+                      style: AppTextStyles.heading3,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                CustomButton(
+                  text: 'Checkout',
+                  onPressed: () => Navigator.pushNamed(
+                    context,
+                    AppRoutes.orderSummary,
                   ),
                 ),
               ],
             ),
+          ),
+        ],
+      ),
     );
   }
 }
