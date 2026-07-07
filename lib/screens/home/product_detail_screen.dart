@@ -68,25 +68,34 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     if (_quantity > 1) setState(() => _quantity--);
   }
 
-  void _shareProduct(ProductModel product) {
+  Future<void> _shareProduct(ProductModel product) async {
     final discountedPrice = product.discount > 0
         ? product.price - (product.price * product.discount / 100)
         : product.price;
 
-    final message =
-        '''
-        🛒 Check out this product on Big Cart!
+    final message = '''
+🛒 *${product.name}* — Big Cart
 
-        🏷️ ${product.name}
-        💰 \$${discountedPrice.toStringAsFixed(2)} ${product.discount > 0 ? '(${product.discount}% OFF!)' : ''}
-        📦 ${product.unit}
+💰 Price: \$${discountedPrice.toStringAsFixed(2)}${product.discount > 0 ? ' (${product.discount}% OFF!)' : ''}
+📦 Unit: ${product.unit}
+⭐ Rating: ${product.rating.toStringAsFixed(1)}/5
 
-        ${product.description}
+${product.description}
 
-        Download Big Cart app and get fresh groceries delivered to your doorstep! 🚀
-        ''';
+🔗 Get fresh groceries delivered fast!
+Download Big Cart now 🚀
+''';
 
-    Share.share(message);
+    await Share.share(
+      message,
+      subject: '${product.name} — Big Cart',
+    );
+
+    // Analytics log করো
+    AnalyticsService().logEvent('product_shared', parameters: {
+      'product_id': product.id,
+      'product_name': product.name,
+    });
   }
 
   bool _added = false;
@@ -214,8 +223,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               onTap: () {
                                 HapticHelper.light();
                                 context.read<WishlistProvider>().toggle(
-                                  product,
-                                );
+                                      product,
+                                    );
                               },
                               child: Icon(
                                 isFav ? Icons.favorite : Icons.favorite_border,
@@ -267,15 +276,17 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           ),
                           child: Row(
                             children: [
-                              ...List.generate(5, (i) => Icon(
-                                i < product.rating.floor()
-                                    ? Icons.star
-                                    : (i < product.rating
-                                    ? Icons.star_half
-                                    : Icons.star_border),
-                                color: const Color(0xFFF3A93C),
-                                size: 18,
-                              )),
+                              ...List.generate(
+                                  5,
+                                  (i) => Icon(
+                                        i < product.rating.floor()
+                                            ? Icons.star
+                                            : (i < product.rating
+                                                ? Icons.star_half
+                                                : Icons.star_border),
+                                        color: const Color(0xFFF3A93C),
+                                        size: 18,
+                                      )),
                               const SizedBox(width: 6),
                               Text(
                                 product.rating.toStringAsFixed(1),
@@ -302,7 +313,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             AppRoutes.writeReview,
                             arguments: product.id, // ← product id pass
                           ),
-                          child: Text('Write Review'),
+                          child: const Text('Write Review'),
                         ),
 
                         const SizedBox(height: 16),
@@ -323,14 +334,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                   text: _showFullDescription
                                       ? product.description
                                       : product.description.length > 120
-                                      ? '${product.description.substring(0, 120)}... '
-                                      : product.description,
+                                          ? '${product.description.substring(0, 120)}... '
+                                          : product.description,
                                 ),
                                 if (product.description.length > 120)
                                   TextSpan(
-                                    text: _showFullDescription
-                                        ? ' less'
-                                        : 'more',
+                                    text:
+                                        _showFullDescription ? ' less' : 'more',
                                     style: AppTextStyles.bodyMedium.copyWith(
                                       color: AppColors.textDark,
                                       fontWeight: FontWeight.bold,
@@ -346,7 +356,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         // Quantity
                         Row(
                           children: [
-                            Text('Quantity', style: AppTextStyles.bodyLarge),
+                            const Text('Quantity',
+                                style: AppTextStyles.bodyLarge),
                             const Spacer(),
                             _QtyButton(icon: Icons.remove, onTap: _decrease),
                             Padding(
@@ -383,8 +394,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               text: !product.inStock
                   ? 'Out of Stock'
                   : inCart
-                  ? 'Added to Cart ✓'
-                  : 'Add to cart',
+                      ? 'Added to Cart ✓'
+                      : 'Add to cart',
               onPressed: product.inStock
                   ? () {
                       HapticHelper.medium();
@@ -413,7 +424,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         ),
                       );
                     }
-                  : null, // ← null মানে disabled
+                  : null, // ←if it null then disabled
             ),
           ),
         ],
@@ -454,9 +465,9 @@ class _RelatedProducts extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final related = context.watch<ProductProvider>().getRelated(
-      category,
-      excludeId,
-    );
+          category,
+          excludeId,
+        );
     final cart = context.watch<CartProvider>();
 
     if (related.isEmpty) return const SizedBox();
@@ -464,8 +475,8 @@ class _RelatedProducts extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20),
           child: Text('Related Products', style: AppTextStyles.heading3),
         ),
         const SizedBox(height: 12),
@@ -479,8 +490,8 @@ class _RelatedProducts extends StatelessWidget {
               final p = related[i];
               final qty = cart.isInCart(p.id)
                   ? cart.items
-                        .firstWhere((item) => item.product.id == p.id)
-                        .quantity
+                      .firstWhere((item) => item.product.id == p.id)
+                      .quantity
                   : 0;
               return SizedBox(
                 width: 160,
@@ -553,6 +564,7 @@ class _ImageZoomScreen extends StatelessWidget {
     );
   }
 }
+
 class _ReviewsSection extends StatelessWidget {
   final String productId;
 
@@ -599,43 +611,45 @@ class _ReviewsSection extends StatelessWidget {
             const SizedBox(height: 12),
             ...reviews.take(3).map(
                   (review) => Padding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-                child: Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.border),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+                    child: Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: AppColors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: AppColors.border),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          ...List.generate(
-                            5,
+                          Row(
+                            children: [
+                              ...List.generate(
+                                5,
                                 (i) => Icon(
-                              i < review.rating ? Icons.star : Icons.star_border,
-                              color: const Color(0xFFF3A93C),
-                              size: 14,
-                            ),
+                                  i < review.rating
+                                      ? Icons.star
+                                      : Icons.star_border,
+                                  color: const Color(0xFFF3A93C),
+                                  size: 14,
+                                ),
+                              ),
+                              const Spacer(),
+                              Text(
+                                '${review.createdAt.day}/${review.createdAt.month}/${review.createdAt.year}',
+                                style: AppTextStyles.bodySmall,
+                              ),
+                            ],
                           ),
-                          const Spacer(),
-                          Text(
-                            '${review.createdAt.day}/${review.createdAt.month}/${review.createdAt.year}',
-                            style: AppTextStyles.bodySmall,
-                          ),
+                          if (review.review.isNotEmpty) ...[
+                            const SizedBox(height: 6),
+                            Text(review.review, style: AppTextStyles.bodySmall),
+                          ],
                         ],
                       ),
-                      if (review.review.isNotEmpty) ...[
-                        const SizedBox(height: 6),
-                        Text(review.review, style: AppTextStyles.bodySmall),
-                      ],
-                    ],
+                    ),
                   ),
                 ),
-              ),
-            ),
             if (reviews.length > 3)
               GestureDetector(
                 onTap: () => Navigator.pushNamed(
