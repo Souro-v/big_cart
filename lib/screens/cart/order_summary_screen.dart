@@ -21,7 +21,7 @@ class OrderSummaryScreen extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back, color: AppColors.textDark),
         ),
-        title: Text('Order Summary', style: AppTextStyles.heading3),
+        title: const Text('Order Summary', style: AppTextStyles.heading3),
       ),
       body: Column(
         children: [
@@ -34,54 +34,56 @@ class OrderSummaryScreen extends StatelessWidget {
                     style: AppTextStyles.heading3),
                 const SizedBox(height: 12),
                 ...cart.items.map((item) => Container(
-                  margin: const EdgeInsets.only(bottom: 10),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.border),
-                  ),
-                  child: Row(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: AppImage(
-                          url: item.product.imageUrl,
-                          width: 56, height: 56,
-                          fit: BoxFit.contain,
-                        ),
+                      margin: const EdgeInsets.only(bottom: 10),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: AppColors.border),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(item.product.name,
-                              style: AppTextStyles.bodyMedium.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                      child: Row(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: AppImage(
+                              url: item.product.imageUrl,
+                              width: 56,
+                              height: 56,
+                              fit: BoxFit.contain,
                             ),
-                            Text(item.product.unit,
-                                style: AppTextStyles.bodySmall),
-                            Text(
-                              'Qty: ${item.quantity}',
-                              style: AppTextStyles.bodySmall.copyWith(
-                                color: AppColors.textGrey,
-                              ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item.product.name,
+                                  style: AppTextStyles.bodyMedium.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(item.product.unit,
+                                    style: AppTextStyles.bodySmall),
+                                Text(
+                                  'Qty: ${item.quantity}',
+                                  style: AppTextStyles.bodySmall.copyWith(
+                                    color: AppColors.textGrey,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
+                          ),
+                          Text(
+                            '\$${item.totalPrice.toStringAsFixed(2)}',
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
-                      Text(
-                        '\$${item.totalPrice.toStringAsFixed(2)}',
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                )),
+                    )),
 
                 const SizedBox(height: 16),
 
@@ -100,19 +102,21 @@ class OrderSummaryScreen extends StatelessWidget {
                         value: '\$${cart.totalAmount.toStringAsFixed(2)}',
                       ),
                       const SizedBox(height: 8),
-                      _SummaryRow(
+                      const _SummaryRow(
                         label: 'Shipping',
                         value: '\$1.60',
                       ),
                       const SizedBox(height: 8),
                       _SummaryRow(
                         label: 'Tax (5%)',
-                        value: '\$${(cart.totalAmount * 0.05).toStringAsFixed(2)}',
+                        value:
+                            '\$${(cart.totalAmount * 0.05).toStringAsFixed(2)}',
                       ),
                       const Divider(height: 20),
                       _SummaryRow(
                         label: 'Total',
-                        value: '\$${(cart.totalAmount + 1.6 + cart.totalAmount * 0.05).toStringAsFixed(2)}',
+                        value:
+                            '\$${(cart.totalAmount + 1.6 + cart.totalAmount * 0.05).toStringAsFixed(2)}',
                         isBold: true,
                       ),
                     ],
@@ -127,8 +131,8 @@ class OrderSummaryScreen extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
             child: CustomButton(
               text: 'Proceed to Checkout',
-              onPressed: () => Navigator.pushNamed(
-                  context, AppRoutes.shippingMethod),
+              onPressed: () =>
+                  Navigator.pushNamed(context, AppRoutes.shippingMethod),
             ),
           ),
         ],
@@ -153,15 +157,13 @@ class _SummaryRow extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label,
-          style: isBold
-              ? AppTextStyles.heading3
-              : AppTextStyles.bodyMedium,
+        Text(
+          label,
+          style: isBold ? AppTextStyles.heading3 : AppTextStyles.bodyMedium,
         ),
-        Text(value,
-          style: isBold
-              ? AppTextStyles.heading3
-              : AppTextStyles.bodyMedium,
+        Text(
+          value,
+          style: isBold ? AppTextStyles.heading3 : AppTextStyles.bodyMedium,
         ),
       ],
     );

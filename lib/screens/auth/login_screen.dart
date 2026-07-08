@@ -35,10 +35,12 @@ class _LoginScreenState extends State<LoginScreen> {
     _checkBiometric();
     _loadSavedEmail();
   }
+
   Future<void> _checkBiometric() async {
     final available = await _biometricService.isAvailable();
     if (mounted) setState(() => _biometricAvailable = available);
   }
+
   Future<void> _loadSavedEmail() async {
     final prefs = await SharedPreferences.getInstance();
     final saved = prefs.getString('saved_email');
@@ -134,7 +136,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Welcome back!', style: AppTextStyles.heading2),
+                    const Text('Welcome back!', style: AppTextStyles.heading2),
                     const SizedBox(height: 4),
                     Text(
                       'Sign in to your account',
@@ -204,7 +206,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               onChanged: (v) => setState(() => _rememberMe = v),
                               activeThumbColor: AppColors.primary,
                             ),
-                            Text('Remember me', style: AppTextStyles.bodySmall),
+                            const Text('Remember me',
+                                style: AppTextStyles.bodySmall),
                           ],
                         ),
                         GestureDetector(
@@ -233,14 +236,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     //biometric login
                     if (_biometricAvailable) ...[
                       const SizedBox(height: 16),
-                      Row(
+                      const Row(
                         children: [
-                          const Expanded(child: Divider()),
+                          Expanded(child: Divider()),
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            padding: EdgeInsets.symmetric(horizontal: 12),
                             child: Text('OR', style: AppTextStyles.bodySmall),
                           ),
-                          const Expanded(child: Divider()),
+                          Expanded(child: Divider()),
                         ],
                       ),
                       const SizedBox(height: 16),
@@ -260,7 +263,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               const Icon(Icons.fingerprint,
                                   color: AppColors.primary, size: 28),
                               const SizedBox(width: 12),
-                              Text('Login with Biometric',
+                              Text(
+                                'Login with Biometric',
                                 style: AppTextStyles.bodyLarge.copyWith(
                                   fontWeight: FontWeight.w500,
                                 ),
