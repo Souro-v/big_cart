@@ -47,7 +47,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _passwordController.text.trim(),
       _phoneController.text.trim(),
     );
-    if (success && mounted) {
+    if(!mounted) return;
+    if (success) {
       final uid = auth.user?.uid ?? '';
       // Wishlist + Cart load
       context.read<WishlistProvider>().loadWishlist(uid);
@@ -55,7 +56,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       // Email verification
       await auth.sendVerificationEmail();
-
       // Verification screen
       Navigator.pushReplacementNamed(
           context, AppRoutes.emailVerification);

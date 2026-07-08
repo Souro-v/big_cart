@@ -56,7 +56,7 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
           onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back, color: AppColors.textDark),
         ),
-        title: Text('Shipping Address', style: AppTextStyles.heading3),
+        title: const Text('Shipping Address', style: AppTextStyles.heading3),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -65,11 +65,11 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
           child: Column(
             children: [
               // Step indicator
-              StepIndicator(currentStep: 2),
+            const  StepIndicator(currentStep: 2),
               const SizedBox(height: 24),
 
               if (savedAddresses.isNotEmpty) ...[
-                Text('Saved Addresses', style: AppTextStyles.heading3),
+               const Text('Saved Addresses', style: AppTextStyles.heading3),
                 const SizedBox(height: 12),
                 ...savedAddresses.map(
                   (addr) => GestureDetector(
@@ -159,7 +159,7 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
                   ),
                 ),
                 const Divider(height: 24),
-                Text('Add New Address', style: AppTextStyles.heading3),
+               const  Text('Add New Address', style: AppTextStyles.heading3),
                 const SizedBox(height: 12),
               ],
               // Name
@@ -292,7 +292,7 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
                     activeThumbColor: AppColors.primary,
                   ),
                   const SizedBox(width: 8),
-                  Text('Save this address', style: AppTextStyles.bodyMedium),
+                const  Text('Save this address', style: AppTextStyles.bodyMedium),
                 ],
               ),
 

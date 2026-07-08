@@ -45,14 +45,14 @@ class _ShippingMethodScreenState extends State<ShippingMethodScreen> {
           onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back, color: AppColors.textDark),
         ),
-        title: Text('Shipping Method', style: AppTextStyles.heading3),
+        title: const Text('Shipping Method', style: AppTextStyles.heading3),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
             // Step indicator
-            StepIndicator(currentStep: 1),
+           const StepIndicator(currentStep: 1),
             const SizedBox(height: 24),
 
             // Delivery options
